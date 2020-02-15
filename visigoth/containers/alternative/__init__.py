@@ -1,0 +1,1 @@
+from visigoth.containers.alternative.alternative import Alternative

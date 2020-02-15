@@ -1,0 +1,1 @@
+recursive-include visigoth *.js *.json *.jpg *.svg *.woff2 font_dimensions.db

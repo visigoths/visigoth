@@ -1,0 +1,1 @@
+from visigoth.containers.map.map import Map
