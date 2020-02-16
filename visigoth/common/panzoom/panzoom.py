@@ -119,13 +119,26 @@ class PanZoom(DiagramElement):
 
         sr1 = self.radius * 0.6
         sr2 = self.radius * 0.7
-        nr_segments = 2*self.zoom_to - 1
+
+        zoom_level = 1
+        zoom_levels = []
+        while zoom_level <= self.zoom_to:
+            zoom_levels.append(zoom_level)
+            half_level = zoom_level * 1.5
+            if half_level <= self.zoom_to:
+                zoom_levels.append(half_level)
+            zoom_level *= 2
+
+        nr_segments = len(zoom_levels)
         segments = []
         angle = math.pi * 0.5
         awidth = math.pi / (nr_segments+0.5)
         astep = 2 * math.pi / nr_segments
-        for i in range(2*self.zoom_to-1):
-            if i < (2*self.initial_zoom-1):
+
+        print(str(zoom_levels))
+
+        for i in range(len(zoom_levels)):
+            if i == 0:
                 sfill = self.stroke
             else:
                 sfill = self.fill
@@ -136,8 +149,9 @@ class PanZoom(DiagramElement):
         
         with open(os.path.join(os.path.split(__file__)[0],"panzoom.js"),"r") as jsfile:
             jscode = jsfile.read()
-        config = { "initial_zoom":self.initial_zoom, 
-            "zoom_to":self.zoom_to, "fill":self.fill, "stroke":self.stroke, 
+        config = {
+            "initial_zoom":self.initial_zoom,
+            "zoom_levels":zoom_levels, "fill":self.fill, "stroke":self.stroke,
             "plus":plusId, "minus":minusId, "n":nId, "e":eId, "s":sId, "w":wId, 
             "zoom_segments":segments,
             "btn_n":n.getId(), "btn_e":e.getId(), "btn_s":s.getId(), "btn_w":w.getId(), 

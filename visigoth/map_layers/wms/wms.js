@@ -26,9 +26,10 @@ class wms {
     }
 
     zoom(zoom_level) {
-        for(var i=1; i<=this.config.zoom_groups.length; i++) {
-            var elt = document.getElementById(this.config.zoom_groups[i-1]);
-            if (i == Math.floor(zoom_level)) {
+        var target_index = Math.floor(Math.log2(zoom_level));
+        for(var i=0; i<this.config.zoom_groups.length; i++) {
+            var elt = document.getElementById(this.config.zoom_groups[i]);
+            if (i == target_index) {
                 elt.removeAttribute("visibility");
             } else {
                 elt.setAttribute("visibility","hidden");

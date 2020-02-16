@@ -94,7 +94,8 @@ class WMS(MapLayer):
                  
         projname = self.projection.getName()
         layers = ",".join(self.layers)
-        for zoom in range(1,self.zoom_to+1):
+        zoom = 1
+        while zoom <= self.zoom_to:
             self.content[zoom] = {}
             for zx in range(zoom):
                 for zy in range(zoom):
@@ -107,7 +108,8 @@ class WMS(MapLayer):
                     else:
                         url = self.custom_url%{"e_min":x1,"n_min":y1,"e_max":x2,"n_max":y2,"width":self.width,"height":self.height}
                     self.content[zoom][(zx,zy)] = HttpCache.fetch(url)
-                
+            zoom *= 2
+
     def getBoundaries(self):
         return self.bounds
 
@@ -115,7 +117,8 @@ class WMS(MapLayer):
         zoom_groups = []
         ox = cx - self.width/2
         oy = cy - self.height/2
-        for zoom in range(1,self.zoom_to+1):
+        zoom = 1
+        while zoom <= self.zoom_to:
             g = doc.openGroup()
             g.addAttr("pointer-events","none")
             if zoom != 1:
@@ -129,6 +132,8 @@ class WMS(MapLayer):
 
             zoom_groups.append(g.getId())
             doc.closeGroup()
+            zoom *= 2
+
         with open(os.path.join(os.path.split(__file__)[0],"wms.js"),"r") as jsfile:
             jscode = jsfile.read()
         config = { "zoom_groups":zoom_groups }

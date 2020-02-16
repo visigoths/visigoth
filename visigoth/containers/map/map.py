@@ -42,7 +42,7 @@ class Map(DiagramElement):
         font_height(int) : font size in pixels
         text_attributes(dict): a dict containing SVG name/value attributes
         width_to_height(float): if specified, sets the width to height ratio of the map
-        zoom_to(int): specify how much magnification can be selected 
+        zoom_to(int): specify how much magnification can be selected - must be a power of 2
         panzoom_radius(int) : specify redius in pixels for the pan/zoom control
         fill(str): specify a background colour
     """
@@ -94,6 +94,7 @@ class Map(DiagramElement):
         if self.built:
             return
         self.built = True
+
         if not self.boundaries:
             # if no boundaries have been set, try and compute the boundaries
             # from the union of any boundaries obtained from individual layers
@@ -261,7 +262,7 @@ class Map(DiagramElement):
         if self.zoom_to > 1:
             px = cx - self.width/2 + self.panzoom_radius + 10
             py = cy - self.height/2 + self.panzoom_radius + 10
-            pz = PanZoom(self.zoom_to,initial_zoom=1,radius=self.panzoom_radius)
+            pz = PanZoom(self.zoom_to,initial_zoom=0,radius=self.panzoom_radius)
             pz.build()
             pz.draw(doc,px,py)
             doc.getDiagram().connect(pz,"pan",self,"pan")

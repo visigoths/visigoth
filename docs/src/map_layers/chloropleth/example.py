@@ -45,7 +45,7 @@ if __name__ == "__main__":
     d.add(Space(20,20))
     c = Chloropleth(path,lambda props:rng.random()*10,"name",palette)
     bounds = ((-124.848974, 24.396308),(-66.885444, 49.384358))
-    m = Map(1024,bounds,zoom_to=3)
+    m = Map(1024,bounds,zoom_to=4)
     m.addLayer(c)
     d.add(Box(m))
     d.add(Space(20,20))

@@ -25,7 +25,8 @@ class panzoom {
         this.config = config;
         var that = this;
         this.zoom_index = this.config.initial_zoom;
-        this.zoom_to = this.config.zoom_to;
+        this.zoom_levels = this.config.zoom_levels;
+        this.zoom_level = this.zoom_levels[this.zoom_index];
 
         this.setHandler("plus",function() { that.zoom(true); });
         this.setHandler("minus",function() { that.zoom(false); });
@@ -38,25 +39,26 @@ class panzoom {
 
     zoom(inNotOut) {
         if (inNotOut) {
-            this.zoom_index += 0.5;
+            this.zoom_index += 1;
         } else {
-            this.zoom_index -= 0.5;
+            this.zoom_index -= 1;
         }
-        if (this.zoom_index < 1) {
-            this.zoom_index = 1;
+        if (this.zoom_index < 0) {
+            this.zoom_index = 0;
         }
-        if (this.zoom_index > this.zoom_to) {
-            this.zoom_index = this.zoom_to;
+        if (this.zoom_index >= this.zoom_levels.length) {
+            this.zoom_index = this.zoom_levels.length-1;
         }
+        this.zoom_level = this.zoom_levels[this.zoom_index];
         for(var i=0; i<this.config.zoom_segments.length; i++) {
             var elt = document.getElementById(this.config.zoom_segments[i]);
-            if (i < (2*this.zoom_index-1)) {
+            if (i <= this.zoom_index) {
                 elt.setAttribute("fill",this.config.stroke);    
             } else {
                 elt.setAttribute("fill",this.config.fill);
             }
         }
-        this.sendfn(this.zoom_index,"zoom");
+        this.sendfn(this.zoom_level,"zoom");
     }
 
     push(ele) {

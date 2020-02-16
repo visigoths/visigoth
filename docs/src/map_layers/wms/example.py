@@ -34,12 +34,12 @@ if __name__ == "__main__":
     bounds = ((166.509144322, -46.641235447),(178.517093541, -34.4506617165))
 
     d.add(Text("openstreetmap layer"))
-    m1 = Map(512,bounds,zoom_to=3)
+    m1 = Map(512,bounds,zoom_to=4)
     m1.addLayer(WMS("osm"))
     d.add(Box(m1))
 
     d.add(Text("sentinel2 cloudless layer"))
-    m2 = Map(512,bounds,zoom_to=3)
+    m2 = Map(512,bounds,zoom_to=4)
     m2.addLayer(WMS("satellite"))
     d.add(Box(m2))
 

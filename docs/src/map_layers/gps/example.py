@@ -35,7 +35,7 @@ if __name__ == "__main__":
     d = Diagram(fill="white")
 
     bounds  = ((-180,-70),(180,70))
-    m = Map(512,bounds,projection=Projections.ESPG_3857,zoom_to=3)
+    m = Map(512,bounds,projection=Projections.ESPG_3857,zoom_to=4)
     g = GPS()
     m.addLayer(WMS())
     m.addLayer(g)

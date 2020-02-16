@@ -112,7 +112,8 @@ class WMTS(MapLayer):
 
         self.zoom = zoom
 
-        for zoom_level in range(1,self.zoom_to+1):
+        zoom_level = 1
+        while zoom_level <= self.zoom_to:
             self.content[zoom_level] = {}
 
             zoom = self.zoom + zoom_level - 1
@@ -140,14 +141,17 @@ class WMTS(MapLayer):
                 for tiley in range(tymin,tymax+1):
                     url =  self.wmts_url%{"zoom":zoom,"tilex":tilex,"tiley":tiley}
                     self.content[zoom_level]["tiles"][(tilex,tiley)] = HttpCache.fetch(url)
-                    
+
+            zoom_level *= 2
+
     def getBoundaries(self):
         return self.bounds
 
     def draw(self,doc,cx,cy):
     
         zoom_groups = []
-        for zoom in range(1,self.zoom_to+1):
+        zoom = 1
+        while zoom <= self.zoom_to:
             ox = cx - self.width/2
             oy = cy - self.height/2
         
@@ -181,6 +185,8 @@ class WMTS(MapLayer):
             g.addAttr("transform",transform0)
             zoom_groups.append(g.getId())
             doc.closeGroup()
+
+            zoom *= 2
 
         with open(os.path.join(os.path.split(__file__)[0],"wmts.js"),"r") as jsfile:
             jscode = jsfile.read()
