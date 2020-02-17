@@ -25,6 +25,7 @@ from visigoth.common.event_handler import EventHandler
 from visigoth.common.image import Image
 from visigoth.common.legend import Legend
 from visigoth.common.map_layer_manager import MapLayerManager
+from visigoth.common.search_manager import SearchManager
 from visigoth.common.panzoom import PanZoom
 from visigoth.common.space import Space
 from visigoth.common.text import Text, Span

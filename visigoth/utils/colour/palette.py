@@ -18,6 +18,7 @@
 
 from visigoth.utils.colour import Colour
 from visigoth.utils.elements.axis.axisutils import AxisUtils
+from visigoth.utils.colour.colourmaps import ColourMaps
 
 class DiscretePalette(object):
 
@@ -43,12 +44,22 @@ class DiscretePalette(object):
 
 class ContinuousPalette(object):
 
-    def __init__(self,withIntervals=True):
+    def __init__(self, withIntervals=True,colourMap="viridis"):
         self.colour = None
         self.range = []
         self.withIntervals = withIntervals
         self.intervals = []
         self.rescaled = False
+        self.colourMap = None
+        if colourMap:
+            if colourMap not in ColourMaps:
+                raise Exception("Unknown colourmap %s"%(colourMap))
+            self.colourMap = ColourMaps[colourMap]
+            for i in range(len(self.colourMap)):
+                r = self.colourMap[i][0]
+                g = self.colourMap[i][1]
+                b = self.colourMap[i][2]
+                self.appendColour("#%02X%02X%02X"%(int(255*r),int(255*g),int(255*b)),i)
 
     def __repr__(self):
         return str(self.range)
@@ -57,6 +68,14 @@ class ContinuousPalette(object):
         return False
 
     def addColour(self,colour,value):
+        # override preset colourMap
+        if self.colourMap:
+            self.colourMap = None
+            self.range = []
+            self.intervals = []
+        self.appendColour(colour,value)
+
+    def appendColour(self,colour,value):
         self.range.append((value,colour))
         self.range = sorted(self.range,key = lambda x:x[0])
         if len(self.range)>1 and self.withIntervals:

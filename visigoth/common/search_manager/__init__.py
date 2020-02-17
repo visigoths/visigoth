@@ -1,0 +1,1 @@
+from visigoth.common.search_manager.search_manager import SearchManager

@@ -35,8 +35,8 @@ if __name__ == "__main__":
     discrete_palette = DiscretePalette()
     discrete_palette.addCategory("A", "green").addCategory("B", "blue").addCategory("C", "red").addCategory("D", "orange").addCategory("E","purple")
 
-    continuous_palette = ContinuousPalette()
-    continuous_palette.addColour("#FF0000",0.0).addColour("#0000FF",1.0)
+    continuous_palette = ContinuousPalette(withIntervals=False)
+    # continuous_palette.addColour("#FF0000",0.0).addColour("#0000FF",1.0)
 
     d = Diagram(fill="white")
     d.add(Legend(discrete_palette,width=700, legend_columns=3))
