@@ -43,7 +43,6 @@ template = """
                 mode = "highlight";
               }
               var payload = {"searchstring":value,"mode":mode};
-              alert(JSON.stringify(payload));
               pubsubs_publish("%(id)s",payload,"search");
           };
     ]]>
@@ -70,5 +69,4 @@ class SearchManager(EmbeddedHtml):
         EmbeddedHtml.__init__(self,"%(content)s",css,width,height)
         control_id = DiagramElement.getNextId()
         html_content = template%({"id":self.getId(),"control_id":control_id,"title":title})
-        print(html_content)
         self.substituteHtml({"content":html_content})

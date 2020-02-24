@@ -21,7 +21,6 @@ import os
 
 from visigoth import Diagram
 from visigoth.utils.test_utils import TestUtils
-from visigoth.common.image import Image
 from visigoth.common.legend import Legend
 from visigoth.common.space import Space
 from visigoth.containers.box import Box
@@ -32,7 +31,6 @@ from visigoth.utils.colour import ContinuousPalette, DiscretePalette
 class TestLegend(unittest.TestCase):
 
     def test_discrete(self):
-        folder = os.path.split(__file__)[0]
         d = Diagram(fill="white")
 
         discrete_palette = DiscretePalette()

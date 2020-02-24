@@ -108,7 +108,6 @@ class WMTS(MapLayer):
             widthM = self.getTileWidthM(latmid,zoom)   
             if (widthM / 256.0 < m_per_pixel):
                 break
-        print("Selected zoom %d"%(zoom))
 
         self.zoom = zoom
 

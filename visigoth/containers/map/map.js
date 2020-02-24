@@ -149,6 +149,10 @@ class map {
     }
 
     recieve(obj,channel) {
+        if (channel == "search") {
+            alert(JSON.stringify(obj));
+            this.sendfn(obj,"search");
+        }
         if (channel == "pan") {
             if (obj == "e") {
                 this.move(-20,0);

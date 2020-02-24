@@ -16,17 +16,25 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from visigoth.common.diagram_element import DiagramElement
-from visigoth.common.button import Button
-from visigoth.common.buttongrid import ButtonGrid
-from visigoth.common.embedded_html import EmbeddedHtml
-from visigoth.common.embedded_svg import EmbeddedSvg
-from visigoth.common.event_handler import EventHandler
-from visigoth.common.image import Image
-from visigoth.common.legend import Legend
-from visigoth.common.map_layer_manager import MapLayerManager
-from visigoth.common.search_manager import SearchManager
-from visigoth.common.panzoom import PanZoom
-from visigoth.common.space import Space
-from visigoth.common.text import Text
-from visigoth.common.text import Span
+from visigoth.svg.svgstyled import svgstyled
+
+# represent a line with a cubic bezier curve as an SVG object
+class cubic_bezier(svgstyled):
+
+    def __init__(self,p1,cp1,cp2,p2,stroke,stroke_width,tooltip=""):
+        svgstyled.__init__(self,"path",tooltip)
+        self.addAttr("d",self.computePath(p1,cp1,cp2,p2))
+        self.addAttr("fill","none")
+        if stroke and stroke_width:
+            self.addAttr("stroke-width",stroke_width).addAttr("stroke",stroke)
+
+    def addPoint(self,p):
+        return str(p[0]) + "," + str(p[1])
+
+    def computePath(self,p1,cp1,cp2,p2):
+        s = "M"+self.addPoint(p1)
+        s += " C"+self.addPoint(cp1)
+        s += " "+self.addPoint(cp2)
+        s += " "+self.addPoint(p2)
+        return s
+

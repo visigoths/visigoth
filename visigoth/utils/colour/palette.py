@@ -74,6 +74,7 @@ class ContinuousPalette(object):
             self.range = []
             self.intervals = []
         self.appendColour(colour,value)
+        return self
 
     def appendColour(self,colour,value):
         self.range.append((value,colour))

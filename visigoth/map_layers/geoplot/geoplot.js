@@ -213,13 +213,15 @@ class geoplot {
         if (channel == "highlight") {
             this.showAll();
         }
-        if (channel == "filter" || channel == "highlight") {
-            var search_string = obj.toLowerCase();
+        if (channel == "search") {
+            alert(obj["searchstring"]+":"+obj["mode"]);
+            var search_string = obj["searchstring"].toLowerCase();
+            var search_mode = obj["mode"];
             for(var group_id in this.config.group_properties) {
                 var g = document.getElementById(group_id);
                 var match = false;
                 if (search_string == "") {
-                    match = (channel == "filter");
+                    match = (search_mode == "filter");
                 } else {
                     var props = this.config.group_properties[group_id];
                     if (props) {
@@ -233,13 +235,13 @@ class geoplot {
                     }
                 }
                 if (match) {
-                    if (channel == "filter") {
+                    if (search_mode == "filter") {
                         g.removeAttribute("visibility");
                     } else {
                         this.highlight(g,true);
                     }
                 } else {
-                    if (channel == "filter") {
+                    if (search_mode == "filter") {
                         g.setAttribute("visibility","hidden");
                     } else {
                         this.highlight(g,false);

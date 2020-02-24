@@ -24,3 +24,4 @@ from visigoth.svg.text import text
 from visigoth.svg.tspan import tspan
 from visigoth.svg.clip_path import clip_path
 from visigoth.svg.foreign_object import foreign_object
+from visigoth.svg.cubic_bezier import cubic_bezier

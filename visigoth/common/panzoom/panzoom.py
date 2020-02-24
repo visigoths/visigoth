@@ -135,8 +135,6 @@ class PanZoom(DiagramElement):
         awidth = math.pi / (nr_segments+0.5)
         astep = 2 * math.pi / nr_segments
 
-        print(str(zoom_levels))
-
         for i in range(len(zoom_levels)):
             if i == 0:
                 sfill = self.stroke

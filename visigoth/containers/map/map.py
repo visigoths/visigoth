@@ -272,6 +272,10 @@ class Map(DiagramElement):
                     doc.getDiagram().connect(self,"zoom",element,"zoom")
                     doc.getDiagram().connect(self,"visible_window",element,"visible_window")
 
+        for (element,_) in self.elements:
+            if Js.isRegistered(element):
+                doc.getDiagram().connect(self,"search",element,"search")
+
         Js.registerJs(doc,self,jscode,"map",cx,cy,
             {"opacities":opacities,
             "max_zoom":self.zoom_to,
