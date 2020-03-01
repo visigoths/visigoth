@@ -22,23 +22,28 @@ import json
 from visigoth.charts import ChartElement
 from visigoth.svg import rectangle,text,line,javascript_snippet
 from visigoth.utils.elements.axis import Axis
+from visigoth.utils.data import Dataset
+from visigoth.utils.colour import DiscretePalette
 
 class Bar(ChartElement):
     """
     Create a Bar Chart
 
     Arguments:
-        data (dict): A list containing a (category,value)
+        data (dict): A relational data set (for example, list of dicts/lists/tuples describing each row)
+        x (str or int): Identify the column to yield discrete values
+
+    Keyword Arguments:    
+        y (str or int): Identify the column to measure on the y-axis (use count if not specified)
+        colour (str or int): Identify the column to define the bar colour (use fill colour if not specified)
         width (int): the width of the plot in pixels
         height (int): the height of the plot in pixels
         palette(list) : a DiscretePalette object
-
-    Keyword Arguments:
-        waterfall (boolean) : draw bars connected into a waterfall
         draw_axis (boolean) : draw a y-axis
         draw_grid (boolean) : draw grid lines
         stroke (str): stroke color for bars
         stroke_width (int): stroke width for bars
+        fill (str): default colour for bars if colour is not specified
         font_height (int): the height of the font for text labels
         spacing_fraction (float) : ratio of bar width to spacing
         text_attributes (dict): SVG attribute name value pairs to apply to labels
@@ -46,13 +51,15 @@ class Bar(ChartElement):
         axis_max (int|float): set the maximum value on the axis
         axis_min (int|float): set the minimum value on the axis
     """
-    def __init__(self,data,width,height,palette,waterfall=False,draw_axis=True,draw_grid=True,stroke="black",stroke_width=2,font_height=24,spacing_fraction=0.1,text_attributes={},labelfn=lambda k,v:"%0.2f"%v, axis_max=None, axis_min=None):
+    def __init__(self,data,x,y=None,colour=None,width=512,height=512,palette=None,draw_axis=True,draw_grid=True,stroke="black",stroke_width=2,fill="grey",font_height=24,spacing_fraction=0.1,text_attributes={},labelfn=lambda k,v:"%0.2f"%v, axis_max=None, axis_min=None):
         super(Bar, self).__init__()
-        self.data = data
+        self.dataset = Dataset(data)
+        self.x = x
+        self.y = y
+        self.colour = colour
         self.width = width
         self.height = height
         self.palette = palette
-        self.waterfall = waterfall
         self.draw_axis = draw_axis
         self.draw_grid = draw_grid
         self.font_height = font_height
@@ -60,9 +67,27 @@ class Bar(ChartElement):
         self.text_attributes = text_attributes
         self.stroke = stroke
         self.stroke_width = stroke_width
+        self.fill = "grey"
         self.labelfn = labelfn
         self.axis_max = axis_max
         self.axis_min = axis_min
+
+        if self.colour and not self.palette:
+            self.palette = DiscretePalette()
+
+        querycols = [self.x]
+        if self.y != None:
+            querycols.append(self.y)
+        else:
+            querycols.append(Dataset.constant(1))
+
+        if self.colour != None:
+            querycols.append(self.colour)
+
+        self.data = self.dataset.query(querycols)
+        if self.palette and self.colour != None:
+            for tup in self.dataset.query([self.colour],unique=True):
+                self.palette.getColour(tup[0])
 
     def getHeight(self):
         return self.height
@@ -77,28 +102,24 @@ class Bar(ChartElement):
         self.labelmarginx=10
         self.labelmarginy=self.font_height*1.5
 
-        def total(v):
-            if isinstance(v,list):
-                return sum([v1 for (k1,v1) in v])
-            else:
-                return v
+        agg_fns = []
+        if self.y:
+            agg_fns.append(Dataset.sum(self.y))
+        else:
+            agg_fns.append(Dataset.count())
+        bar_totals = self.dataset.query([self.x],unique=True,aggregations=agg_fns)
+        
+        self.bar_keys = list(map(lambda x:x[0],bar_totals))
+        self.bar_values = list(map(lambda x:x[1],bar_totals))
 
-        values=[total(v) for (k,v) in self.data]
-        if self.waterfall:
-            waterfall_values = []
-            acc = 0
-            for value in values:
-                acc += value
-                waterfall_values.append(acc)
-            values = waterfall_values
         if self.axis_max:
             self.valuemax = self.axis_max
         else:
-            self.valuemax=max(values)
+            self.valuemax=max(self.bar_values)
         if self.axis_min:
             self.valuemin = self.axis_min
         else:
-            self.valuemin=min(values)
+            self.valuemin=min(self.bar_values)
             if self.valuemin >= 0:
                 self.valuemin = 0
 
@@ -133,20 +154,30 @@ class Bar(ChartElement):
         sy = oy
         total = 0
         last_sy = None
-        for (outercat,outervalue) in self.data:
 
-            if isinstance(outervalue,list):
-                segments = outervalue
+        def compute_segments(key):
+            if not self.y:
+                return self.dataset.query([self.colour],aggregations=[Dataset.count()],filters=[Dataset.filter(self.x,"=",key)])
             else:
-                segments = [(outercat,outervalue)]
+                return self.dataset.query([self.colour],aggregations=[Dataset.sum(self.y)],filters=[Dataset.filter(self.x,"=",key)])
+                
+        for index in range(len(self.bar_keys)):
+
+            barkey = self.bar_keys[index]
+            barvalue = self.bar_values[index]
+
+            if self.colour and self.colour != self.x:
+                segments = compute_segments(barkey)
+            else:
+                segments = [(barkey,barvalue)]
 
             s = sum([v for (k,v) in segments])
-            if self.waterfall:
-                total += s
-            else:
-                total = s
+            total = s
             for (cat,value) in segments:
-                colour = self.palette.getColour(cat)
+                if self.colour != None:
+                    colour = self.palette.getColour(cat)
+                else:
+                    colour = self.fill
                 bh = barheight*abs(value)/valuerange
 
                 if value >= 0:
@@ -163,10 +194,7 @@ class Bar(ChartElement):
                 doc.add(r)
 
             if self.labelfn:
-                if self.waterfall:
-                    value_str = self.labelfn(outercat,s)
-                else:
-                    value_str = self.labelfn(outercat,total)
+                value_str = self.labelfn(barkey,total)
 
                 if value > 0:
                     ty = bt-self.font_height*0.2
@@ -178,15 +206,7 @@ class Bar(ChartElement):
                 t.addAttrs(self.text_attributes)
                 doc.add(t)
 
-            if not self.waterfall:
-                sy = oy
-            else:
-                # for waterfall charts,
-                # add horizontal lines connecting successive bars
-                if last_sy != None:
-                    l = line(bx-barwidth+(self.spacing_fraction*0.5*barwidth),last_sy,bx+barwidth-(self.spacing_fraction*0.5*barwidth),last_sy,self.stroke,self.stroke_width)
-                    doc.add(l)
-                last_sy = sy
+            sy = oy
             bx += barwidth
 
         # horizontal axis

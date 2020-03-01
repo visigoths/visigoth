@@ -37,22 +37,15 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     palette = DiscretePalette()
-    palette.addCategory("A","#E7FFAC")
-    palette.addCategory("B","#FFC9DE")
-    palette.addCategory("C","#B28DFF")
-    palette.addCategory("D","#ACE7FF")
-
+    
     r = random.Random()
     data = []
     for idx in range(0,100):
         data.append((r.random(),r.random(),"p"+str(idx),r.choice(["A","B","C","D"]),r.choice([3,5,9])))
 
-    data.append((0.0,0.0,"origin",r.choice(["A","B","C","D"]),4))
-
     d = Diagram(fill="white")
 
-    scatter = ScatterPlot(data, 500, 500, palette, x_axis_label="X AXIS", y_axis_label="Y AXIS")
-    d.add(Space(20,20))
+    scatter = ScatterPlot(data,x=0,y=1,label=2,colour=3,radius=4, palette=palette, x_axis_min = -0.1, y_axis_min = -0.1, x_axis_label="X AXIS", y_axis_label="Y AXIS")
     legend = Legend(palette,400,legend_columns=2)
     d.add(legend)
     d.connect(legend,"brushing",scatter,"brushing")

@@ -39,9 +39,9 @@ class TestSequence(unittest.TestCase):
         data2 = [("A",8),("B",2),("C",-1),("D",6)]
         data3 = [("A",3),("B",5),("C",2),("D",-3)]
 
-        bar1 = Bar(data1, 400, 400, palette)
-        bar2 = Bar(data2, 200, 200, palette)
-        bar3 = Bar(data3, 200, 200, palette)
+        bar1 = Bar(data1, x=0, y=1, colour=0, width=400, height=400, palette=palette)
+        bar2 = Bar(data2, x=0, y=1, colour=0, width=200, height=200, palette=palette)
+        bar3 = Bar(data3, x=0, y=1, colour=0, width=300, height=300, palette=palette)
 
         timeline1.add(datetime.datetime(2016,1,1,0,0,0),None,"2016")
         timeline1.add(datetime.datetime(2017,1,1,0,0,0),Box(bar1),"2017",offset=100)
@@ -63,3 +63,5 @@ class TestSequence(unittest.TestCase):
 
         TestUtils.output(svg, "test_timeline.svg")
 
+if __name__ == "__main__":
+    unittest.main()

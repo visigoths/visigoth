@@ -21,15 +21,19 @@ import json
 from visigoth.svg import rectangle, linear_gradient
 import os.path
 from visigoth.utils.colour.webcolours import colours
+from visigoth.utils.colour.colourmaps import DiscreteColourMaps
 
 class Colour(object):
 
     webColours = { col["name"].lower():"#"+col["hex"] for col in colours }
 
-    def __init__(self,palette,defaultColour="red"):
+    def __init__(self,palette,defaultColour="red",colourMap=None):
+        self.colourMap = colourMap
+        self.colourMapIndex = 0
         self.palette = palette
         self.defaultColour = defaultColour
-        self.palette_lookup = None
+        self.palette_lookup = {}
+        self.discrete = True
         if len(self.palette):
             if isinstance(self.palette[0][0],str):
                 self.discrete = True
@@ -73,34 +77,46 @@ class Colour(object):
         else:
             return "#%02X%02X%02X"%(r,g,b)
 
-    def getColour(self,val):
 
-        if self.palette_lookup:
-            if self.discrete:
-                if val in self.palette_lookup:
-                    return self.palette_lookup[val]
-            else:
-                lwc = self.defaultColour
-                lwb = None
-                for idx in range(len(self.palette_lookup)):
-                    lookup = self.palette_lookup[idx]
-                    upb = lookup[0]
-                    upc = lookup[1]
-                    if val < upb or (idx==len(self.palette_lookup)-1 and val <= upb):
-                        if lwb != None:
-                            interval = upb - lwb
-                            if interval > 0:
-                                col = self.computeColour(lwc,upc,(val-lwb)/(upb-lwb))
-                                return col
-                            else:
-                                return lwc
+    def getColour(self,val):
+        if self.discrete:
+            if val in self.palette_lookup:
+                return self.palette_lookup[val]
+            if self.colourMap:
+                extendedColour = self.getExtendedPaletteColour(val)
+                if extendedColour:
+                    return extendedColour
+        else:
+            lwc = self.defaultColour
+            lwb = None
+            for idx in range(len(self.palette_lookup)):
+                lookup = self.palette_lookup[idx]
+                upb = lookup[0]
+                upc = lookup[1]
+                if val < upb or (idx==len(self.palette_lookup)-1 and val <= upb):
+                    if lwb != None:
+                        interval = upb - lwb
+                        if interval > 0:
+                            col = self.computeColour(lwc,upc,(val-lwb)/(upb-lwb))
+                            return col
                         else:
-                            return self.defaultColour
-                    lwb = upb
-                    lwc = upc
-                return self.defaultColour
+                            return lwc
+                    else:
+                        return self.defaultColour
+                lwb = upb
+                lwc = upc
+            return self.defaultColour
 
         return self.defaultColour
+
+    def getExtendedPaletteColour(self,discrete_val):
+        if self.colourMap in DiscreteColourMaps:
+            colours = DiscreteColourMaps[self.colourMap]
+            colour = colours[self.colourMapIndex % len(colours)]
+            self.colourMapIndex += 1
+            self.palette_lookup[discrete_val] = colour
+            return colour
+        return None
 
     def drawColourRectangle(self,doc,x,y,width,height,orientation="horizontal",stroke_width=None,stroke=None):
         xc = x
@@ -114,7 +130,6 @@ class Colour(object):
         for idx in range(1,len(self.palette)):
             (val0,col0) = self.palette[idx-1]
             (val1,col1) = self.palette[idx]
-
 
             frac = (val1-val0)/(maxval-minval)
             if col0 != col1:

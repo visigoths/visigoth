@@ -32,28 +32,22 @@ class TestBar(unittest.TestCase):
         d = Diagram(fill="white")
 
         palette0 = DiscretePalette()
-        palette0.addCategory("A","#E7FFAC").addCategory("B","#FFC9DE")
-        palette0.addCategory("C","#B28DFF").addCategory("D","#ACE7FF")
-
+        
         data0 = [("A",1.2),("B",0),("C",-0.4),("D",0.5)]
 
-        bar0 = Bar(data0, 400, 400, palette0,labelfn=lambda k,v:"%0.2f"%v)
-        d.add(bar0).add(Space(20))
+        bar0 = Bar(data0, x=0, y=1, colour=0, width=400, height=400, palette=palette0,labelfn=lambda k,v:"%0.2f"%v)
+        d.add(bar0)
         legend0 = Legend(palette0,400,legend_columns=2)
-        d.add(legend0).add(Space(20))
+        d.add(legend0)
         d.connect(legend0,"brushing",bar0,"brushing")
         d.connect(bar0,"brushing",legend0,"brushing")
 
         palette1 = DiscretePalette()
-        palette1.addCategory("A","#E7FFAC")
-        palette1.addCategory("B1","red").addCategory("B2","green")
-        palette1.addCategory("C","#B28DFF")
-        palette1.addCategory("D1","orange").addCategory("D2","purple")
+        
+        data1 = [("A",10,"A"),("B",25,"B"),("C",-4,"C"),("D",-5,"D1"),("D",-2,"D2")]
 
-        data1 = [("A",10),("B",[("B1",5),("B2",15)]),("C",-4),("D",[("D1",-5),("D2",-2)])]
-
-        bar1 = Bar(data1, 400, 400, palette1,labelfn=lambda k,v:"%d"%v)
-        d.add(bar1).add(Space(20))
+        bar1 = Bar(data1,x=0,y=1,colour=2,width=400, height=400, palette=palette1,labelfn=lambda k,v:"%d"%v)
+        d.add(bar1)
         legend1 = Legend(palette1,400,legend_columns=2)
         d.add(legend1)
         d.connect(legend1,"brushing",bar1,"brushing")
@@ -61,22 +55,13 @@ class TestBar(unittest.TestCase):
         svg = d.draw()
         TestUtils.output(svg,"test_bar.svg")
 
-    def test_waterfall(self):
+    def test_nopalette(self):
         d = Diagram(fill="white")
-
-        palette = DiscretePalette()
-        palette.addCategory("A","#E7FFAC")
-        palette.addCategory("B","#FFC9DE")
-        palette.addCategory("C","#B28DFF")
-        palette.addCategory("D","#ACE7FF")
-
         data = [("A",10),("B",5),("C",-4),("D",-25)]
-
-        bar = Bar(data, 400, 400, palette,waterfall=True,draw_axis=True,draw_grid=False,labelfn=lambda k,v:"%d"%v)
-        d.add(bar).add(Space(20))
-        legend = Legend(palette,400,legend_columns=2)
-        d.add(legend)
-        d.connect(legend,"brushing",bar,"brushing")
-        d.connect(bar,"brushing",legend,"brushing")
+        bar = Bar(data,x=0,y=1,width=400,height=400,draw_axis=True,draw_grid=False,labelfn=lambda k,v:"%d"%v)
+        d.add(bar)
         svg = d.draw()
-        TestUtils.output(svg,"test_bar_waterfall.svg")
+        TestUtils.output(svg,"test_bar_nopalette.svg")
+
+if __name__ == "__main__":
+    unittest.main()

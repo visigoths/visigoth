@@ -26,6 +26,7 @@ from math import radians,sin,cos,pi,sqrt,log
 
 from visigoth.svg import circle, line, text, path
 from visigoth.utils.elements.axis import Axis
+from visigoth.utils.data import Dataset
 
 class Line(ChartElement):
 
@@ -33,12 +34,20 @@ class Line(ChartElement):
     Create an Line plot
 
     Arguments:
-        lines(list) : line data in the form [(category,label,[(x,y)])]
-        width(int) : the width of the plotting area in pixels (not including x-axis)
-        height(int) : the height of the plotting area in pixels (not including y-axis)
-        palette(list) : a list of (category, colour) pairs
-
+        data (list): A relational data set (for example, list of dicts/lists/tuples describing each row)
+        
     Keyword Arguments:
+        x (str or int): Identify the column to specify x-axis point value
+        y (str or int): Identify the column to specify y-axis point value
+        line (str or int): Identify the column to specify the line to which each point belongs 
+        id (str or int): Identify the column to define the unique id of each point
+        colour (str or int): Identify the column to define the line colour 
+        label (str or int): Identify the column to define the label of each point
+        width(int) : the width of the plot including axes
+        height(int) : the height of the plot including axes
+    
+        lines(list) : line data in the form [(category,label,[(x,y)])]
+    
         draw_grid (boolean): whether to draw gridlines
         smoothing (float) : smoothing factor to apply to lines, 0.0=no smoothing
         line_width (int) : width of the lines
@@ -55,16 +64,28 @@ class Line(ChartElement):
         y_axis_min (int|float): set the minimum value on the y axis
     """
 
-    def __init__(self, lines, width, height,  palette, draw_grid=True, smoothing=0.3, line_width=4, point_radius=4, x_axis_label=None, y_axis_label=None, stroke="black",stroke_width=2,font_height=24, text_attributes={},x_axis_max=None, x_axis_min=None, y_axis_max=None, y_axis_min=None):
+    def __init__(self, data,x=0,y=1,line=None,id=None,colour=None,label=None,width=768, height=768, palette=None, draw_grid=True, smoothing=0.3, line_width=4, point_radius=4, x_axis_label=None, y_axis_label=None, stroke="black",stroke_width=2,font_height=24, text_attributes={},x_axis_max=None, x_axis_min=None, y_axis_max=None, y_axis_min=None):
         super(Line, self).__init__()
         self.setTooltipFunction(lambda cat,val: "%s: (%s,%s)"%(cat,str(val[0]),str(val[1])))
-        self.lines = lines
-        self.xcs = [l[0] for ls in self.lines for l in ls[2]]
-        self.ycs = [l[1] for ls in self.lines for l in ls[2]]
+        self.dataset = Dataset(data)
+        
+        self.x = x
+        self.y = y
+        self.line = line
+        self.id = id
+        self.label = label
+        self.colour = colour
 
         self.width = width
         self.height = height
         self.palette = palette
+        
+        if self.colour != None and not self.palette:
+            if self.dataset.isDiscrete(self.colour):
+                self.palette = DiscretePalette()
+            else:
+                self.palette = ContinuousPalette()
+        
         self.draw_grid = draw_grid
         self.smoothing = smoothing
         self.line_width = line_width
@@ -77,16 +98,18 @@ class Line(ChartElement):
         self.stroke = stroke
         self.stroke_width = stroke_width
 
+        xy_range = self.dataset.query(aggregations=[Dataset.min(self.x),Dataset.max(self.x),Dataset.min(self.y),Dataset.max(self.y)])[0]
+        
         if x_axis_max == None:
-            x_axis_max = max(x for x in self.xcs)
+            x_axis_max = xy_range[1]
         if x_axis_min == None:
-            x_axis_min = min(x for x in self.xcs)
+            x_axis_min = xy_range[0]
         fix_y_max = (y_axis_max != None)
         fix_y_min = (y_axis_min != None)
         if y_axis_max == None:
-            y_axis_max = max(y for y in self.ycs)
+            y_axis_max = xy_range[3]
         if y_axis_min == None:
-            y_axis_min = min(y for y in self.ycs)
+            y_axis_min = xy_range[2]
 
         if y_axis_min > 0 and not fix_y_max:
             y_axis_min = 0.0
@@ -136,7 +159,7 @@ class Line(ChartElement):
 
     def drawLines(self,diagram,cx,cy,ox,oy,categories):
 
-        def plot(diagram,x,y,cat):
+        def plotpoint(diagram,x,y,cat):
             col = self.palette.getColour(cat)
 
             cx = self.computeX(x)
@@ -150,19 +173,31 @@ class Line(ChartElement):
             categories[cat] = ids
             diagram.add(circ)
 
-        for (linecat,label,linepoints) in self.lines:
+        def plotline(linepoints):
+            if not linepoints:
+                return
             linepoints = sorted(linepoints,key=lambda p:p[0])
-
-            coords = [(self.computeX(x),self.computeY(y)) for (x,y) in linepoints]
+            linecat = linepoints[0][2]
+            coords = [(self.computeX(x),self.computeY(y)) for (x,y,_) in linepoints]
             p = path(coords,self.palette.getColour(linecat),self.stroke_width,smoothing=self.smoothing)
+            
             ids = categories.get(linecat,[])
             ids.append(p.getId())
             categories[linecat] = ids
 
             diagram.add(p)
 
-            for (x,y) in linepoints:
-                plot(diagram,x,y,linecat)
+            for (x,y,col) in linepoints:
+                plotpoint(diagram,x,y,col)
+
+        if self.line != None:
+            lines = map(lambda x:x[0],self.dataset.query([self.line],unique=True))
+            for line in lines:
+                linepoints = self.dataset.query([self.x,self.y,self.colour],filters=[self.dataset.filter(self.line,"=",line)])
+                plotline(linepoints)
+        else:
+            linepoints = self.dataset.query([self.x,self.y,self.colour])
+            plotline(linepoints)
 
     def drawChart(self,doc,cx,cy):
         ox = cx - self.getWidth()/2

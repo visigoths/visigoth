@@ -35,27 +35,19 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     palette = DiscretePalette()
-    palette.addCategory("A","#E7FFAC").addCategory("B","#FFC9DE")
-    palette.addCategory("B1","red").addCategory("B2","green")
-    palette.addCategory("C","#B28DFF").addCategory("D","#ACE7FF")
-    palette.addCategory("D1","orange").addCategory("D2","purple")
 
-    data = [("A",10),("B",[("B1",5),("B2",15)]),("C",-4),("D",[("D1",-5),("D2",-2)])]
+    data = [{"c1":"A","c2":10},{"c1":"B","c2":5},{"c1":"C","c2":6},{"c1":"D","c2":8}]
 
     d = Diagram(fill="white")
 
-    bar1 = Bar(data, 400, 400, palette,labelfn=lambda k,v:"%d"%v)
-    d.add(bar1).add(Space(20))
-    bar2 = Bar(data, 400, 400, palette,waterfall=True,draw_axis=True,draw_grid=False,labelfn=lambda k,v:"%d"%v)
-    d.add(bar2).add(Space(20))
+    bar1 = Bar(data,x="c1",y="c2",colour="c1",width=400, height=400, palette=palette,labelfn=lambda k,v:"%d"%v)
+    d.add(bar1)
     legend = Legend(palette,400,legend_columns=2)
     d.add(legend)
 
-    # connect all pairs of main elements via a brushing channel
-    for e1 in [legend,bar1,bar2]:
-        for e2 in [legend,bar1,bar2]:
-            if e1 != e2:
-                d.connect(e1,"brushing",e2,"brushing")
+    d.connect(bar1,"brushing",legend,"brushing")
+    d.connect(legend,"brushing",bar1,"brushing")
+    
     svg = d.draw()
 
     f = open(args.outpath, "wb")

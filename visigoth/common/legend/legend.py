@@ -44,7 +44,7 @@ class Legend(DiagramElement):
         decimal_places(int): the number of decimal places to display
     """
 
-    def __init__(self,palette,width=512,label=None,orientation="horizontal",legend_columns=1,stroke="black",stroke_width=2, font_height=24,text_attributes={},decimal_places=3):
+    def __init__(self,palette,width=512,label=None,orientation="horizontal",legend_columns=0,stroke="black",stroke_width=2, font_height=24,text_attributes={},decimal_places=3):
         DiagramElement.__init__(self)
         self.palette = palette
         self.text_attributes = text_attributes
@@ -74,6 +74,10 @@ class Legend(DiagramElement):
 
     def build(self):
         if self.palette.isDiscrete():
+            if not self.legend_columns:
+                max_text_width = max(map(lambda x:FontManager.getTextLength(self.text_attributes,x[0],self.legend_font_height),self.palette.getCategories()))
+                column_content_width = max_text_width + self.legend_font_height*3
+                self.legend_columns = max(1,self.width // column_content_width)
             self.height = (self.legend_font_height*len(self.palette.getCategories())*2) // self.legend_columns
         else:
             self.axis = Axis(self.width,self.orientation,self.palette.getMinValue(),self.palette.getMaxValue(),label=self.label,font_height=self.legend_font_height,text_attributes=self.text_attributes,stroke=self.stroke,stroke_width=self.stroke_width,decimal_places=self.decimal_places)

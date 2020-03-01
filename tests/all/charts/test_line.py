@@ -37,13 +37,13 @@ class TestLine(unittest.TestCase):
         palette0.addCategory("C","orange")
 
         data0 = []
-        data0.append(("A","A",[(1,11),(2,11.5),(3,13.7),(4,18),(5,25)]))
-        data0.append(("B","B",[(1,5),(2,4.3),(3,3.2),(4,5.7),(5,9.4)]))
-        data0.append(("C","C",[(1,27),(2,17),(3,18.1),(4,12),(5,3)]))
+        data0 += [(1,11,"A"),(2,11.5,"A"),(3,13.7,"A"),(4,18,"A"),(5,25,"A")]
+        data0 += [(1,5,"B"),(2,4.3,"B"),(3,3.2,"B"),(4,5.7,"B"),(5,9.4,"B")]
+        data0 += [(1,27,"C"),(2,17,"C"),(3,18.1,"C"),(4,12,"C"),(5,3,"C")]
 
         d = Diagram(fill="white")
 
-        line0 = Line(data0, 600, 600, palette0, x_axis_label="label_x", y_axis_label="label_y")
+        line0 = Line(data0,x=0,y=1,line=2,colour=2,width=600,height=600,palette=palette0, x_axis_label="label_x", y_axis_label="label_y")
 
         d.add(line0)
         d.add(Space(20))
@@ -54,4 +54,7 @@ class TestLine(unittest.TestCase):
         svg = d.draw()
         TestUtils.output(svg,"test_line.svg")
 
+
+if __name__ == "__main__":
+    unittest.main()
 

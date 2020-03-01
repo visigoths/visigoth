@@ -62,6 +62,5 @@ class TestWordCloud(unittest.TestCase):
         svg = d.draw()
         TestUtils.output(svg,"test_wordcloud.svg")
 
-if __name__ == '__main__':
-    twc = TestWordCloud()
-    twc.test_basic()
+if __name__ == "__main__":
+    unittest.main()

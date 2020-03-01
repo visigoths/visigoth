@@ -71,3 +71,5 @@ class TestScatterPlot(unittest.TestCase):
 
         TestUtils.output(svg,"test_som.svg")
 
+if __name__ == "__main__":
+    unittest.main()

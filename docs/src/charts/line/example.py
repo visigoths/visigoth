@@ -49,15 +49,13 @@ if __name__ == "__main__":
     data = []
     y = -0.05
     for cat in ["A","B","C","D"]:
-        linedata = []
         for idx in range(36):
-            linedata.append((datetime.datetime(2018,1,1,0,idx,0),y+r.random()/10))
+            data.append((datetime.datetime(2018,1,1,0,idx,0),y+r.random()/10,cat))
         y += 0.1
-        data.append((cat,cat,linedata))
-
+        
     d = Diagram(fill="white")
 
-    al = Line(data, 600, 600, palette, x_axis_label="X", y_axis_label="Y", stroke_width=4, point_radius=2)
+    al = Line(data,x=0,y=1,line=2,colour=2, width=600, height=600, palette=palette, x_axis_label="X", y_axis_label="Y", stroke_width=4, point_radius=2)
     ax = al.getXAxis()
     # ax.setTickPositions([datetime.datetime(2018,idx+1,1,0,0,0) for idx in range(1,12,3)])
 
@@ -73,8 +71,4 @@ if __name__ == "__main__":
 
     f = open(args.outpath, "wb")
     f.write(svg)
-    f.close()
-
-    f = open(args.htmlpath, "wb")
-    f.write(html)
     f.close()

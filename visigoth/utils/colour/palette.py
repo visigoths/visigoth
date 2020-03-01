@@ -18,19 +18,29 @@
 
 from visigoth.utils.colour import Colour
 from visigoth.utils.elements.axis.axisutils import AxisUtils
-from visigoth.utils.colour.colourmaps import ColourMaps
+from visigoth.utils.colour.colourmaps import ColourMaps, DiscreteColourMaps
 
 class DiscretePalette(object):
 
-    def __init__(self):
+    def __init__(self,colourMap="pastel"):
         self.colour = None
         self.categories = []
+        self.categoryset = set()
+        self.colourMap = colourMap
+
+    def build(self):
+        pass
+        
+    @staticmethod
+    def listColourMaps():
+        return sorted(DiscreteColourMaps.keys())
 
     def isDiscrete(self):
         return True
 
     def addCategory(self,category,colour):
         self.categories.append((category,colour))
+        self.categoryset.add(category)
         return self
 
     def getCategories(self):
@@ -38,9 +48,12 @@ class DiscretePalette(object):
 
     def getColour(self,value):
         if self.colour == None:
-            self.colour = Colour(self.categories)
-
-        return self.colour.getColour(value)
+            self.colour = Colour(self.categories,colourMap=self.colourMap)
+        col = self.colour.getColour(value)
+        if value not in self.categoryset:
+            self.categoryset.add(value)
+            self.categories.append((value,col))
+        return col
 
 class ContinuousPalette(object):
 
@@ -51,6 +64,9 @@ class ContinuousPalette(object):
         self.intervals = []
         self.rescaled = False
         self.colourMap = None
+        self.min_value = None
+        self.max_value = None
+        self.built = False
         if colourMap:
             if colourMap not in ColourMaps:
                 raise Exception("Unknown colourmap %s"%(colourMap))
@@ -61,11 +77,20 @@ class ContinuousPalette(object):
                 b = self.colourMap[i][2]
                 self.appendColour("#%02X%02X%02X"%(int(255*r),int(255*g),int(255*b)),i)
 
+    @staticmethod
+    def listColourMaps():
+        return sorted(ColourMaps.keys())
+
     def __repr__(self):
         return str(self.range)
 
     def isDiscrete(self):
         return False
+
+    def build(self):
+        if not self.built:
+            self.rescaleTo(self.min_value,self.max_value)
+        self.built = True
 
     def addColour(self,colour,value):
         # override preset colourMap
@@ -122,6 +147,10 @@ class ContinuousPalette(object):
         self.colour = Colour(self.intervals)
 
     def getColour(self,value):
+        if self.min_value == None or value < self.min_value:
+            self.min_value = value
+        if self.max_value == None or value > self.max_value:
+            self.max_value = value
         return self.colour.getColour(value)
 
     def drawColourRectangle(self,doc,x,y,width,height,orientation,stroke_width=None,stroke=None):
