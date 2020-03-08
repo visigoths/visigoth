@@ -45,16 +45,15 @@ if __name__ == "__main__":
 
     d = Diagram(fill="white")
 
-    scatter = ScatterPlot(data,x=0,y=1,label=2,colour=3,radius=4, palette=palette, x_axis_min = -0.1, y_axis_min = -0.1, x_axis_label="X AXIS", y_axis_label="Y AXIS")
+    scatter = ScatterPlot(data,x=0,y=1,label=2,colour=3,radius=4, palette=palette)
     legend = Legend(palette,400,legend_columns=2)
     d.add(legend)
     d.connect(legend,"brushing",scatter,"brushing")
     d.connect(scatter,"brushing",legend,"brushing")
 
 
-    xaxis = scatter.getXAxis()
+    (xaxis,yaxis) = scatter.getAxes()
     xaxis.setStroke("red",3)
-    yaxis = scatter.getYAxis()
     yaxis.setStroke("blue",3)
     d.add(scatter)
     svg = d.draw()

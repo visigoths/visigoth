@@ -28,12 +28,33 @@ class ChartElement(DiagramElement):
         super(ChartElement,self).__init__()
         self.setTooltipFunction()
         self.setGridStyle()
+        self.palette = None
+        self.marker_manager = None
+        self.xAxis = None
+        self.yAxis = None
+        self.draw_grid = False
 
-    def getXAxis(self):
-        return None
+    def setDrawGrid(self,draw_grid):
+        self.draw_grid = draw_grid
 
-    def getYAxis(self):
-        return None
+    def setPalette(self,palette):
+        self.palette = palette
+
+    def getPalette(self):
+        return self.palette
+
+    def setMarkerManager(self,marker_manager):
+        self.marker_manager = marker_manager
+
+    def getMarkerManager(self):
+        return self.marker_manager
+
+    def setAxes(self,xAxis,yAxis):
+        self.xAxis = xAxis
+        self.yAxis = yAxis
+
+    def getAxes(self):
+        return (self.xAxis,self.yAxis)
 
     def setGridStyle(self,stroke="grey",stroke_width=1):
         self.grid_stroke = stroke
@@ -66,26 +87,49 @@ class ChartElement(DiagramElement):
         self.chart_height = height
 
     def computeX(self,value):
-        return self.getXAxis().getPointPosition(self.chart_ox,value)
+        return self.xAxis.getPointPosition(self.chart_ox,value)
 
     def computeY(self,value):
-        return self.getYAxis().getPointPosition(self.chart_oy,value)
+        return self.yAxis.getPointPosition(self.chart_oy,value)
+
+    def build(self):
+        x_axis_height = 0
+        y_axis_width = 0
+
+        if self.xAxis:
+            self.xAxis.build()
+            x_axis_height = self.xAxis.getHeight()
+        if self.yAxis:
+            self.yAxis.build()
+            y_axis_width = self.yAxis.getWidth()
+        
+        if self.xAxis:
+            self.xAxis.setLength(self.getWidth()-y_axis_width)
+        if self.yAxis:
+            self.yAxis.setLength(self.getHeight()-x_axis_height)
+        
+        if self.xAxis:
+            self.xAxis.build()
+            x_axis_height = self.xAxis.getHeight()
+        if self.yAxis:
+            self.yAxis.build()
+            y_axis_width = self.yAxis.getWidth()
+        
+        self.chart_width = self.getWidth() - y_axis_width
+        self.chart_height = self.getHeight() - x_axis_height
 
     def drawGrid(self,doc):
 
-        y_axis = self.getYAxis()
-        x_axis = self.getXAxis()
-
-        if y_axis:
-            y_ticks = y_axis.getTickPositions(self.chart_oy)
+        if self.yAxis:
+            y_ticks = self.yAxis.getTickPositions(self.chart_oy)
             x1 = self.chart_ox
             x2 = self.chart_ox + self.chart_width
             for y in y_ticks:
                 l = line(x1,y,x2,y,self.grid_stroke,self.grid_stroke_width)
                 doc.add(l)
 
-        if x_axis:
-            x_ticks = x_axis.getTickPositions(self.chart_ox)
+        if self.xAxis:
+            x_ticks = self.xAxis.getTickPositions(self.chart_ox)
             y1 = self.chart_oy
             y2 = self.chart_oy + self.chart_height
             for x in x_ticks:
@@ -97,7 +141,38 @@ class ChartElement(DiagramElement):
         ox = cx - self.getWidth()/2
         oy = cy - self.getHeight()/2
 
-        config = self.drawChart(doc,cx,cy)
+        chart_height = self.getHeight()
+        chart_width = self.getWidth()
+
+        x_axis_height = 0
+        if self.xAxis:
+            x_axis_min = self.xAxis.getMinValue()
+            x_axis_max = self.xAxis.getMaxValue()
+            self.configureXRange(x_axis_min,x_axis_max)
+            x_axis_height = self.xAxis.getHeight()
+            chart_height -= x_axis_height
+
+        y_axis_width = 0
+        if self.yAxis:
+            y_axis_min = self.yAxis.getMinValue()
+            y_axis_max = self.yAxis.getMaxValue()
+            self.configureYRange(y_axis_min,y_axis_max)
+            y_axis_width = self.yAxis.getWidth()
+            chart_width -= y_axis_width
+
+        self.configureChartArea(ox+y_axis_width,oy,chart_width,chart_height)
+
+        if self.xAxis:
+            self.xAxis.draw(doc,ox+y_axis_width+self.chart_width/2,oy+self.chart_height+x_axis_height/2)
+        if self.yAxis:
+            self.yAxis.draw(doc,ox+y_axis_width/2,oy+self.chart_height/2)
+
+        if self.draw_grid:
+            self.drawGrid(doc)
+    
+        chart_cx = ox + y_axis_width + chart_width/2
+        chart_cy = oy + chart_height/2
+        config = self.drawChart(doc,chart_cx,chart_cy,chart_width,chart_height)
 
         # self.closeClip(doc)
 

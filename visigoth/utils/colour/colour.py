@@ -77,7 +77,9 @@ class Colour(object):
         else:
             return "#%02X%02X%02X"%(r,g,b)
 
-
+    def getDefaultColour(self):
+        return self.defaultColour
+        
     def getColour(self,val):
         if self.discrete:
             if val in self.palette_lookup:

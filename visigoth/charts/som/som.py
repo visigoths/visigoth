@@ -119,7 +119,7 @@ class SOM(ChartElement):
             self.scores = self.som.getScores()
             self.built = True
 
-    def drawChart(self,doc,cx,cy):
+    def drawChart(self,doc,cx,cy,chart_width,chart_height):
 
         oy = cy - self.height/2
         ox = cx - self.width/2

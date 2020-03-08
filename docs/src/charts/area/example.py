@@ -38,39 +38,17 @@ if __name__ == "__main__":
     parser.add_argument("--outpath", help="path for output SVG", default="example.svg")
     args = parser.parse_args()
 
-    palette = DiscretePalette()
-    palette.addCategory("A","#E7FFAC")
-    palette.addCategory("B","#FFC9DE")
-    palette.addCategory("C","#B28DFF")
-    palette.addCategory("D","#ACE7FF")
-
-    r = random.Random()
-    data = []
-
-    for idx in range(0,32):
-        linedata = {}
-        angle = idx/2.0
-        for cat in ["A","B","C","D"]:
-            if cat == "B" or cat == "C":
-                angle += math.pi/4
-
-            if cat == "A" or cat == "C":
-                h = 1.5+math.sin(angle)
-            else:
-                h = 1.5+math.cos(angle)
-            linedata[cat]=("",h)
-        data.append((angle,linedata))
-
+    data = [(0,1,"A"),(1,1.5,"A"),(2,1.6,"A"),(3,1.3,"A"),(4,1.2,"A")] + \
+        [(0,4,"B"),(1,3.5,"B"),(2,2.6,"B"),(3,1.6,"B"),(4,0.8,"B")] + \
+        [(0,1,"C"),(1,1.7,"C"),(2,2.6,"C"),(3,2.8,"C"),(4,3.1,"C")]
+    
     d = Diagram(fill="white")
 
-    al = Area(data, 600, 600, palette, negcats=["C","D"],x_axis_label="X", y_axis_label="Y")
+    a = Area(data)
 
-    d.add(al)
-    d.add(Space(20))
-    legend = Legend(palette,400,legend_columns=2)
+    d.add(a)
+    legend = Legend(a.getPalette(),400,legend_columns=2)
     d.add(legend)
-    d.connect(legend,"brushing",al,"brushing")
-    d.connect(al,"brushing",legend,"brushing")
 
     svg = d.draw()
 

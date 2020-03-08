@@ -22,38 +22,54 @@ import json
 from visigoth.charts import ChartElement
 from visigoth.svg import sector, text
 from visigoth.utils.fonts.fontmanager import FontManager
+from visigoth.utils.data import Dataset
+from visigoth.utils.colour import DiscretePalette
 
 class Pie(ChartElement):
     """
     Create a Hierarchical Pie/Doughnut Chart
 
     Args:
-        data (dict): A list containing (category,value) pairs where value may be a numeric value or a nested list.
+        data (dict): A relational data set (for example, list of dicts/lists/tuples describing each row)
+        
+    Keyword Args:
+        value (str or int): Identify the column to specify the value (use count if not specified)
+        colour (str or int): Identify the column to define the sector colour (provide a list to create a multi-level pie chart)
         width (int): the width of the plot in pixels
         height (int): the height of the plot in pixels
-        palette(list) : a list of (category, colour) pairs
-
-    Keyword Args:
+        palette(list) : a DiscretePalette object
         stroke (str): stroke color for pie sectors
         stroke_width (int): stroke width for pie sectors
+        fill (str): the default fill colour for pie sectors
         doughnut (boolean): set True to draw as a doughnut rather than a pie chart
         labelfn (lambda): function to compute a label string, given a category and numeric value
         font_height (int): sets the maximum font height used to display labels
         text_attributes (dict): attributes to apply to text labels
     """
-    def __init__(self,data,width,height,palette,stroke="black",stroke_width=2,doughnut=False,labelfn=lambda k,v:"%s:%0.1f"%(k,v),font_height=20,text_attributes={}):
+    def __init__(self,data,value=0,colour=1,width=768,height=768,palette=None,stroke="black",stroke_width=2,fill="blue",doughnut=False,labelfn=lambda k,v:"%s:%0.1f"%(k,v),font_height=20,text_attributes={}):
         super(Pie, self).__init__()
-        self.data = data
-        self.levels = self.countLevels(data)
+        self.data = Dataset(data)
+        self.value = value
+        self.colour = colour
+        if not isinstance(self.colour,list):
+            self.colour = [self.colour]
+        self.levels = len(self.colour)
         self.width = width
         self.height = height
-        self.palette = palette
+        if not palette:
+            palette = DiscretePalette()
+        self.setPalette(palette)
         self.stroke = stroke
         self.stroke_width = stroke_width
+        self.fill = fill
         self.doughnut = doughnut
         self.labelfn = labelfn
         self.font_height = font_height
         self.text_attributes = text_attributes
+        for colour in self.colour:
+            cats = self.data.query([colour],unique=True,flatten=True)
+            for cat in cats:
+                self.getPalette().getColour(cat)
 
     def getHeight(self):
         return self.height
@@ -64,32 +80,34 @@ class Pie(ChartElement):
     def build(self):
         pass
 
-    def countLevels(self,d):
-        if isinstance(d,list):
-            return 1+max([self.countLevels(v) for (k,v) in d])
-        else:
-            return 0
-
     def getCount(self,d):
         if isinstance(d,list):
             return sum([self.getCount(v) for (k,v) in d])
         else:
             return d
 
-    def getLevel(self,indices,data):
-        if not indices:
-            return list(map(lambda x:(x[0],self.getCount(x[1])),data))
-        else:
-            idx = indices[0]
-            (k,v) = data[idx]
-            if isinstance(v,list):
-                return self.getLevel(indices[1:],v)
-            else:
-                return None
+    def getLevel(self,parentcolours,data):
+        if not self.colour:
+            if parentcolours == []:
+                return self.data.query([str(self.value),self.value])
 
-    def drawChart(self,doc,cx,cy):
+        if not self.colour or len(parentcolours) == len(self.colour):
+            return None # indicates no more levels
+
+        qfilters = []
+        level = len(parentcolours)
+        for (colourcol,parentcolour) in zip(self.colour,parentcolours):
+            qfilters.append(Dataset.filter(colourcol,"=",parentcolour))
+        levelcolour = self.colour[level]
+        if self.value:
+            aggregation = Dataset.sum(self.value)
+        else:
+            aggregation = Dataset.count()
+        return self.data.query([levelcolour],aggregations=[aggregation],filters=qfilters)
+
+    def drawChart(self,doc,cx,cy,cwidth,cheight):
         config = { "categories": {} }
-        levels = self.countLevels(self.data)
+        levels = self.levels
         if self.doughnut:
             levels += 1
 
@@ -98,29 +116,35 @@ class Pie(ChartElement):
         self.drawLevel(doc,cx,cy,[],0.0,2*math.pi,config)
         return config
 
-    def drawLevel(self,doc,cx,cy,indices,thetaMin,thetaMax,config):
+    def drawLevel(self,doc,cx,cy,parentcolours,thetaMin,thetaMax,config):
         theta = thetaMin
-        level = len(indices)+1
-        levelData = self.getLevel(indices,self.data)
-        if levelData == None:
-            return
-
+        level = len(parentcolours)+1
         if self.doughnut:
             level += 1
 
+        levelData = self.getLevel(parentcolours,self.data)
+        if not levelData:
+            return
+
+        levelData = list(filter(lambda x:x[0],levelData))
+        
+        if not levelData:
+            return
+
         data_sum = sum([v for (k,v) in levelData])
         if self.labelfn:
-            # max_label_len = max([len(self.labelfn(k,v)) for (k,v) in levelData])
-            max_label_width = max([FontManager.getTextLength(self.text_attributes,self.labelfn(k,v),self.font_height) for (k,v) in levelData])
-            
+            max_label_width = max([FontManager.getTextLength(self.text_attributes,self.labelfn(k,v),self.font_height) for (k,v) in levelData])            
             font_height = min(self.font_height,self.font_height*(self.rlevel/max_label_width))
 
         for idx in range(len(levelData)):
             (k,v) = levelData[idx]
             theta0 = theta
             theta += (thetaMax-thetaMin)*v/data_sum
-            self.drawLevel(doc,cx,cy,indices+[idx],theta0,theta,config)
-            col = self.palette.getColour(k)
+            self.drawLevel(doc,cx,cy,parentcolours+[k],theta0,theta,config)
+            if self.palette:
+                col = self.palette.getColour(k)
+            else:
+                col = self.fill
             tooltip = self.getTooltip(k,v)
             r = level*self.rlevel
             s = sector(cx,cy, r-self.rlevel, r, theta0, theta, tooltip)

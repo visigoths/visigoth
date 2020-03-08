@@ -21,36 +21,50 @@ import unittest
 from visigoth import Diagram
 from visigoth.utils.test_utils import TestUtils
 from visigoth.charts.line import Line
-from visigoth.common.space import Space
 from visigoth.utils.colour import DiscretePalette
-from visigoth.common.legend import Legend
-from visigoth.common.space import Space
+from visigoth.common import Legend, Text
 
 class TestLine(unittest.TestCase):
 
-    def test_basic(self):
+    def test_page(self):
         d = Diagram(fill="white")
 
-        palette0 = DiscretePalette()
-        palette0.addCategory("A","red")
-        palette0.addCategory("B","purple")
-        palette0.addCategory("C","orange")
+        d.add(Text("Single-Line"))
 
-        data0 = []
-        data0 += [(1,11,"A"),(2,11.5,"A"),(3,13.7,"A"),(4,18,"A"),(5,25,"A")]
-        data0 += [(1,5,"B"),(2,4.3,"B"),(3,3.2,"B"),(4,5.7,"B"),(5,9.4,"B")]
-        data0 += [(1,27,"C"),(2,17,"C"),(3,18.1,"C"),(4,12,"C"),(5,3,"C")]
-
-        d = Diagram(fill="white")
-
-        line0 = Line(data0,x=0,y=1,line=2,colour=2,width=600,height=600,palette=palette0, x_axis_label="label_x", y_axis_label="label_y")
-
+        data0 = [(1,0.5),(2,0.3),(3,0.4),(4,0.1),(5,0.7)]
+        line0 = Line(data0,x=0,y=1,width=600,height=600)
         d.add(line0)
-        d.add(Space(20))
-        legend0 = Legend(palette0,400,legend_columns=2)
-        d.add(legend0)
-        d.connect(legend0,"brushing",line0,"brushing")
-        d.connect(line0,"brushing",legend0,"brushing")
+        
+        palette1 = DiscretePalette()
+        palette1.addCategory("A","red").addCategory("B","purple").addCategory("C","orange")
+
+        data1 = [(1,11,"A"),(2,11.5,"A"),(3,13.7,"A"),(4,18,"A"),(5,25,"A")]
+        data1 += [(1,5,"B"),(2,4.3,"B"),(3,3.2,"B"),(4,5.7,"B"),(5,9.4,"B")]
+        data1 += [(1,27,"C"),(2,17,"C"),(3,18.1,"C"),(4,12,"C"),(5,3,"C")]
+
+        d.add(Text("Multi-Line"))
+        line1 = Line(data1,x=0,y=1,line=2,colour=2,width=600,height=600,palette=palette1, smoothing=0.3)
+
+        d.add(line1)
+        
+        legend1 = Legend(palette1,400,legend_columns=2)
+        d.add(legend1)
+        
+        d.connect(legend1,"brushing",line1,"brushing")
+        d.connect(line1,"brushing",legend1,"brushing")
+
+        d.add(Text("Custom Axes"))
+
+        data2 = [{"x":2.1,"y":3.4},{"x":2.3,"y":4.5},{"x":2.5,"y":9.0},{"x":2.7,"y":19.3}]
+        line2 = Line(data2,x="x",y="y",width=600,height=600,fill="green",smoothing=0.0)
+
+        (ax,ay) = line2.getAxes()
+        ax.setMinValue(2)
+        ax.setMaxValue(3)
+        ay.setMaxValue(20)
+        ay.setMinValue(0)
+        
+        d.add(line2)
         svg = d.draw()
         TestUtils.output(svg,"test_line.svg")
 

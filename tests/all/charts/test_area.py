@@ -22,45 +22,69 @@ import math
 from visigoth import Diagram
 from visigoth.utils.test_utils import TestUtils
 from visigoth.charts.area import Area
-from visigoth.common.space import Space
 from visigoth.utils.colour import DiscretePalette
-from visigoth.common.legend import Legend
-from visigoth.common.space import Space
+from visigoth.common import Legend, Text
+from visigoth.containers import Grid,Sequence
 
-class TestBar(unittest.TestCase):
+class TestArea(unittest.TestCase):
 
     def test_basic(self):
         d = Diagram(fill="white")
 
-        palette0 = DiscretePalette()
-        palette0.addCategory("A","#E7FFAC")
-        palette0.addCategory("B","#FFC9DE")
-        palette0.addCategory("C","#B28DFF")
-        palette0.addCategory("D","#ACE7FF")
+        dp = DiscretePalette()
 
-        data0 = []
+        data = [
+            (1,12,"A"),
+            (2,14,"A"),
+            (3,11,"A"),
+            (4,9,"A"),
+            (5,7,"A"),
+            (1,2,"B"),
+            (2,4,"B"),
+            (3,7,"B"),
+            (4,10,"B"),
+            (5,11,"B"),
+            (1,2,"C"),
+            (2,3,"C"),
+            (3,1,"C"),
+            (4,3,"C"),
+            (5,2,"C")
+        ]
 
-        for idx in range(0,32):
-            linedata = {}
-            angle = idx/2.0
-            for cat in ["A","B","C","D"]:
-                if cat == "B" or cat == "C":
-                    angle += math.pi/4
+        d.add(Text("Individual areas"))
 
-                if cat == "A" or cat == "C":
-                    h = 1.5+math.sin(angle)
-                else:
-                    h = 1.5+math.cos(angle)
-                linedata[cat]=("",h)
-            data0.append((angle,linedata))
+        g = Grid()
+        row = 0
+        col = 0
+        for cat in ["A","B","C"]:
+            s = Sequence()            
+            s.add(Text(cat))
+            area0 = Area([d for d in data if d[2] == cat],x=0,y=1,fill=dp.getColour(cat),palette=dp,height=300,width=300)
+            s.add(area0)
+            g.add(row,col,s)
+            col += 1
+            if col == 2:
+                row += 1
+                col = 0        
+        d.add(g)
 
-        area0 = Area(data0, 600, 600, palette0, negcats=["C","D"],x_axis_label="X", y_axis_label="Y")
+        d.add(Text("Smoothing"))
 
-        d.add(area0)
-        legend0 = Legend(palette0,400,legend_columns=2)
-        d.add(legend0)
-        d.connect(legend0,"brushing",area0,"brushing")
-        d.connect(area0,"brushing",legend0,"brushing")
+        d.add(Text("Stacked areas"))
+        area1 = Area(data, x=0, y=1, colour=2, height=600, palette=dp, width=600)
+        d.add(area1)
+
+        legend1 = Legend(dp,400,legend_columns=2)
+        d.add(legend1)
+        d.connect(legend1,"brushing",area1,"brushing")
+        d.connect(area1,"brushing",legend1,"brushing")
+        
+        for smoothing in [0.1,0.3,0.5]:
+            d.add(Text("Smoothing=%f"%(smoothing)))
+            area2 = Area(data, x=0, y=1, colour=2, height=400, smoothing=smoothing, palette=dp, width=400)
+            d.add(area2)
+
+        
         svg = d.draw()
         TestUtils.output(svg,"test_area.svg")
 

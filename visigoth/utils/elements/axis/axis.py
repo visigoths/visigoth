@@ -35,8 +35,8 @@ class Axis(DiagramElement):
     Arguments:
         length(int): length of the axis in pixels
         orientation(str):  horizontal or vertical
-        lwb(numeric): lower bound for axis as a latitude or longitude value
-        upb(numeric): upper bound for axis as a latitude or longitude value
+        minValue(numeric): lower bound for axis 
+        maxValue(numeric): upper bound for axis 
 
     Keyword Arguments:
         projection(visigoth.utils.mapping.projections.Projection): the projection in use
@@ -50,11 +50,12 @@ class Axis(DiagramElement):
         text_attributes(dict): a dict containing SVG name/value pairs
     """
 
-    def __init__(self,length,orientation,lwb,upb,projection=Projections.IDENTITY,label=None,decimal_places=2,labelfn=None,stroke="black",stroke_width=2,font_height=24,axis_font_height=16,text_attributes={}):
+    def __init__(self,length,orientation,minValue,maxValue,projection=Projections.IDENTITY,label=None,decimal_places=2,labelfn=None,stroke="black",stroke_width=2,font_height=24,axis_font_height=16,text_attributes={}):
         DiagramElement.__init__(self)
         self.length = length
         self.orientation = orientation
-        (self.lwb,self.upb,self.date_based) = self.extractBounds(lwb,upb)
+        self.minValue = minValue
+        self.maxValue = maxValue
         self.label = label
         self.labelfn = labelfn
         self.decimal_places = decimal_places
@@ -65,11 +66,29 @@ class Axis(DiagramElement):
         self.text_attributes = text_attributes
         self.tickpoints = []
         self.ticks = []
-        self.axisutils = AxisUtils(length,orientation,self.lwb,self.upb,projection,self.date_based)
+        self.axis_utils = None
         self.tick_width = self.stroke_width*2
         self.width = 0
         self.height = 0
         self.projection = projection
+
+    def setMinValue(self,value):
+        self.minValue = value
+
+    def getMinValue(self):
+        return self.minValue
+
+    def setLength(self,length):
+        self.length = length
+
+    def setMaxValue(self,value):
+        self.maxValue = value
+
+    def getMaxValue(self):
+        return self.maxValue
+        
+    def setLabel(self,label):
+        self.label = label
 
     def extractBounds(self,lwb,upb):
         date_based = False
@@ -112,6 +131,8 @@ class Axis(DiagramElement):
         return self.axisutils.getPointPosition(start,value)
 
     def build(self):
+        (self.lwb,self.upb,self.date_based) = self.extractBounds(self.minValue,self.maxValue)
+        self.axisutils = AxisUtils(self.length,self.orientation,self.lwb,self.upb,self.projection,self.date_based)
         if not self.tickpoints:
             self.tickpoints = self.axisutils.computeTickPoints()
         else:

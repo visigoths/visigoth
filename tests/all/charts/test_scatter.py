@@ -24,7 +24,7 @@ from visigoth.charts.scatterplot import ScatterPlot
 from visigoth.containers.box import Box
 
 from visigoth.utils.colour import DiscretePalette
-from visigoth.common.legend import Legend
+from visigoth.common import Legend, Text
 
 class TestScatterPlot(unittest.TestCase):
 
@@ -44,12 +44,22 @@ class TestScatterPlot(unittest.TestCase):
                 (700,80,"p4","A",15),(100,200,"p5","B",5),(150,1100,"p6","A",15),(200,500,"p7","C",5),
                 (700,700,"p8","C",8),(1200,600,"p9","C",9)]
 
-        scatter0 = ScatterPlot(data0, x=0, y=1, label=2, colour=3, radius=4, width=500, height=500, palette=palette0, x_axis_label="label-x", y_axis_label="label-y")
+        d.add(Text("Multi-colour"))
+
+        scatter0 = ScatterPlot(data0, x=0, y=1, label=2, colour=3, radius=4, width=500, height=500, palette=palette0)
+        (xAxis,yAxis) = scatter0.getAxes()
+        xAxis.setLabel("label-x")
+        yAxis.setLabel("label-y")
+
         d.add(Box(scatter0))
         legend0 = Legend(palette0,400,legend_columns=2)
         d.add(legend0)
         d.connect(legend0,"brushing",scatter0,"brushing")
         d.connect(scatter0,"brushing",legend0,"brushing")
+
+        d.add(Text("Monochrome"))
+        scatter1 = ScatterPlot(data0, x=0, y=1, label=2, radius=4, width=500, height=500, fill="#4040A040")
+        d.add(scatter1)
 
         svg = d.draw()
         TestUtils.output(svg,"test_scatter.svg")

@@ -55,10 +55,11 @@ if __name__ == "__main__":
         
     d = Diagram(fill="white")
 
-    al = Line(data,x=0,y=1,line=2,colour=2, width=600, height=600, palette=palette, x_axis_label="X", y_axis_label="Y", stroke_width=4, point_radius=2)
-    ax = al.getXAxis()
-    # ax.setTickPositions([datetime.datetime(2018,idx+1,1,0,0,0) for idx in range(1,12,3)])
-
+    al = Line(data,x=0,y=1,line=2,colour=2, width=600, height=600, palette=palette, stroke_width=4, point_radius=2)
+    (ax,ay) = al.getAxes()
+    ax.setLabel("X axis")
+    ay.setLabel("Y axis")
+    
     d.add(Box(al))
   
     legend = Legend(palette,400,legend_columns=2)

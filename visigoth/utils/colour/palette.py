@@ -49,6 +49,8 @@ class DiscretePalette(object):
     def getColour(self,value):
         if self.colour == None:
             self.colour = Colour(self.categories,colourMap=self.colourMap)
+        if not value:
+            return self.colour.getDefaultColour()
         col = self.colour.getColour(value)
         if value not in self.categoryset:
             self.categoryset.add(value)

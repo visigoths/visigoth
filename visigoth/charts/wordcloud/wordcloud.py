@@ -146,7 +146,7 @@ class WordCloud(ChartElement):
 
         p.complete("Complete")
 
-    def drawChart(self,doc,cx,cy):
+    def drawChart(self,doc,cx,cy,chart_width,chart_height):
         categories = {}
         for (word,w,h,cat,x,y,flip) in self.renders:
             col = self.getColour(cat)

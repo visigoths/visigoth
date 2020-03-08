@@ -35,15 +35,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     palette = DiscretePalette()
-    palette.addCategory("A","#E7FFAC").addCategory("B","#FFC9DE").addCategory("C","#B28DFF").addCategory("D","#ACE7FF")
-    palette.addCategory("D.1","red").addCategory("D.2","green").addCategory("D.3","blue")
-    palette.addCategory("B.2","purple").addCategory("B.1","orange")
-
-    data = [("A",10),("B",[("B.1",15),("B.2",5)]),("C",4),("D",[("D.1",12),("D.2",3),("D.3",5)])]
+    
+    data = [("A",10),("B",4),("D",12),("D.2",3),("D.3",5)]
 
     d = Diagram(fill="white")
 
-    pie = Pie(data, 400, 400, palette, doughnut=True)
+    pie = Pie(data,colour=0,value=1,width=400, height=400, palette=palette, doughnut=True)
     d.add(pie)
     d.add(Space(20))
     legend = Legend(palette,400,legend_columns=2)

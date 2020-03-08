@@ -88,7 +88,7 @@ class CountFunction(object):
 
 class AggregationFunction(object):
 
-    def __init__(self,fn,column):
+    def __init__(self,fn,column=None):
         self.fn = fn
         self.column = column
         self.accumulators = {}
@@ -158,7 +158,7 @@ class Dataset(object):
                     return False
         return False
 
-    def query(self,columns=[],unique=False,filters=[],aggregations=[]):
+    def query(self,columns=[],unique=False,filters=[],aggregations=[],flatten=False):
         rows = []
         if columns == []:
             unique = True
@@ -172,11 +172,11 @@ class Dataset(object):
             if filtered:
                 continue
             for column in columns:
-                if column == None:
+                if column is None:
                     row.append(None)
                 elif isinstance(column,Constant):
                     row.append(column.value())  
-                elif isinstance(column,int):
+                elif isinstance(column,int) and column < len(datum):
                     row.append(datum[column])
                 elif column in datum:
                     row.append(datum[column])
@@ -188,10 +188,20 @@ class Dataset(object):
             for aggregation in aggregations:
                 aggregation.aggregate(tup,datum)
 
+        if aggregations:
+            rows2 = []
+            for tup in rows:
+                if tup not in rows2:
+                    rows2.append(tup)
+            rows = rows2
+
         results = []
         for tup in rows:
             result = tup
             for aggregation in aggregations:
                 result += aggregation.finalise(tup)
-            results.append(result)
+            if flatten:
+                results += result
+            else:
+                results.append(result)
         return results

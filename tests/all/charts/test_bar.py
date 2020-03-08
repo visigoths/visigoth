@@ -58,7 +58,7 @@ class TestBar(unittest.TestCase):
     def test_nopalette(self):
         d = Diagram(fill="white")
         data = [("A",10),("B",5),("C",-4),("D",-25)]
-        bar = Bar(data,x=0,y=1,width=400,height=400,draw_axis=True,draw_grid=False,labelfn=lambda k,v:"%d"%v)
+        bar = Bar(data,x=0,y=1,width=400,height=400,labelfn=lambda k,v:"%d"%v)
         d.add(bar)
         svg = d.draw()
         TestUtils.output(svg,"test_bar_nopalette.svg")

@@ -101,20 +101,14 @@ class Transition(ChartElement):
         # flows going through the missing category should be coloured transparent white
         self.palette[""] = "#FFFFFF00"
 
-        self.ay = Axis(self.height-self.font_height,"vertical",0,len(self.keys),label=self.y_axis_label,font_height=self.font_height,text_attributes=self.text_attributes)
-        self.ay.build()
+        ay = Axis(self.height-self.font_height,"vertical",0,len(self.keys),label=self.y_axis_label,font_height=self.font_height,text_attributes=self.text_attributes)
+        self.setAxes(None,ay)
 
     def getWidth(self):
         return self.width
 
     def getHeight(self):
         return self.height
-
-    def getXAxis(self):
-        return None
-
-    def getYAxis(self):
-        return self.ay
 
     def defineGradient(self,d,cat0,cat1):
         if (cat0,cat1) in self.gradients:
@@ -138,14 +132,12 @@ class Transition(ChartElement):
         group.add(p)
         return p.getId()
 
-    def drawChart(self,d,cx,cy):
-        oy = cy - self.height/2
-        ox = cx - self.width/2
+    def drawChart(self,d,cx,cy,chart_width,chart_height):
+        oy = cy - chart_height/2
+        ox = cx - chart_width/2
 
-        # compute the width of chart without the y-axis
-        chart_width = self.width - self.ay.getWidth()
         # ... and the height of the chart without the x-axis labels
-        chart_height = self.height - self.font_height
+        chart_height -= self.font_height
 
         item_height = chart_height / len(self.keys)
 
@@ -155,7 +147,7 @@ class Transition(ChartElement):
         # labels
         ay = self.font_height
         for transition in range(0,len(self.transitions)+1):
-            transition_label_x = ox + self.ay.getWidth() + transition * plot_width
+            transition_label_x = ox + transition * plot_width
             transition_label_y = oy + self.font_height/2
             t = text(transition_label_x, transition_label_y, self.transition_labels[transition])
             t.addAttrs(self.text_attributes)
@@ -178,8 +170,8 @@ class Transition(ChartElement):
 
         # transition curves
         for transition in range(0,len(self.transitions)):
-            transition_x0 = ox+self.ay.getWidth()+transition*plot_width
-            transition_x1 = ox+self.ay.getWidth()+(transition+1)*plot_width
+            transition_x0 = ox+transition*plot_width
+            transition_x1 = ox+(transition+1)*plot_width
 
             points0 = self.transitions[transition][0]
             points1 = self.transitions[transition][1]
@@ -213,8 +205,5 @@ class Transition(ChartElement):
                     self.ids_by_category[cat0].append(svgid)
                 if pcat1 and pcat1 != pcat0:
                     self.ids_by_category[cat1].append(svgid)
-
-        # y-axis
-        self.ay.draw(d,cx-self.width/2+self.ay.getWidth()/2,oy+self.font_height+self.ay.getHeight()/2)
 
         return {"categories":self.ids_by_category}
