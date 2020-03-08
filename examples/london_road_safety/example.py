@@ -110,9 +110,12 @@ area_palette = DiscretePalette()
 area_palette.addCategory("freq","lightblue")
 area_data = []
 for hour in freqs_by_hour:
-    area_data.append((hour,{"freq":("",freqs_by_hour[hour])}))
-area_chart = Area(area_data,512,512,area_palette,x_axis_label="Time Of Day (Hour)", y_axis_label="Accident Frequency/Hour")
-area_chart.getXAxis().setTickPositions(list(range(24)))
+    area_data.append((hour,freqs_by_hour[hour]))
+area_chart = Area(area_data,x=0,y=1,width=512,height=512,fill="blue",palette=area_palette)
+(ax,ay) = area_chart.getAxes()
+ax.setLabel("Time Of Day (Hour)")
+ay.setLabel("Accident Frequency/Hour")
+ax.setTickPositions(list(range(24)))
 
 # lay out the diagram, starting with a title
 d.add(Text("London Area Serious and Fatal Road Accidents 2018"))

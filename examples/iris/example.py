@@ -54,9 +54,13 @@ if __name__ == "__main__":
 
     def createPlot(x_field,y_field,data,palette):
         sdata = [(float(row[x_field]),float(row[y_field]),row["species"],row["species"],5) for row in data]
-        return ScatterPlot(sdata,250,250,palette,x_axis_label=x_field,y_axis_label=y_field)
+        sp = ScatterPlot(sdata,width=250,height=250,palette=palette)
+        (ax,ay) = sp.getAxes()
+        ax.setLabel(x_field)
+        ay.setLabel(y_field)
+        return sp
 
-    l = Legend(p,800,legend_columns=3)
+    l = Legend(p,width=800,legend_columns=3)
 
     for r in range(len(fields)):
         for c in range(len(fields)):

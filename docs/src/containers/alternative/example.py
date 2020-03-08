@@ -40,8 +40,8 @@ if __name__ == "__main__":
 
     data0 = [("A",1.2),("B",0.7),("C",0.4),("D",0.5)]
 
-    bar0 = Bar(data0, 400, 400, palette0,labelfn=lambda k,v:"%0.2f"%v)
-    pie0 = Pie(data0, 400, 400, palette0)
+    bar0 = Bar(data0, x=0, y=1, colour=0, width=400, height=400, palette=palette0,labelfn=lambda k,v:"%0.2f"%v)
+    pie0 = Pie(data0, colour=0, value=1, width=400, height=400, palette=palette0)
 
     a = Alternative()
     a.add(pie0)
