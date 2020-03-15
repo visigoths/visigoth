@@ -39,12 +39,6 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    palette = DiscretePalette()
-    palette.addCategory("A","#E7FFAC")
-    palette.addCategory("B","#FFC9DE")
-    palette.addCategory("C","#B28DFF")
-    palette.addCategory("D","#ACE7FF")
-
     r = random.Random()
     data = []
     y = -0.05
@@ -55,14 +49,14 @@ if __name__ == "__main__":
         
     d = Diagram(fill="white")
 
-    al = Line(data,x=0,y=1,line=2,colour=2, width=600, height=600, palette=palette, stroke_width=4, point_radius=2)
+    al = Line(data,x=0,y=1,line=2,colour=2, width=600, height=600)
     (ax,ay) = al.getAxes()
     ax.setLabel("X axis")
     ay.setLabel("Y axis")
     
     d.add(Box(al))
   
-    legend = Legend(palette,400,legend_columns=2)
+    legend = Legend(al.getPalette(),400,legend_columns=2)
     d.add(legend)
     d.connect(legend,"brushing",al,"brushing")
     d.connect(al,"brushing",legend,"brushing")

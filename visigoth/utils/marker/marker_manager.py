@@ -20,11 +20,14 @@ from visigoth.utils.marker.circle_marker import CircleMarker
 
 class MarkerManager(object):
 
-    def __init__(self,min_radius=1,max_radius=10):
+    def __init__(self,min_radius=1,max_radius=10,default_radius=3,stroke="black",stroke_width=1):
         self.min_radius = min_radius
         self.max_radius = max_radius
         self.size_min = None
         self.size_max = None
+        self.default_radius = default_radius
+        self.stroke = stroke
+        self.stroke_width = stroke_width
 
     def noteSize(self,size):
         if self.size_min is None or size < self.size_min:
@@ -32,10 +35,10 @@ class MarkerManager(object):
         if self.size_max is None or size > self.size_max:
             self.size_max = size
         
-    def getMarker(self,size,default_radius):
+    def getMarker(self,size):
         if size is None or self.size_max is None:
-            r = default_radius
+            r = self.default_radius
         else:
             r = self.min_radius + (self.max_radius-self.min_radius)*(size/self.size_max)
-        return CircleMarker(r)
+        return CircleMarker(r,self.stroke,self.stroke_width)
         

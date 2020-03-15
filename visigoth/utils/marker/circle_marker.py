@@ -20,13 +20,15 @@ from visigoth.svg import circle
 
 class CircleMarker(object):
 
-    def __init__(self,radius):
+    def __init__(self,radius,stroke,stroke_width):
         self.radius = radius
+        self.stroke = stroke
+        self.stroke_width = stroke_width
 
-    def plot(self,doc,x,y,tooltip,colour,stroke,stroke_width):
+    def plot(self,doc,x,y,tooltip,colour):
         circ = circle(x,y,self.radius,colour,tooltip=tooltip)
-        circ.addAttr("stroke",stroke)
-        circ.addAttr("stroke-width",stroke_width)
+        circ.addAttr("stroke",self.stroke)
+        circ.addAttr("stroke-width",self.stroke_width)
         doc.add(circ)
         return circ.getId()
 

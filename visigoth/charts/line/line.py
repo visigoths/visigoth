@@ -27,6 +27,8 @@ from math import radians,sin,cos,pi,sqrt,log
 from visigoth.svg import circle, line, text, path
 from visigoth.utils.elements.axis import Axis
 from visigoth.utils.data import Dataset
+from visigoth.utils.marker import MarkerManager
+from visigoth.utils.colour import DiscretePalette, ContinuousPalette
 
 class Line(ChartElement):
 
@@ -42,19 +44,18 @@ class Line(ChartElement):
         colour (str or int): Identify the column to specify the line to which each point belongs 
         id (str or int): Identify the column to define the unique id of each point
         label (str or int): Identify the column to define the label of each point
+        size (str or int): Identify the column to determine the size of each point
         width(int) : the width of the plot including axes
         height(int) : the height of the plot including axes
+        palette(object) : a ContinuousPalette or DiscretePalette instance to control line colour
+        marker_manager(object) : a MarkerManager instance to control marker appearance
         smoothing (float) : smoothing factor to apply to lines, 0.0=no smoothing
-        line_width (int) : width of the lines
-        point_radius (int) : radius of points
-        stroke (str): stroke color for circumference of points
-        stroke_width (int): stroke width for circumference of points
-        fill (str): default fill colour for points if colour is not specified
+        line_width (int) : specify the width of the lines in pixels
         font_height (int): the height of the font for text labels
         text_attributes (dict): SVG attribute name value pairs to apply to labels
     """
 
-    def __init__(self, data,x=0,y=1,line=None,id=None,colour=None,label=None,width=768, height=768, palette=None, smoothing=0.0, line_width=4, point_radius=4, stroke="black",stroke_width=2,fill="blue",font_height=24, text_attributes={}):
+    def __init__(self, data,x=0,y=1,line=None,id=None,colour=None,label=None,size=None,width=768, height=768, palette=None, marker_manager=None, smoothing=0.0, line_width=2, font_height=24, text_attributes={}):
         super(Line, self).__init__()
         self.setTooltipFunction(lambda cat,val: "%s: (%s,%s)"%(cat,str(val[0]),str(val[1])))
         self.dataset = Dataset(data)
@@ -64,27 +65,27 @@ class Line(ChartElement):
         self.id = id
         self.label = label
         self.colour = colour
-
+        self.size = size
         self.width = width
         self.height = height
-        self.palette = palette
         
-        if self.colour != None and not self.palette:
-            if self.dataset.isDiscrete(self.colour):
-                self.palette = DiscretePalette()
+        if not palette:
+            if self.colour != None or self.dataset.isDiscrete(self.colour):
+                palette = DiscretePalette()
             else:
-                self.palette = ContinuousPalette()
+                palette = ContinuousPalette()
+        self.setPalette(palette)
+
+        if not marker_manager:
+            marker_manager = MarkerManager()
+        self.setMarkerManager(marker_manager)
         
         self.smoothing = smoothing
         self.line_width = line_width
-        self.point_radius = point_radius
-
+        
         self.font_height = font_height
         self.text_attributes = text_attributes
-        self.stroke = stroke
-        self.stroke_width = stroke_width
-        self.fill = fill
-
+        
         xy_range = self.dataset.query(aggregations=[Dataset.min(self.x),Dataset.max(self.x),Dataset.min(self.y),Dataset.max(self.y)])[0]
         
         (x_axis_min,x_axis_max,y_axis_min,y_axis_max) = tuple(xy_range)
@@ -95,6 +96,14 @@ class Line(ChartElement):
             x_label = self.x
         if isinstance(self.y,str):
             y_label = self.y
+
+        if self.colour != None:
+            for val in self.dataset.query([self.colour],unique=True,flatten=True):
+                self.getPalette().getColour(val)
+
+        if self.size:
+            for v in self.dataset.query([self.size],unique=True,flatten=True):
+                self.getMarkerManager().noteSize(v)
 
         ax = Axis(self.width,"horizontal",x_axis_min,x_axis_max,label=x_label,font_height=self.font_height,text_attributes=self.text_attributes)
         ay = Axis(self.height,"vertical",y_axis_min,y_axis_max,label=y_label,font_height=self.font_height,text_attributes=self.text_attributes)
@@ -111,30 +120,29 @@ class Line(ChartElement):
         
         categories = {}
 
-        def plotpoint(x,y,cat,col):
+        def plotpoint(x,y,cat,col,sz):
             cx = self.computeX(x)
             cy = self.computeY(y)
-            circ = circle(cx,cy,self.point_radius,col,tooltip=self.getTooltip(cat,(x,y)))
 
-            circ.addAttr("stroke",self.stroke)
-            circ.addAttr("stroke-width",self.stroke_width)
+            marker = self.getMarkerManager().getMarker(sz)
+            cid = marker.plot(doc,cx,cy,self.getTooltip(cat,(x,y)),col)
+
             ids = categories.get(cat,[])
-            ids.append(circ.getId())
+            ids.append(cid)
             categories[cat] = ids
-            doc.add(circ)
-
+            
         def plotline(linepoints,linecat):
             if not linepoints:
                 return
             linepoints = sorted(linepoints,key=lambda p:p[0])
-            coords = [(self.computeX(x),self.computeY(y)) for (x,y) in linepoints]
-            
+            coords = [(self.computeX(x),self.computeY(y)) for (x,y,_) in linepoints]
+
             if self.palette:
                 col = self.palette.getColour(linecat)
             else:
                 col = self.fill
 
-            p = path(coords,col,self.stroke_width,smoothing=self.smoothing)
+            p = path(coords,col,self.line_width,smoothing=self.smoothing)
             
             ids = categories.get(linecat,[])
             ids.append(p.getId())
@@ -142,16 +150,16 @@ class Line(ChartElement):
 
             doc.add(p)
 
-            for (x,y) in linepoints:
-                plotpoint(x,y,linecat,col)
+            for (x,y,sz) in linepoints:
+                plotpoint(x,y,linecat,col,sz)
 
         if self.colour != None:
             linecats = map(lambda x:x[0],self.dataset.query([self.colour],unique=True))
             for linecat in linecats:
-                linepoints = self.dataset.query([self.x,self.y],filters=[self.dataset.filter(self.colour,"=",linecat)])
+                linepoints = self.dataset.query([self.x,self.y,self.size],filters=[self.dataset.filter(self.colour,"=",linecat)])
                 plotline(linepoints,linecat)
         else:
-            linepoints = self.dataset.query([self.x,self.y])
+            linepoints = self.dataset.query([self.x,self.y,self.size])
             plotline(linepoints,"")
 
         return {"categories":categories}

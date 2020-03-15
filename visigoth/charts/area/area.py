@@ -28,6 +28,7 @@ from visigoth.svg import circle, line, text, path
 from visigoth.utils.elements.axis import Axis
 from visigoth.utils.colour.palette import DiscretePalette
 from visigoth.utils.data import Dataset
+from visigoth.utils.marker import MarkerManager
 
 class Area(ChartElement):
 
@@ -43,19 +44,18 @@ class Area(ChartElement):
         colour (str or int): Identify the column to define the area and colour 
         id (str or int): Identify the column to define the unique id of each point
         label (str or int): Identify the column to define the label of each point
+        size (str or int): Identify the column to determine the size of each point
         width(int) : the width of the plot including axes
         height(int) : the height of the plot including axes
+        palette(object) : a ContinuousPalette or DiscretePalette instance to control line colour
+        marker_manager(object) : a MarkerManager instance to control marker appearance
         smoothing (float) : smoothing factor to apply to lines, 0.0=no smoothing
         line_width (int) : width of the lines
-        point_radius (int) : radius of points
-        stroke (str): stroke color for circumference of points
-        stroke_width (int): stroke width for circumference of points
-        fill (str): the default fill colour for areas
         font_height (int): the height of the font for text labels
         text_attributes (dict): SVG attribute name value pairs to apply to labels
     """
 
-    def __init__(self, data, x=0, y=1, colour=2, id=None, label=None, width=768, height=768,  palette=None, smoothing=0.0, line_width=4, point_radius=4, stroke="black",stroke_width=2, fill="blue", font_height=24, text_attributes={}):
+    def __init__(self, data, x=0, y=1, colour=2, id=None, label=None, size=None, width=768, height=768,  palette=None, marker_manager=None, smoothing=0.0, line_width=4, font_height=24, text_attributes={}):
         super(Area, self).__init__()
         self.setTooltipFunction(lambda cat,val: "%s: (%s,%s)"%(cat,str(val[0]),str(val[1])))
         self.setDrawGrid(True)
@@ -64,6 +64,7 @@ class Area(ChartElement):
         self.colour = colour
         self.id = id
         self.label = label
+        self.size = size
 
         self.data = Dataset(data)
 
@@ -76,23 +77,22 @@ class Area(ChartElement):
         self.width = width
         self.height = height
     
-        if self.colour and not palette:
+        if not palette:
             palette = DiscretePalette()
-            for cat in self.cats:
-                palette.getColour(cat)
-
+        for cat in self.cats:
+            palette.getColour(cat)
         self.setPalette(palette)
 
+        if not marker_manager:
+            marker_manager = MarkerManager()
+        self.setMarkerManager(marker_manager)
+       
         self.smoothing = smoothing
         self.line_width = line_width
-        self.point_radius = point_radius
-
+        
         self.font_height = font_height
         self.text_attributes = text_attributes
-        self.stroke = stroke
-        self.stroke_width = stroke_width
-        self.fill = fill
-
+        
         self.catmap = {} # mapping from colour-category to list of SVG ids
 
         x_axis_max = max(x for x in self.xcs)
@@ -111,7 +111,15 @@ class Area(ChartElement):
             x_label = self.x
         if isinstance(self.y,str):
             y_label = self.y
+
+        if self.colour != None:
+            for val in self.data.query([self.colour],unique=True,flatten=True):
+                self.getPalette().getColour(val)
         
+        if self.size != None:
+            for v in self.data.query([self.size],unique=True,flatten=True):
+                self.getMarkerManager().noteSize(v)
+
         ax = Axis(self.width,"horizontal",x_axis_min,x_axis_max,label=x_label,font_height=self.font_height,text_attributes=self.text_attributes)
         ay = Axis(self.height,"vertical",y_axis_min,y_axis_max,label=y_label,font_height=self.font_height,text_attributes=self.text_attributes)
         self.setAxes(ax,ay)
@@ -122,28 +130,26 @@ class Area(ChartElement):
     def getHeight(self):
         return self.height
 
-    def plotPoint(self,diagram,cat,x,y,col):
+    def plotPoint(self,diagram,cat,x,y,col,sz):
         
         cx = self.computeX(x)
         cy = self.computeY(y)
-        circ = circle(cx,cy,self.point_radius,col,tooltip=self.getTooltip(cat,(x,y)))
+        marker = self.marker_manager.getMarker(sz)
+        cid = marker.plot(diagram,cx,cy,self.getTooltip(cat,(x,y)),col)
 
-        circ.addAttr("stroke",self.stroke)
-        circ.addAttr("stroke-width",self.stroke_width)
         if cat:
             ids = self.catmap.get(cat,[])
-            ids.append(circ.getId())
+            ids.append(cid)
             self.catmap[cat] = ids
-        diagram.add(circ)
-
-    def plotLine(self,diagram,cat,linepoints,col):
-        coords = [(self.computeX(x),self.computeY(y)) for (x,y) in linepoints]
         
-        p = path(coords,col,self.stroke_width,smoothing=self.smoothing)
+    def plotLine(self,diagram,cat,linepoints,col):
+        coords = [(self.computeX(x),self.computeY(y)) for (x,y,_) in linepoints]
+
+        p = path(coords,col,self.line_width,smoothing=self.smoothing)
 
         p.close([(self.computeX(self.getXRange()[1]),self.computeY(0)),(self.computeX(self.getXRange()[0]),self.computeY(0))])
         p.addAttr("fill",col)
-        p.addAttr("stroke",self.stroke)
+    
         if cat:
             ids = self.catmap.get(cat,[])
             ids.append(p.getId())
@@ -151,12 +157,12 @@ class Area(ChartElement):
 
         diagram.add(p)
 
-        for (x,y) in linepoints:
-            self.plotPoint(diagram,cat,x,y,col)
+        for (x,y,sz) in linepoints:
+            self.plotPoint(diagram,cat,x,y,col,sz)
 
     def drawArea(self,diagram):
-        points = self.data.query([self.x,self.y,self.id,self.label])
-        linepoints = [(x,y) for (x,y,_,_) in points]
+        points = self.data.query([self.x,self.y,self.id,self.label,self.size])
+        linepoints = [(x,y,sz) for (x,y,_,_,sz) in points]
         linepoints = sorted(linepoints,key=lambda p:p[0])
         self.plotLine(diagram,None,linepoints,self.fill)
             
@@ -166,23 +172,24 @@ class Area(ChartElement):
         catdata = {}
 
         for cat in self.cats:
-            catdata[cat] = self.data.query([self.x,self.y,self.id,self.label],filters=[Dataset.filter(self.colour,"=",cat)])
+            catdata[cat] = self.data.query([self.x,self.y,self.id,self.label,self.size],filters=[Dataset.filter(self.colour,"=",cat)])
 
         for x in self.xcs:
             yc = 0
             
             for cat in self.cats:
                 points = catdata[cat]
-                point = [(py,id,label) for (px,py,id,label) in points if px==x]
+                point = [(py,id,label,sz) for (px,py,id,label,sz) in points if px==x]
                 if not point:
                     raise Exception("Invalid input data")
                 else:
                     point = point[0]
 
                 yc += point[0]
+                sz = point[3]
                     
                 line = catlines.get(cat,[])
-                line.append((x,yc))
+                line.append((x,yc,sz))
                 catlines[cat] = line
 
         revcats = self.cats

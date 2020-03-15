@@ -45,7 +45,7 @@ if __name__ == "__main__":
 
     d = Diagram(fill="white")
 
-    scatter = ScatterPlot(data,x=0,y=1,label=2,colour=3,radius=4, palette=palette)
+    scatter = ScatterPlot(data,x=0,y=1,label=2,colour=3,size=4,palette=palette)
     legend = Legend(palette,400,legend_columns=2)
     d.add(legend)
     d.connect(legend,"brushing",scatter,"brushing")

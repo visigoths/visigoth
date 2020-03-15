@@ -20,13 +20,27 @@ from visigoth.utils.colour import Colour
 from visigoth.utils.elements.axis.axisutils import AxisUtils
 from visigoth.utils.colour.colourmaps import ColourMaps, DiscreteColourMaps
 
-class DiscretePalette(object):
 
-    def __init__(self,colourMap="pastel"):
+class Palette(object):
+
+    def __init__(self,defaultColour):
+        self.defaultColour = defaultColour
+
+    def getDefaultColour(self):
+        return self.defaultColour
+
+    def setDefaultColour(self,defaultColour):
+        self.defaultColour = defaultColour
+
+class DiscretePalette(Palette):
+
+    def __init__(self,colourMap="pastel",defaultColour="blue"):
+        super(DiscretePalette,self).__init__(defaultColour)
         self.colour = None
         self.categories = []
         self.categoryset = set()
         self.colourMap = colourMap
+        
 
     def build(self):
         pass
@@ -57,9 +71,10 @@ class DiscretePalette(object):
             self.categories.append((value,col))
         return col
 
-class ContinuousPalette(object):
+class ContinuousPalette(Palette):
 
-    def __init__(self, withIntervals=True,colourMap="viridis"):
+    def __init__(self, withIntervals=True,colourMap="viridis", defaultColour="blue"):
+        super(ContinuousPalette,self).__init__(defaultColour)
         self.colour = None
         self.range = []
         self.withIntervals = withIntervals

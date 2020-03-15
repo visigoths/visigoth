@@ -107,11 +107,11 @@ m.addLayer(gp)
 
 # add area chart showing the distribution of all accidents
 area_palette = DiscretePalette()
-area_palette.addCategory("freq","lightblue")
+area_palette.setDefaultColour("lightblue")
 area_data = []
 for hour in freqs_by_hour:
     area_data.append((hour,freqs_by_hour[hour]))
-area_chart = Area(area_data,x=0,y=1,width=512,height=512,fill="blue",palette=area_palette)
+area_chart = Area(area_data,x=0,y=1,colour=None,width=512,height=512,palette=area_palette)
 (ax,ay) = area_chart.getAxes()
 ax.setLabel("Time Of Day (Hour)")
 ay.setLabel("Accident Frequency/Hour")

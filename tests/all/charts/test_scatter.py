@@ -46,7 +46,7 @@ class TestScatterPlot(unittest.TestCase):
 
         d.add(Text("Multi-colour"))
 
-        scatter0 = ScatterPlot(data0, x=0, y=1, label=2, colour=3, radius=4, width=500, height=500, palette=palette0)
+        scatter0 = ScatterPlot(data0, x=0, y=1, label=2, colour=3, size=4, width=500, height=500, palette=palette0)
         (xAxis,yAxis) = scatter0.getAxes()
         xAxis.setLabel("label-x")
         yAxis.setLabel("label-y")
@@ -58,7 +58,7 @@ class TestScatterPlot(unittest.TestCase):
         d.connect(scatter0,"brushing",legend0,"brushing")
 
         d.add(Text("Monochrome"))
-        scatter1 = ScatterPlot(data0, x=0, y=1, label=2, radius=4, width=500, height=500, fill="#4040A040")
+        scatter1 = ScatterPlot(data0, x=0, y=1, label=2, size=4, width=500, height=500)
         d.add(scatter1)
 
         svg = d.draw()

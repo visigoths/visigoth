@@ -59,7 +59,7 @@ class TestArea(unittest.TestCase):
         for cat in ["A","B","C"]:
             s = Sequence()            
             s.add(Text(cat))
-            area0 = Area([d for d in data if d[2] == cat],x=0,y=1,fill=dp.getColour(cat),palette=dp,height=300,width=300)
+            area0 = Area([d for d in data if d[2] == cat],x=0,y=1,palette=dp,height=300,width=300)
             s.add(area0)
             g.add(row,col,s)
             col += 1
@@ -71,7 +71,7 @@ class TestArea(unittest.TestCase):
         d.add(Text("Smoothing"))
 
         d.add(Text("Stacked areas"))
-        area1 = Area(data, x=0, y=1, colour=2, height=600, palette=dp, width=600)
+        area1 = Area(data, x=0, y=1, size=1, colour=2, height=600, palette=dp, width=600)
         d.add(area1)
 
         legend1 = Legend(dp,400,legend_columns=2)

@@ -149,7 +149,7 @@ class Dataset(object):
         # FIXME currently mark a column as discrete if values are of type str
         # we need also to consider int columns of "low" cardinality as discrete
         for datum in self.data:
-            if column in datatum:
+            if column in datum:
                 if datum[column] == None:
                     continue
                 if isinstance(datum[column],str):
