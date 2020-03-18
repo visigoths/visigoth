@@ -15,7 +15,7 @@ python3 -m pip install visigoth
 ### Manual Install onto PYTHONPATH:
 
 ```
-git clone https://github.com/visigoths/visigoth.git
+git clone https://github.com/visualtopology/visigoth.git
 export PYTHONPATH=$PYTHONPATH:`pwd`/visigoth
 ```
 
