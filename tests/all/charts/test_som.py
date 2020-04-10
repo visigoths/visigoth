@@ -57,7 +57,8 @@ class TestScatterPlot(unittest.TestCase):
 
         d = Diagram(fill="white")
 
-        som = SOM(data,512,10,10,10,palette,dimension=lambda l: l[0],dimensionPalette=cpalette,instanceRadius=5)
+        som = SOM(data,width=512,gridheight=10,gridwidth=10,palette=palette,dimension=lambda l: l[0],dimensionPalette=cpalette)
+        som.getMarkerManager().setDefaultRadius(5)
 
         d.add(som)
         d.add(Legend(cpalette,width=500))

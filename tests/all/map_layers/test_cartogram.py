@@ -63,4 +63,6 @@ class TestCartogram(unittest.TestCase):
         svg = d.draw()
 
         TestUtils.output(svg,"test_cartogtam.svg")
-        
+
+if __name__ == "__main__":
+    unittest.main()

@@ -63,7 +63,6 @@ class TestPie(unittest.TestCase):
 
         data2 = [("AAAA",1.2),("BBBB",0.4),("CCCC",0.9),("DDDD",0.9),("EEEE",1.0)]
         pie2 = Pie(data2, value=1,colour=0, width=400, height=400, labelfn = lambda k,v:k)
-        pie2.setPalette(None)
         d.add(Box(pie2))
     
         d.add(Text("Multi-level"))

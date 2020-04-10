@@ -80,3 +80,5 @@ class TestSearchManager(unittest.TestCase):
         svg = d.draw()
         TestUtils.output(svg,"test_search_manager.svg")
 
+if __name__ == "__main__":
+    unittest.main()

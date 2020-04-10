@@ -16,17 +16,16 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from visigoth.common.diagram_element import DiagramElement
-from visigoth.common.button import Button
-from visigoth.common.buttongrid import ButtonGrid
-from visigoth.common.embedded_html import EmbeddedHtml
-from visigoth.common.embedded_svg import EmbeddedSvg
-from visigoth.common.event_handler import EventHandler
-from visigoth.common.image import Image
-from visigoth.common.legend import Legend
-from visigoth.common.map_layer_manager import MapLayerManager
-from visigoth.common.search_manager import SearchManager
-from visigoth.common.panzoom import PanZoom
-from visigoth.common.space import Space
-from visigoth.common.text import Text
-from visigoth.common.text import Span
+from .diagram_element import DiagramElement
+from .button import Button
+from .buttongrid import ButtonGrid
+from .embedded_html import EmbeddedHtml
+from .embedded_svg import EmbeddedSvg
+from .event_handler import EventHandler
+from .image import Image
+from .legend import Legend
+from .map_layer_manager import MapLayerManager
+from .search_manager import SearchManager
+from .panzoom import PanZoom
+from .space import Space
+from .text import Text, Span

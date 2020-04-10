@@ -43,7 +43,7 @@ class TestLine(unittest.TestCase):
         data1 += [(1,27,"C"),(2,17,"C"),(3,18.1,"C"),(4,12,"C"),(5,3,"C")]
 
         d.add(Text("Multi-Line"))
-        line1 = Line(data1,x=0,y=1,line=2,colour=2,width=600,height=600,palette=palette1, smoothing=0.3)
+        line1 = Line(data1,x=0,y=1,colour=2,width=600,height=600,palette=palette1, smoothing=0.3)
 
         d.add(line1)
         

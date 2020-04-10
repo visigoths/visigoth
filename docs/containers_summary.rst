@@ -11,6 +11,7 @@ Element                            Thumbnail
 :doc:`containers/box`              .. image:: src/containers/box/thumbnail.png
 :doc:`containers/grid`             .. image:: src/containers/grid/thumbnail.png
 :doc:`containers/alternative`      .. image:: src/containers/alternative/thumbnail.png
+:doc:`containers/timeline`         .. image:: src/containers/timeline/thumbnail.png
 ===============================    ===========================================================
 
 Map

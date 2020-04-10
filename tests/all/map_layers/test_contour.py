@@ -112,3 +112,6 @@ class TestContour(unittest.TestCase):
         except Exception as ex:
             self.assertEqual(ex.args[0],Contour.CONTOUR_INTERVAL_ERROR)
 
+
+if __name__ == "__main__":
+    unittest.main()

@@ -41,3 +41,6 @@ class TestEventHandler(unittest.TestCase):
         d.connect(b,"events",ev,"events")
         svg = d.draw()
         TestUtils.output(svg,"test_event_handler.svg")
+
+if __name__ == "__main__":
+    unittest.main()

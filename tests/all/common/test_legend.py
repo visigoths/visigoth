@@ -71,3 +71,5 @@ class TestLegend(unittest.TestCase):
         svg = d.draw()
         TestUtils.output(svg,"test_legend_continuous.svg")
 
+if __name__ == "__main__":
+    unittest.main()

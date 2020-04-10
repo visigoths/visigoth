@@ -37,3 +37,6 @@ class TestSpace(unittest.TestCase):
         d.add(Box(Space(20,80)))
         svg = d.draw()
         TestUtils.output(svg,"test_space.svg")
+
+if __name__ == "__main__":
+    unittest.main()

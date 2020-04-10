@@ -64,9 +64,10 @@ if __name__ == "__main__":
 
     d = Diagram(fill="white")
 
-    som0 = SOM(min_temp_data,512,fill="blue",dimension=lambda l: mean(l),dimensionPalette=cpalette0,instanceRadius=5)
-    som1 = SOM(max_temp_data,512,fill="blue",dimension=lambda l: mean(l),dimensionPalette=cpalette1,instanceRadius=5)
-    som2 = SOM(precipitation_data,512,fill="red",dimension=lambda l: mean(l),dimensionPalette=cpalette2,instanceRadius=5)
+    som0 = SOM(min_temp_data,512,dimension=lambda l: mean(l),dimensionPalette=cpalette0)
+    som1 = SOM(max_temp_data,512,dimension=lambda l: mean(l),dimensionPalette=cpalette1)
+    som2 = SOM(precipitation_data,512,dimension=lambda l: mean(l),dimensionPalette=cpalette2)
+    som2.getPalette().setDefaultColour("white")
 
     d.add(Text("Cities clustered by monthly minimum temperature(s)"))
     d.add(som0)

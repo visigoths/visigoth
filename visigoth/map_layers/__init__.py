@@ -1,21 +1,38 @@
 # -*- coding: utf-8 -*-
-from visigoth.map_layers.map_layer import MapLayer
 
-from visigoth.map_layers.cartogram import Cartogram
-from visigoth.map_layers.chloropleth import Chloropleth
-from visigoth.map_layers.cluster import Cluster
-from visigoth.map_layers.compass import Compass
-from visigoth.map_layers.contour import Contour
-from visigoth.map_layers.geoimport import Geoimport
-from visigoth.map_layers.geoplot import Geoplot
-from visigoth.map_layers.gps import GPS
-from visigoth.map_layers.gridsquares import GridSquares
-from visigoth.map_layers.hexbin import Hexbin
-from visigoth.map_layers.kde import KDE
-from visigoth.map_layers.poi import POI
-from visigoth.map_layers.network import Network
-from visigoth.map_layers.ruler import Ruler
-from visigoth.map_layers.scatter import Scatter
-from visigoth.map_layers.voronoi import Voronoi
-from visigoth.map_layers.wms import WMS
-from visigoth.map_layers.wmts import WMTS
+#    Visigoth: A lightweight Python3 library for rendering data visualizations in SVG
+#    Copyright (C) 2020  Niall McCarroll
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+from .map_layer import MapLayer
+
+from .cartogram import Cartogram
+from .chloropleth import Chloropleth
+from .cluster import Cluster
+from .compass import Compass
+from .contour import Contour
+from .geoimport import Geoimport
+from .geoplot import Geoplot
+from .gps import GPS
+from .gridsquares import GridSquares
+from .hexbin import Hexbin
+from .kde import KDE
+from .poi import POI
+from .network import Network
+from .ruler import Ruler
+from .scatter import Scatter
+from .voronoi import Voronoi
+from .wms import WMS
+from .wmts import WMTS

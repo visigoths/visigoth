@@ -67,3 +67,6 @@ class TestRuler(unittest.TestCase):
         d.add(Box(m3))
         svg = d.draw()
         TestUtils.output(svg,"test_ruler.svg")
+
+if __name__ == "__main__":
+    unittest.main()

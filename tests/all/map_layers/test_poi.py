@@ -49,5 +49,4 @@ class TestPOI(unittest.TestCase):
         TestUtils.output(svg,"test_media.svg")
 
 if __name__ == "__main__":
-    tc = TestPOI()
-    tc.test_basic()
+    unittest.main()

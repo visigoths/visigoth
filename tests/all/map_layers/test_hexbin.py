@@ -66,4 +66,5 @@ class TestHexbin(unittest.TestCase):
         svg = d.draw()
         TestUtils.output(svg,"test_hexbin.svg")
 
-
+if __name__ == "__main__":
+    unittest.main()

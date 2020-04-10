@@ -46,3 +46,5 @@ class TestImage(unittest.TestCase):
         svg = d.draw()
         TestUtils.output(svg,"test_image.svg")
 
+if __name__ == "__main__":
+    unittest.main()

@@ -22,24 +22,30 @@ from math import radians,sin,cos,pi,sqrt
 import sys
 
 # import numpy
-from visigoth.common.diagram_element import DiagramElement
 from visigoth.svg import text, rectangle
 from visigoth.utils.fonts import FontManager
 from visigoth.utils.term.progress import Progress
 
+from visigoth.utils.colour import DiscretePalette
+
+from visigoth.utils.data import Dataset
+
 class WordCloud(ChartElement):
 
-    def __init__(self, data, width, height, palette, text_attributes={},seed=None,flip_fraction=0.1,fill="white"):
+    def __init__(self, data, label=0, colour=1, frequency=2, width=768, height=768, palette=None, text_attributes={},seed=None,flip_fraction=0.1,fill="white"):
         """
         Add a WordCloud to the section
 
         Arguments:
-            data(list) : data describing a document in the form of a list of items, where each item is a tuple (word,category,value)
-            width(int) : the width of the plot in pixels
-            height(int) : the height of the plot in pixels
-            palette(list) : a list of (category, colour) pairs
+            data (list): A relational data set (for example, list of dicts/lists/tuples describing each row)
 
         Keyword Arguments:
+            label (str or int): Identify the column to define the word
+            colour (str or int): Identify the column to define the colour
+            frequency (str or int): Identify the column to define the word frequency
+            width(int) : the width of the plot in pixels
+            height(int) : the height of the plot in pixels
+            palette(list) : a DiscretePalette object
             text_attributes(dict) : dict containing attributes to a apply to SVG text elements
             seed(int) : random seed - set to produce repeatable results
             flip_fraction(float) : fraction of words (between 0.0 and 1.0) to display vertically
@@ -48,11 +54,14 @@ class WordCloud(ChartElement):
         :return: a WordCloud object
         """
         super(WordCloud, self).__init__()
-        self.data = data
+        dataset = Dataset(data)
+        self.data = dataset.query([label,colour,frequency])
         self.width = width
         self.height = height
-        self.palette = palette
-        self.total = sum([v for (word,cat,v) in data])
+        if not palette:
+            palette = DiscretePalette()
+        self.setPalette(palette)
+        self.total = sum([v for (word,cat,v) in self.data])
         self.plots = []
         self.renders = []
         self.text_attributes = text_attributes
@@ -149,15 +158,12 @@ class WordCloud(ChartElement):
     def drawChart(self,doc,cx,cy,chart_width,chart_height):
         categories = {}
         for (word,w,h,cat,x,y,flip) in self.renders:
-            col = self.getColour(cat)
+            col = self.palette.getColour(cat)
             cid = self.plotWord(doc,word,w,h,col,x+cx,y+cy,flip)
             ids = categories.get(cat,[])
             ids.append(cid)
             categories[cat] = ids
         return {"categories":categories}
-
-    def getColour(self,cat):
-        return self.palette.getColour(cat)
 
     def plotWord(self,doc,word,w,h,col,x,y,flip):
         g = doc.openGroup()

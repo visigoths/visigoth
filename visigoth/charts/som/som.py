@@ -25,6 +25,10 @@ from visigoth.charts.som.hexgrid import HexGrid
 from visigoth.utils.js import Js
 from visigoth.charts.som.self_organising_map import SelfOrganisingMap
 from visigoth.charts import ChartElement
+from visigoth.utils.marker import MarkerManager
+from visigoth.utils.colour import DiscretePalette
+
+from visigoth.utils.data import Dataset
 
 
 class SOM(ChartElement):
@@ -33,28 +37,29 @@ class SOM(ChartElement):
     Create a Self Organising Map (SOM) chart with cells arranged in a hexagonal layout
 
     Arguments:
-        data(list) : data in the form of a list of (label,category,float_list) instance tuples where float_list is a vector describing the instance
+        data (list): A relational data set (for example, list of dicts/lists/tuples describing each row)
         width(int) : the width of the plot in pixels
 
     Keyword Arguments:
+        colour (str or int): Identify the column to define the point colour (use palette default colour if not specified)
+        label (str or int): Identify the column to define the label
+        dimensions (str or int): Identify the column to define the vector of floats used to define the point dimensions
         gridwidth(int) : the number of columns in the SOM plot
         gridheight(int) : the number of rows in the SOM plot
         iters(int) : the number of training iterations to use when training the SOM
         palette(visigoth.utils.colour.DiscretePalette) : mapping from category to colour
         trainedSom(SelfOrganisingMap) : a pre-trained SOM model.  If specified, this SOM's grid width/height will be used
-        fill (str or function): fill colour for instances if they do not have category
-        stroke (str): stroke colour for circles representing instances
-        stroke_width (int): stroke width for circles representing instances
+        marker_manager(object) : a MarkerManager instance to control marker appearance
         seed(int): random seed
-        dimension(lambda): lambda to compute the dimension (from the instance float_list) value
+        dimension(lambda): lambda to compute the dimension (from the values vector) value
         dimensionPalette(ContinuousPalette): a palette to map dimension values to colours
-        instanceRadius(int): radius in pixels for circles representing instances
     """
 
-    def __init__(self,data, width, gridwidth=10, gridheight=10, iters=100, palette=None, trainedSom=None, fill=None, stroke="lightgrey", stroke_width=2, seed=None, dimension=None, dimensionPalette=None, instanceRadius=None):
+    def __init__(self,data, width, label=0, colour=1, dimensions=2, gridwidth=10, gridheight=10, iters=100, palette=None, marker_manager=None, trainedSom=None, seed=None, dimension=None, dimensionPalette=None):
         super(SOM, self).__init__()
         self.width = width
-
+        dataset = Dataset(data)
+        self.data = dataset.query([label,colour,dimensions])
         if trainedSom:
             self.gridwidth = trainedSom.getGridWidth()
             self.gridheight = trainedSom.getGridHeight()
@@ -62,12 +67,19 @@ class SOM(ChartElement):
             self.gridheight = gridheight
             self.gridwidth = gridwidth
 
-        self.palette = palette
+        if not palette:
+            palette = DiscretePalette()
+        self.setPalette(palette)
 
         self.iters = iters
-        self.fill = fill
-        self.stroke = stroke
-        self.stroke_width = stroke_width
+
+        if not marker_manager:
+            marker_manager = MarkerManager()
+        self.setMarkerManager(marker_manager)
+
+        self.fill = self.palette.getDefaultColour()
+        self.stroke = self.marker_manager.getStroke()
+        self.stroke_width = self.marker_manager.getStrokeWidth()
 
         self.seed = seed
         if self.seed != None:
@@ -79,21 +91,22 @@ class SOM(ChartElement):
 
         self.scores = {}
 
-
         self.dimensionFn = dimension
         self.dimensionPalette = dimensionPalette
-        self.instanceRadius = instanceRadius
+        self.instanceRadius = self.marker_manager.getDefaultRadius()
 
         heightWidthRatio = cos(radians(30))*self.gridheight/self.gridwidth
 
         self.height = self.width * heightWidthRatio
+        self.som = trainedSom
+
+    def prepare(self):
         self.hexgrid = HexGrid(self.width, self.gridwidth, self.gridheight, self.initial_neighbourhood,self.fill,self.stroke,self.stroke_width, self.dimensionFn, self.dimensionPalette, self.instanceRadius)
-        if trainedSom:
+        if self.som:
             self.som_trained = True
-            self.som = trainedSom
         else:
             self.som_trained = False
-            self.som = SelfOrganisingMap(data, self.hexgrid, self.palette, self.gridwidth, self.gridheight, self.iters, seed=self.seed)
+            self.som = SelfOrganisingMap(self.data, self.hexgrid, self.palette, self.gridwidth, self.gridheight, self.iters, seed=self.seed)
         self.hexgrid.setModel(self.som)
         self.plot = None
 
@@ -114,6 +127,7 @@ class SOM(ChartElement):
 
     def build(self):
         if not self.built:
+            self.prepare()
             self.train()
             self.hexgrid.build()
             self.scores = self.som.getScores()

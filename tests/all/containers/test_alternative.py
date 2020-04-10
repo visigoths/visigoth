@@ -51,3 +51,6 @@ class TestAlternative(unittest.TestCase):
         svg = d.draw()
 
         TestUtils.output(svg,"test_alternative.svg")
+
+if __name__ == "__main__":
+    unittest.main()

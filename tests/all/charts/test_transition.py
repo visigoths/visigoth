@@ -34,18 +34,18 @@ class TestTransition(unittest.TestCase):
         palette = DiscretePalette()
         palette.addCategory("A", "green").addCategory("B", "blue").addCategory("C", "red").addCategory("D","orange")
 
-        states = {
-            "S0": ("","","A","A","A"),
-            "S1": ("A","A","A","B","B"),
-            "S2": ("A","A","B","C","C"),
-            "S3": ("A","B","C","C","D"),
-            "S4": ("A","B","C","D",""),
-        }
+        data = [
+            ["S0", "","","A","A","A"],
+            ["S1", "A","A","A","B","B"],
+            ["S2", "A","A","B","C","C"],
+            ["S3", "A","B","C","C","D"],
+            ["S4", "A","B","C","D",""]
+        ]
 
         d = Diagram(fill="white")
 
         d.add(Text("Basic Test",font_height=32,text_attributes={"stroke":"red"}))
-        t = Transition(1024,512,states,palette,["T1", "T2","T3","T4","T5"],y_axis_label="Count")
+        t = Transition(data,width=1024,height=512,palette=palette,transition_labels=["T1", "T2","T3","T4","T5"],y_axis_label="Count")
         d.add(t)
         d.add(Space(20,20))
         l = Legend(palette,1024, legend_columns=4)

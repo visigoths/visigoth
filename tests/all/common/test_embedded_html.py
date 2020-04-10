@@ -36,3 +36,6 @@ class TestEmbeddedHtml(unittest.TestCase):
         d.add(Box(EmbeddedHtml(html_blue,"",width=256,height=32)))
         svg = d.draw()
         TestUtils.output(svg,"test_embedded_html.svg")
+
+if __name__ == "__main__":
+    unittest.main()

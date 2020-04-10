@@ -40,13 +40,12 @@ class Pie(ChartElement):
         palette(list) : a DiscretePalette object
         stroke (str): stroke color for pie sectors
         stroke_width (int): stroke width for pie sectors
-        fill (str): the default fill colour for pie sectors
         doughnut (boolean): set True to draw as a doughnut rather than a pie chart
         labelfn (lambda): function to compute a label string, given a category and numeric value
         font_height (int): sets the maximum font height used to display labels
         text_attributes (dict): attributes to apply to text labels
     """
-    def __init__(self,data,value=0,colour=1,width=768,height=768,palette=None,stroke="black",stroke_width=2,fill="blue",doughnut=False,labelfn=lambda k,v:"%s:%0.1f"%(k,v),font_height=20,text_attributes={}):
+    def __init__(self,data,value=0,colour=1,width=768,height=768,palette=None,stroke="black",stroke_width=2,doughnut=False,labelfn=lambda k,v:"%s:%0.1f"%(k,v),font_height=20,text_attributes={}):
         super(Pie, self).__init__()
         self.data = Dataset(data)
         self.value = value
@@ -61,11 +60,11 @@ class Pie(ChartElement):
         self.setPalette(palette)
         self.stroke = stroke
         self.stroke_width = stroke_width
-        self.fill = fill
         self.doughnut = doughnut
         self.labelfn = labelfn
         self.font_height = font_height
         self.text_attributes = text_attributes
+
         for colour in self.colour:
             cats = self.data.query([colour],unique=True,flatten=True)
             for cat in cats:
@@ -141,10 +140,7 @@ class Pie(ChartElement):
             theta0 = theta
             theta += (thetaMax-thetaMin)*v/data_sum
             self.drawLevel(doc,cx,cy,parentcolours+[k],theta0,theta,config)
-            if self.palette:
-                col = self.palette.getColour(k)
-            else:
-                col = self.fill
+            col = self.getPalette().getColour(k)
             tooltip = self.getTooltip(k,v)
             r = level*self.rlevel
             s = sector(cx,cy, r-self.rlevel, r, theta0, theta, tooltip)

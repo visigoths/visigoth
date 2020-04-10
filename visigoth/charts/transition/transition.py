@@ -20,16 +20,20 @@ from visigoth.charts import ChartElement
 from visigoth.utils.elements.axis import Axis
 from visigoth.svg import text,polygon,linear_gradient,group
 
+from visigoth.utils.data import Dataset
+
 class Transition(ChartElement):
 
-    def __init__(self, width, height, data, palette,transition_labels,  stroke="black", stroke_width=1, x_axis_label="",y_axis_label="count", font_height=16, text_attributes={}):
+    def __init__(self, data, label=0, states=[], width=768, height=768,  palette=None, transition_labels=[],  stroke="black", stroke_width=1, x_axis_label="",y_axis_label="count", font_height=16, text_attributes={}):
         """
         Add a Transition plot
 
         Arguments:
+            data (list): A relational data set (for example, list of dicts/lists/tuples describing each row)
+            label (str or int): Identify the column to define the label
+            states (list of str or int): The columns to define successive states at each transition point
             width(int): the width of the plot in pixels
             height(int): the height of the plot in pixels
-            data(dict): data describing a set of transitions in the form of a dictionary mapping an item id to a tuple(category0,category1,...) denoting a transition between categories
             palette(DiscretePalette): a DiscretePalette object
             transition_labels(list): list containing the labels for each of the transition points
 
@@ -46,7 +50,12 @@ class Transition(ChartElement):
         self.width = width
         self.height = height
         self.palette = None
-        self.data = data
+        dataset = Dataset(data)
+        if states == []:
+            states = list(range(1,len(data[0])))
+        if transition_labels == []:
+            transition_labels = list(map(lambda s:str(s),states))
+        self.data = { row[0]: row[1:] for row in dataset.query([label]+states)}
         self.transition_labels = transition_labels
         self.x_axis_label = x_axis_label # TODO currently unused
         self.y_axis_label = y_axis_label

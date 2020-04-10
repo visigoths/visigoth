@@ -83,6 +83,5 @@ class TestNetwork(unittest.TestCase):
         svg = d.draw()
         TestUtils.output(svg,"test_network.svg")
 
-if __name__ == '__main__':
-    tn = TestNetwork()
-    tn.test_basic()
+if __name__ == "__main__":
+    unittest.main()

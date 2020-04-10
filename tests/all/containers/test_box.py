@@ -37,3 +37,6 @@ class TestBox(unittest.TestCase):
 
         svg = d.draw()
         TestUtils.output(svg,"test_box.svg")
+
+if __name__ == "__main__":
+    unittest.main()

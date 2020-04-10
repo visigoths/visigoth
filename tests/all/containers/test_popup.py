@@ -50,4 +50,5 @@ class TestPopup(unittest.TestCase):
         svg = d.draw()
         TestUtils.output(svg,"test_popup.svg")
 
-
+if __name__ == "__main__":
+    unittest.main()

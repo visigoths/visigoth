@@ -58,7 +58,7 @@ if __name__ == "__main__":
     data = sorted([(word,random.choice(["A","B","C","D"]),freqs[word]) for word in freqs],key=lambda x:x[2],reverse=True)[:100]
     d = Diagram()
     
-    wc = WordCloud(data, 600, 600, palette, text_attributes={"font-weight":"bold"}, flip_fraction=0.1)
+    wc = WordCloud(data, palette=palette, text_attributes={"font-weight":"bold"}, flip_fraction=0.1)
     d.add(Box(wc,fill="lightgrey"))
     l = Legend(palette,legend_columns=4)
     d.add(l)

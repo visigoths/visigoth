@@ -43,6 +43,5 @@ class TestGps(unittest.TestCase):
         svg = d.draw()
         TestUtils.output(svg,"test_gps.svg")
 
-if __name__ == '__main__':
-    tg = TestGps()
-    tg.test_basic()
+if __name__ == "__main__":
+    unittest.main()

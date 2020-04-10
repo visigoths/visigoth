@@ -42,3 +42,6 @@ class TestEmbeddedSvg(unittest.TestCase):
         d.add(Box(EmbeddedSvg(svg_blue,width=32,height=32)))
         svg = d.draw()
         TestUtils.output(svg,"test_embedded_svg.svg")
+
+if __name__ == "__main__":
+    unittest.main()

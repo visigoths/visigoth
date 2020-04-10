@@ -71,7 +71,5 @@ class TestVoronoi(unittest.TestCase):
         TestUtils.output(svg,"test_voronoi_square.svg")
 
 
-if __name__ == '__main__':
-    thb = TestVoronoi()
-    thb.test_basic()
-    thb.test_square()
+if __name__ == "__main__":
+    unittest.main()

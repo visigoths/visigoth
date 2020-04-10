@@ -55,9 +55,9 @@ class TestWordCloud(unittest.TestCase):
             ("snail","C",30),
             ("badass","D",130)]
 
-        d.add(Box(WordCloud(data, 600, 600, palette, text_attributes={"font-weight":"bold"}, flip_fraction=0.1),fill="lightgrey"))
+        d.add(Box(WordCloud(data, width=600, height=600, palette=palette, text_attributes={"font-weight":"bold"}, flip_fraction=0.1),fill="lightgrey"))
 
-        d.add(Box(WordCloud(data, 600, 600, palette, text_attributes={"font-weight":"bold"}, flip_fraction=0.0)))
+        d.add(Box(WordCloud(data, width=600, height=600, palette=palette, text_attributes={"font-weight":"bold"}, flip_fraction=0.0)))
 
         svg = d.draw()
         TestUtils.output(svg,"test_wordcloud.svg")

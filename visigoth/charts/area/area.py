@@ -131,7 +131,6 @@ class Area(ChartElement):
         return self.height
 
     def plotPoint(self,diagram,cat,x,y,col,sz):
-        
         cx = self.computeX(x)
         cy = self.computeY(y)
         marker = self.marker_manager.getMarker(sz)
@@ -164,7 +163,7 @@ class Area(ChartElement):
         points = self.data.query([self.x,self.y,self.id,self.label,self.size])
         linepoints = [(x,y,sz) for (x,y,_,_,sz) in points]
         linepoints = sorted(linepoints,key=lambda p:p[0])
-        self.plotLine(diagram,None,linepoints,self.fill)
+        self.plotLine(diagram,None,linepoints,self.palette.getDefaultColour())
             
     def drawAreas(self,diagram):
     

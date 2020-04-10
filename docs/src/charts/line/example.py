@@ -49,7 +49,7 @@ if __name__ == "__main__":
         
     d = Diagram(fill="white")
 
-    al = Line(data,x=0,y=1,line=2,colour=2, width=600, height=600)
+    al = Line(data,x=0,y=1,colour=2,width=600,height=600)
     (ax,ay) = al.getAxes()
     ax.setLabel("X axis")
     ay.setLabel("Y axis")

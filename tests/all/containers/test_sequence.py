@@ -48,3 +48,6 @@ class TestSequence(unittest.TestCase):
 
         svg = d.draw()
         TestUtils.output(svg, "test_sequence.svg")
+
+if __name__ == "__main__":
+    unittest.main()

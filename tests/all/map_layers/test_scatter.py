@@ -55,6 +55,5 @@ class TestScatter(unittest.TestCase):
         svg = d.draw()
         TestUtils.output(svg,"test_scatter.svg")
 
-if __name__ == '__main__':
-    s = TestScatter()
-    s.test_basic()
+if __name__ == "__main__":
+    unittest.main()

@@ -55,7 +55,7 @@ class Line(ChartElement):
         text_attributes (dict): SVG attribute name value pairs to apply to labels
     """
 
-    def __init__(self, data,x=0,y=1,line=None,id=None,colour=None,label=None,size=None,width=768, height=768, palette=None, marker_manager=None, smoothing=0.0, line_width=2, font_height=24, text_attributes={}):
+    def __init__(self, data,x=0,y=1,id=None,colour=None,label=None,size=None,width=768, height=768, palette=None, marker_manager=None, smoothing=0.0, line_width=2, font_height=24, text_attributes={}):
         super(Line, self).__init__()
         self.setTooltipFunction(lambda cat,val: "%s: (%s,%s)"%(cat,str(val[0]),str(val[1])))
         self.dataset = Dataset(data)
@@ -70,7 +70,7 @@ class Line(ChartElement):
         self.height = height
         
         if not palette:
-            if self.colour != None or self.dataset.isDiscrete(self.colour):
+            if self.colour == None or self.dataset.isDiscrete(self.colour):
                 palette = DiscretePalette()
             else:
                 palette = ContinuousPalette()
@@ -140,7 +140,7 @@ class Line(ChartElement):
             if self.palette:
                 col = self.palette.getColour(linecat)
             else:
-                col = self.fill
+                col = self.palette.getDefaultColour()
 
             p = path(coords,col,self.line_width,smoothing=self.smoothing)
             

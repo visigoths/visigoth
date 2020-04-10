@@ -55,6 +55,5 @@ class TestCluster(unittest.TestCase):
         svg = d.draw()
         TestUtils.output(svg,"test_cluster.svg")
 
-if __name__ == '__main__':
-    tc = TestCluster()
-    tc.test_basic()
+if __name__ == "__main__":
+    unittest.main()

@@ -69,5 +69,4 @@ class TestKDE(unittest.TestCase):
         TestUtils.output(svg,"test_kde.svg")
 
 if __name__ == "__main__":
-    tc = TestKDE()
-    tc.test_basic()
+    unittest.main()

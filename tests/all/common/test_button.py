@@ -42,3 +42,6 @@ class TestButton(unittest.TestCase):
         d.add(Button("Padded Button",padding=20,fill="orange"))
         svg = d.draw()
         TestUtils.output(svg,"test_button.svg")
+
+if __name__ == "__main__":
+    unittest.main()

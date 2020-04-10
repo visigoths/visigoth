@@ -29,13 +29,25 @@ class MarkerManager(object):
         self.stroke = stroke
         self.stroke_width = stroke_width
 
+    def setDefaultRadius(self,default_radius):
+        self.default_radius = default_radius
+
+    def getDefaultRadius(self):
+        return self.default_radius
+
+    def getStroke(self):
+        return self.stroke
+
+    def getStrokeWidth(self):
+        return self.stroke_width
+
     def noteSize(self,size):
         if self.size_min is None or size < self.size_min:
             self.size_min = size
         if self.size_max is None or size > self.size_max:
             self.size_max = size
         
-    def getMarker(self,size):
+    def getMarker(self,size=None):
         if size is None or self.size_max is None:
             r = self.default_radius
         else:

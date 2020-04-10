@@ -17,16 +17,9 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from visigoth.charts import ChartElement
-from visigoth.containers.box import Box
 from visigoth.utils.data import Dataset
 from visigoth.utils.colour import DiscretePalette, ContinuousPalette
 
-import random
-import sys
-
-from math import radians,sin,cos,pi,sqrt,log
-
-from visigoth.svg import circle, line, text
 from visigoth.utils.elements.axis import Axis
 from visigoth.utils.marker import MarkerManager
 
@@ -43,10 +36,10 @@ class ScatterPlot(ChartElement):
         y (str or int): Identify the column to provide the y-axis value for each point
         width(int) : the width of the plot including axes
         height(int) : the height of the plot including axes
-        colour (str or int): Identify the column to define the point colour (use fill colour if not specified)
+        colour (str or int): Identify the column to define the point colour (use palette default colour if not specified)
         label (str or int): Identify the column to define the label
         size (str or int): Identify the column to determine the size of each marker
-        palette(object) : a ContinuousPalette or DiscretePalette instance to control marker colour
+        palette(object) : a ContinuousPalette or DiscretePalette instance to control chart colour
         marker_manager(object) : a MarkerManager instance to control marker appearance
         font_height (int): the height of the font for text labels
         text_attributes (dict): SVG attribute name value pairs to apply to labels

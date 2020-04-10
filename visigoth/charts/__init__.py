@@ -16,12 +16,12 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from visigoth.charts.chart_element import ChartElement
-from visigoth.charts.area import Area
-from visigoth.charts.bar import Bar
-from visigoth.charts.line import Line
-from visigoth.charts.pie import Pie
-from visigoth.charts.scatterplot import ScatterPlot
-from visigoth.charts.wordcloud import WordCloud
-from visigoth.charts.som import SOM
-from visigoth.charts.transition import Transition
+from .chart_element import ChartElement
+from .area import Area
+from .bar import Bar
+from .line import Line
+from .pie import Pie
+from .scatterplot import ScatterPlot
+from .wordcloud import WordCloud
+from .som import SOM
+from .transition import Transition

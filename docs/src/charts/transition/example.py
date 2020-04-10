@@ -34,21 +34,21 @@ if __name__ == "__main__":
     palette = DiscretePalette()
     palette.addCategory("Status A", "green").addCategory("Status B", "blue").addCategory("Status C", "red")
 
-    machine_states = {
-        "M1": ("","Status B","Status B","Status B"),
-        "M2": ("Status A","","Status A","Status A"),
-        "M3": ("Status B","Status C","Status B","Status C"),
-        "M4": ("Status B", "Status A", "Status A", "Status C"),
-        "M5": ("Status A","Status C","","Status C"),
-        "M6": ("Status A","Status B","Status C","Status A"),
-        "M7": ("Status B","Status C","Status C","Status C"),
-        "M8": ("Status A","Status B","Status A","Status B")
-    }
+    data = [
+        ["M1", "","Status B","Status B","Status B"],
+        ["M2", "Status A","","Status A","Status A"],
+        ["M3", "Status B","Status C","Status B","Status C"],
+        ["M4", "Status B", "Status A", "Status A", "Status C"],
+        ["M5", "Status A","Status C","","Status C"],
+        ["M6", "Status A","Status B","Status C","Status A"],
+        ["M7", "Status B","Status C","Status C","Status C"],
+        ["M8", "Status A","Status B","Status A","Status B"]
+    ]
 
     d = Diagram(fill="white")
 
     d.add(Text("Status Changes Over 2 Hour Period",font_height=32,text_attributes={"stroke":"purple"}))
-    t = Transition(1024,512,machine_states,palette,["10:00", "10:30","11:00","11:30"],y_axis_label="Count")
+    t = Transition(data,label=0,states=[1,2,3,4], width=1024, palette=palette,transition_labels=["10:00", "10:30","11:00","11:30"],y_axis_label="Count")
     d.add(t)
     d.add(Space(20,20))
     l = Legend(palette,1024, legend_columns=3)
