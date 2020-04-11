@@ -34,6 +34,9 @@ class ChartElement(DiagramElement):
         self.yAxis = None
         self.draw_grid = False
 
+        self.marginx = 0
+        self.marginy = 0
+
     def setDrawGrid(self,draw_grid):
         self.draw_grid = draw_grid
 
@@ -42,6 +45,10 @@ class ChartElement(DiagramElement):
 
     def getPalette(self):
         return self.palette
+
+    def setMargins(self,marginx,marginy):
+        self.marginx = marginx
+        self.marginy = marginy
 
     def setMarkerManager(self,marker_manager):
         self.marker_manager = marker_manager
@@ -104,9 +111,9 @@ class ChartElement(DiagramElement):
             y_axis_width = self.yAxis.getWidth()
         
         if self.xAxis:
-            self.xAxis.setLength(self.getWidth()-y_axis_width)
+            self.xAxis.setLength(self.getWidth()-y_axis_width-2*self.marginx)
         if self.yAxis:
-            self.yAxis.setLength(self.getHeight()-x_axis_height)
+            self.yAxis.setLength(self.getHeight()-x_axis_height-2*self.marginy)
         
         if self.xAxis:
             self.xAxis.build()
@@ -151,6 +158,7 @@ class ChartElement(DiagramElement):
             self.configureXRange(x_axis_min,x_axis_max)
             x_axis_height = self.xAxis.getHeight()
             chart_height -= x_axis_height
+        chart_height -= 2*self.marginy
 
         y_axis_width = 0
         if self.yAxis:
@@ -160,19 +168,22 @@ class ChartElement(DiagramElement):
             y_axis_width = self.yAxis.getWidth()
             chart_width -= y_axis_width
 
-        self.configureChartArea(ox+y_axis_width,oy,chart_width,chart_height)
+        chart_width -= 2*self.marginx
+
+        self.configureChartArea(ox+y_axis_width+self.marginx,oy+self.marginy,chart_width,chart_height)
 
         if self.xAxis:
-            self.xAxis.draw(doc,ox+y_axis_width+self.chart_width/2,oy+self.chart_height+x_axis_height/2)
+            self.xAxis.draw(doc,self.chart_ox+self.chart_width/2,oy+self.marginy+self.chart_height+x_axis_height/2)
         if self.yAxis:
-            self.yAxis.draw(doc,ox+y_axis_width/2,oy+self.chart_height/2)
+            self.yAxis.draw(doc,ox+self.marginx+y_axis_width/2,self.chart_oy+self.chart_height/2)
 
         if self.draw_grid:
             self.drawGrid(doc)
-    
-        chart_cx = ox + y_axis_width + chart_width/2
-        chart_cy = oy + chart_height/2
-        config = self.drawChart(doc,chart_cx,chart_cy,chart_width,chart_height)
+
+        # compute the centre of the chart drawing area
+        chart_cx = self.chart_ox + self.chart_width/2
+        chart_cy = self.chart_oy + self.chart_height/2
+        config = self.drawChart(doc,chart_cx,chart_cy,self.chart_width,self.chart_height)
 
         # self.closeClip(doc)
 

@@ -112,6 +112,7 @@ class Transition(ChartElement):
 
         ay = Axis(self.height-self.font_height,"vertical",0,len(self.keys),label=self.y_axis_label,font_height=self.font_height,text_attributes=self.text_attributes)
         self.setAxes(None,ay)
+        self.setMargins(0,self.font_height)
 
     def getWidth(self):
         return self.width
@@ -145,32 +146,29 @@ class Transition(ChartElement):
         oy = cy - chart_height/2
         ox = cx - chart_width/2
 
-        # ... and the height of the chart without the x-axis labels
-        chart_height -= self.font_height
-
         item_height = chart_height / len(self.keys)
 
         # compute width of each transition "plot"
         plot_width = chart_width / len(self.transitions)
 
-        # labels
-        ay = self.font_height
-        for transition in range(0,len(self.transitions)+1):
-            transition_label_x = ox + transition * plot_width
-            transition_label_y = oy + self.font_height/2
-            t = text(transition_label_x, transition_label_y, self.transition_labels[transition])
-            t.addAttrs(self.text_attributes)
-            t.addAttr("font-size", self.font_height)
-            if transition == 0:
-                pos = "start"
-            elif transition == len(self.transitions):
-                pos = "end"
-            else:
-                pos = "middle"
-            t.addAttr("text-anchor", pos)
-            t.setVerticalCenter()
-
-            d.add(t)
+        # x axis labels are the names of each transition point
+        # draw a label at the top and bottom
+        for transition_label_y in [oy - self.font_height/2, oy+chart_height+self.font_height/2]:
+            # and for each transition...
+            for transition in range(0,len(self.transitions)+1):
+                transition_label_x = ox + transition * plot_width
+                t = text(transition_label_x, transition_label_y, self.transition_labels[transition])
+                t.addAttrs(self.text_attributes)
+                t.addAttr("font-size", self.font_height)
+                if transition == 0:
+                    pos = "start"
+                elif transition == len(self.transitions):
+                    pos = "end"
+                else:
+                    pos = "middle"
+                t.addAttr("text-anchor", pos)
+                t.setVerticalCenter()
+                d.add(t)
 
         grp = group()
         d.add(grp)
@@ -178,6 +176,7 @@ class Transition(ChartElement):
         transition_width = chart_width/(2*len(self.transitions))
 
         # transition curves
+        ay = 0
         for transition in range(0,len(self.transitions)):
             transition_x0 = ox+transition*plot_width
             transition_x1 = ox+(transition+1)*plot_width

@@ -36,5 +36,7 @@ do
 	fi
 done
 
+(cd $rootdir; find . -type f -name "test_*.svg" -delete)
+
 (cd $rootdir/docs; make clean;)
 

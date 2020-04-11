@@ -40,9 +40,9 @@ if __name__ == "__main__":
 
     d = Diagram(fill="white")
 
-    bar1 = Bar(data1, width=400, height=400, palette=palette)
-    bar2 = Bar(data2, width=200, height=200, palette=palette)
-    bar3 = Bar(data3, width=200, height=200, palette=palette)
+    bar1 = Bar(data1, colour=0, width=400, height=400, palette=palette)
+    bar2 = Bar(data2, colour=0, width=200, height=200, palette=palette)
+    bar3 = Bar(data3, colour=0, width=200, height=200, palette=palette)
 
     timeline1.add(datetime.datetime(2016,1,1,0,0,0),None,"2016")
     timeline1.add(datetime.datetime(2017,1,1,0,0,0),Box(bar1),"2017",offset=100)

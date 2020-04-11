@@ -69,6 +69,7 @@ class WordCloud(ChartElement):
         self.positions = {} # True|False => Int, record the last insertion positions for horizontal and vertical text
         self.margin = 0.9
         self.fill = fill
+        self.seed = seed
 
     def getWidth(self):
         return self.width
@@ -88,6 +89,8 @@ class WordCloud(ChartElement):
         counter = 0
         p = Progress("WordCloud")
 
+        rng = random.Random(self.seed)
+
         for (word,cat,v) in sorted(self.data,key=lambda x:x[2],reverse=True):
             counter += 1
             frac = v/self.total
@@ -96,11 +99,11 @@ class WordCloud(ChartElement):
             h = sqrt(a/l)
             w = FontManager.getTextLength(self.text_attributes,word,h)
 
-            sa = random.random()*pi
+            # sa = rng.random()*pi
             sx = xc+self.width/2 # +sin(sa)*self.width/8
             sy = yc+self.height/2 # +cos(sa)*self.height/8
 
-            flip = random.random()<self.flip_fraction
+            flip = rng.random()<self.flip_fraction
 
             if flip:
                 w,h = h,w
@@ -172,13 +175,10 @@ class WordCloud(ChartElement):
         doc.add(r)
         if flip:
             fs = w
-            tl = h
         else:
             fs = h
-            tl = w
-        
+
         fs *= self.margin
-        tl *= self.margin
 
         t = text(x+w*0.5,y+h*0.5,word)
         t.setHorizontalCenter()

@@ -25,6 +25,7 @@ from visigoth.common import Text, Space, Legend
 from visigoth.containers import Grid
 from visigoth.charts import ScatterPlot
 from visigoth.utils.colour import DiscretePalette
+from visigoth.utils.marker.marker_manager import MarkerManager
 
 if __name__ == "__main__":
 
@@ -48,13 +49,14 @@ if __name__ == "__main__":
 
     p = DiscretePalette()
     g = Grid()
-    p.addCategory("setosa","red").addCategory("virginica","blue").addCategory("versicolor","green")    
-    
+
     fields = ["sepal_length","sepal_width","petal_length","petal_width"]
 
+    mm = MarkerManager(default_radius=2)
+
     def createPlot(x_field,y_field,data,palette):
-        sdata = [(float(row[x_field]),float(row[y_field]),row["species"],row["species"],5) for row in data]
-        sp = ScatterPlot(sdata,width=250,height=250,palette=palette)
+        sdata = [(float(row[x_field]),float(row[y_field]),row["species"]) for row in data]
+        sp = ScatterPlot(sdata,colour=2,width=250,height=250,palette=palette,font_height=14)
         (ax,ay) = sp.getAxes()
         ax.setLabel(x_field)
         ay.setLabel(y_field)

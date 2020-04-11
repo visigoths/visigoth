@@ -35,19 +35,18 @@ class Bar(ChartElement):
     Keyword Arguments:    
         x (str or int): Identify the column to yield discrete values
         y (str or int): Identify the column to measure on the y-axis (use count if not specified)
-        colour (str or int): Identify the column to define the bar colour (use fill colour if not specified)
+        colour (str or int): Identify the column to define the bar colour (use palette default colour if not specified)
         width (int): the width of the plot in pixels
         height (int): the height of the plot in pixels
         palette(list) : a DiscretePalette object
         stroke (str): stroke color for bars
         stroke_width (int): stroke width for bars
-        fill (str): default colour for bars if colour is not specified
         font_height (int): the height of the font for text labels
         spacing_fraction (float) : ratio of bar width to spacing
         text_attributes (dict): SVG attribute name value pairs to apply to labels
         labelfn (lambda): function to compute a label string, given a category and numeric value
     """
-    def __init__(self,data,x=0,y=None,colour=None,width=512,height=512,palette=None,stroke="black",stroke_width=2,fill="grey",font_height=24,spacing_fraction=0.1,text_attributes={},labelfn=lambda k,v:"%0.2f"%v):
+    def __init__(self,data,x=0,y=1,colour=0,width=512,height=512,palette=None,stroke="black",stroke_width=2,font_height=12,spacing_fraction=0.1,text_attributes={},labelfn=lambda k,v:"%0.2f"%v):
         super(Bar, self).__init__()
         self.dataset = Dataset(data)
         self.setDrawGrid(True)
@@ -56,16 +55,15 @@ class Bar(ChartElement):
         self.colour = colour
         self.width = width
         self.height = height
-        self.palette = palette
+
         self.font_height = font_height
         self.spacing_fraction = spacing_fraction
         self.text_attributes = text_attributes
         self.stroke = stroke
         self.stroke_width = stroke_width
-        self.fill = "grey"
         self.labelfn = labelfn
         
-        if self.colour and not  palette:
+        if not palette:
             palette = DiscretePalette()
         self.setPalette(palette)
 
@@ -83,8 +81,7 @@ class Bar(ChartElement):
             for tup in self.dataset.query([self.colour],unique=True):
                 self.getPalette().getColour(tup[0])
 
-        self.labelmarginx=10
-        self.labelmarginy=self.font_height*1.5
+        self.setMargins(10,self.font_height*1.5)
 
         agg_fns = []
         if self.y:
@@ -104,7 +101,7 @@ class Bar(ChartElement):
 
         self.configureYRange(self.valuemin,self.valuemax)
 
-        axis = Axis(self.height-2*self.labelmarginy,"vertical",self.valuemin,self.valuemax)
+        axis = Axis(self.height,"vertical",self.valuemin,self.valuemax)
         self.setAxes(None,axis)
 
     def getHeight(self):
@@ -113,22 +110,14 @@ class Bar(ChartElement):
     def getWidth(self):
         return self.width
 
-    def getYAxis(self):
-        return self.axis
-
     def drawChart(self,doc,cx,cy,width,height):
 
         categories = {}
         
-        catcount = len(self.data)
-        barwidth = (width - 4*self.labelmarginx) / catcount
-        barheight = height - 2*self.labelmarginy
+        barcount = len(self.data)
+        barwidth = width / barcount
 
-        bx = cx - width/2 + 2*self.labelmarginx
-
-        valuerange = self.valuemax - self.valuemin
-
-        total = 0
+        bx = cx - width/2
 
         def compute_segments(key):
             if not self.y:
@@ -150,10 +139,10 @@ class Bar(ChartElement):
             total = s
             lastvalue = 0
             for (cat,value) in segments:
-                if self.colour != None:
+                if self.colour is not None:
                     colour = self.palette.getColour(cat)
                 else:
-                    colour = self.fill
+                    colour = self.palette.getDefaultColour()
                 y1 = self.computeY(value)
                 y0 = self.computeY(lastvalue)
                 bh = abs(y1-y0)
@@ -174,7 +163,6 @@ class Bar(ChartElement):
                 else:
                     ty = bb+self.font_height*1.2
                 t = text(bx+barwidth/2,ty,value_str)
-                tid = t.setId()
                 t.addAttr("font-size",self.font_height)
                 t.addAttrs(self.text_attributes)
                 doc.add(t)
