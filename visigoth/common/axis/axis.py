@@ -110,6 +110,10 @@ class Axis(DiagramElement):
         return self.height
 
     def setFontHeight(self,font_height):
+        self.axis_font_height = font_height
+        return self
+
+    def setLabelFontHeight(self,font_height):
         self.font_height = font_height
         return self
 
@@ -127,6 +131,7 @@ class Axis(DiagramElement):
         """
         self.stroke = stroke
         self.stroke_width = stroke_width
+        self.tick_width = self.stroke_width * 2
         return self
 
     def getTickPoints(self):
