@@ -18,15 +18,13 @@
 
 
 import math
-from urllib import request
 import os
 import os.path
 
-from visigoth.common import DiagramElement
-from visigoth.utils.mapping import Mapping,Metadata
+from visigoth.utils.mapping import Metadata
 from visigoth.svg import line, text
 from visigoth.map_layers import MapLayer
-from visigoth.utils.elements.axis import Axis
+from visigoth.common.axis import Axis
 from visigoth.utils.js import Js
 
 class GridSquares(MapLayer):

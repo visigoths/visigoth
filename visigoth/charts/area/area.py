@@ -17,15 +17,9 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from visigoth.charts import ChartElement
-from visigoth.containers.box import Box
 
-import random
-import sys
-
-from math import radians,sin,cos,pi,sqrt,log
-
-from visigoth.svg import circle, line, text, path
-from visigoth.utils.elements.axis import Axis
+from visigoth.svg import path
+from visigoth.common import Axis
 from visigoth.utils.colour.palette import DiscretePalette
 from visigoth.utils.data import Dataset
 from visigoth.utils.marker import MarkerManager
@@ -95,12 +89,13 @@ class Area(ChartElement):
         
         self.catmap = {} # mapping from colour-category to list of SVG ids
 
-        x_axis_max = max(x for x in self.xcs)
-        x_axis_min = min(x for x in self.xcs)
+        if len(self.data) > 0:
+            xy_range = self.data.query(
+                aggregations=[Dataset.min(self.x), Dataset.max(self.x), Dataset.min(self.y), Dataset.max(self.y)])[0]
+        else:
+            xy_range = (0.0, 1.0, 0.0, 1.0)
 
-        sumy_over_x = self.data.query([self.x],aggregations=[Dataset.sum(self.y)])
-        y_axis_max = max([y for (x,y) in sumy_over_x]) 
-        y_axis_min = min([y for (x,y) in sumy_over_x])
+        (x_axis_min, x_axis_max, y_axis_min, y_axis_max) = tuple(xy_range)
 
         # always start the y-axis at 0 to correctly represent areas
         y_axis_min = 0

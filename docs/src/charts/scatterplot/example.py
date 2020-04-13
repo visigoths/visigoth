@@ -22,7 +22,7 @@ import argparse
 import random
 
 from visigoth.diagram import Diagram
-from visigoth.charts.scatterplot import ScatterPlot
+from visigoth.charts.scatter import Scatter
 from visigoth.containers.box import Box
 from visigoth.utils.colour import DiscretePalette
 from visigoth.common.legend import Legend
@@ -45,12 +45,16 @@ if __name__ == "__main__":
 
     d = Diagram(fill="white")
 
-    scatter = ScatterPlot(data,x=0,y=1,label=2,colour=3,size=4,palette=palette)
+    scatter = Scatter(data, x=0, y=1, label=2, colour=3, size=4, palette=palette)
+    (ax,ay) = scatter.getAxes()
+    ax.setMinValue(0.0).setMaxValue(1.0)
+    ay.setMinValue(0.0).setMaxValue(1.0)
     legend = Legend(palette,400,legend_columns=2)
+    legend.setDiscreteMarkerStyle("line")
+
     d.add(legend)
     d.connect(legend,"brushing",scatter,"brushing")
     d.connect(scatter,"brushing",legend,"brushing")
-
 
     (xaxis,yaxis) = scatter.getAxes()
     xaxis.setStroke("red",3)

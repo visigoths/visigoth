@@ -20,10 +20,10 @@ from visigoth.charts import ChartElement
 from visigoth.utils.data import Dataset
 from visigoth.utils.colour import DiscretePalette, ContinuousPalette
 
-from visigoth.utils.elements.axis import Axis
+from visigoth.common.axis import Axis
 from visigoth.utils.marker import MarkerManager
 
-class ScatterPlot(ChartElement):
+class Scatter(ChartElement):
 
     """
     Create a Scatter plot
@@ -46,7 +46,7 @@ class ScatterPlot(ChartElement):
     """
 
     def __init__(self, data, x=0, y=1, width=768, height=768, colour=None, label=None, size=None, palette=None, marker_manager=None, font_height=24, text_attributes={}):
-        super(ScatterPlot, self).__init__()
+        super(Scatter, self).__init__()
         self.setTooltipFunction(lambda cat,val: "%s %s: (%.02f,%.02f)"%(cat[0],cat[1],val[0],val[1]))
         self.dataset = Dataset(data)
         self.setDrawGrid(True)
@@ -72,9 +72,11 @@ class ScatterPlot(ChartElement):
 
         self.font_height = font_height
         self.text_attributes = text_attributes
-        
-        xy_range = self.dataset.query(aggregations=[Dataset.min(self.x),Dataset.max(self.x),Dataset.min(self.y),Dataset.max(self.y)])[0]
-        
+
+        if len(self.dataset) > 0:
+            xy_range = self.dataset.query(aggregations=[Dataset.min(self.x),Dataset.max(self.x),Dataset.min(self.y),Dataset.max(self.y)])[0]
+        else:
+            xy_range = [0.0,1.0,0.0,1.0]
         (x_axis_min,x_axis_max,y_axis_min,y_axis_max) = tuple(xy_range)
 
         x_label = "X"

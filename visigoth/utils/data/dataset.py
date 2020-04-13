@@ -119,6 +119,9 @@ class Dataset(object):
     def __init__(self,data):
         self.data = data
 
+    def __len__(self):
+        return len(self.data)
+
     @staticmethod
     def constant(val):
         return Constant(val)

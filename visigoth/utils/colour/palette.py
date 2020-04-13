@@ -17,7 +17,7 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from visigoth.utils.colour import Colour
-from visigoth.utils.elements.axis.axisutils import AxisUtils
+from visigoth.common.axis import AxisUtils
 from visigoth.utils.colour.colourmaps import ColourMaps, DiscreteColourMaps
 
 

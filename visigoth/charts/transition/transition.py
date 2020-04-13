@@ -17,7 +17,7 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from visigoth.charts import ChartElement
-from visigoth.utils.elements.axis import Axis
+from visigoth.common.axis import Axis
 from visigoth.svg import text,polygon,linear_gradient,group
 
 from visigoth.utils.data import Dataset

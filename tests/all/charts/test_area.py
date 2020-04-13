@@ -59,7 +59,7 @@ class TestArea(unittest.TestCase):
         for cat in ["A","B","C"]:
             s = Sequence()            
             s.add(Text(cat))
-            area0 = Area([d for d in data if d[2] == cat],x=0,y=1,palette=dp,height=300,width=300)
+            area0 = Area([d for d in data if d[2] == cat], x=0, y=1, palette=dp, height=300, width=300)
             s.add(area0)
             g.add(row,col,s)
             col += 1
@@ -87,6 +87,17 @@ class TestArea(unittest.TestCase):
         
         svg = d.draw()
         TestUtils.output(svg,"test_area.svg")
+
+    def test_empty(self):
+        d = Diagram(fill="white")
+
+        d.add(Text("Empty"))
+
+        data0 = []
+        area0 = Area(data0, x=0, y=1, size=1, colour=2, height=600, width=600)
+        d.add(area0)
+        svg = d.draw()
+        TestUtils.output(svg, "test_emptyarea.svg")
 
 if __name__ == "__main__":
     unittest.main()

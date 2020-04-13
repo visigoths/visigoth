@@ -16,10 +16,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-
-import json
 import datetime
-from math import pi, floor, log10, ceil
+from math import floor, log10
 from visigoth.utils.mapping import Projections
 
 class AxisUtils(object):
@@ -133,8 +131,19 @@ class AxisUtils(object):
             spacing = 10**floor(log10(rng))
             stops = floor(rng/spacing)
             while stops < 5:
-                spacing *= 0.5
+                spacing *= 0.1
                 stops = floor(rng/spacing)
+            base_spacing = spacing
+            if stops > 10:
+                spacing = base_spacing*2
+                stops = floor(rng / spacing)
+            if stops > 10:
+                spacing = base_spacing*5
+                stops = floor(rng / spacing)
+            if stops > 10:
+                spacing = base_spacing * 10
+                stops = floor(rng / spacing)
+
             point = self.lwb - (self.lwb % spacing)
             self.tickpoints = []
             while point <= self.upb:

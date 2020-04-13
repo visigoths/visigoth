@@ -34,8 +34,7 @@ class FontManager(object):
     default_font_weight = ""
     default_font_style = ""
 
-    conn = None
-
+    db_path = None
     inited = False
 
     fonts_dir = os.path.join(os.path.split(__file__)[0])
@@ -45,16 +44,16 @@ class FontManager(object):
         if FontManager.inited:
             return
         FontManager.inited = True
-        db_path = os.path.join(FontManager.fonts_dir,"font_dimensions.db")
-        FontManager.conn = sqlite3.connect(db_path)
+        FontManager.db_path = os.path.join(FontManager.fonts_dir,"font_dimensions.db")
 
     @staticmethod
     def loadFont(fontName):
-        details = [row for row in FontManager.conn.execute("SELECT * FROM FONTS WHERE name=\"%s\""%(fontName.lower()))]
+        conn = sqlite3.connect(FontManager.db_path)
+        details = [row for row in conn.execute("SELECT * FROM FONTS WHERE name=\"%s\""%(fontName.lower()))]
         for (name,weight,style,table_name,license) in details:
             key = FontManager.getFontKey(name,weight,style)
             glyph_widths = {}
-            for glyph in FontManager.conn.execute("SELECT * FROM %s"%(table_name)):
+            for glyph in conn.execute("SELECT * FROM %s"%(table_name)):
                 (code,ratio) = glyph
                 c = chr(int(code))
                 r = float(ratio)
@@ -119,12 +118,14 @@ class FontManager(object):
                     
     @staticmethod
     def getCssFontFace(name,weight,style):
+        conn = sqlite3.connect(FontManager.db_path)
+
         key = FontManager.getFontKey(name,weight,style)
         if key in FontManager.paths:
             path = FontManager.paths[key]
             mimetype = "font/woff2"
         else:
-            details = [row for row in FontManager.conn.execute("SELECT * FROM FONTS WHERE name=\"%s\" AND weight=\"%s\" AND style=\"%s\""%(name.lower(),weight,style))]
+            details = [row for row in conn.execute("SELECT * FROM FONTS WHERE name=\"%s\" AND weight=\"%s\" AND style=\"%s\""%(name.lower(),weight,style))]
             for (_,weight,style,_,license) in details:
                 filename = name
                 if weight == "normal" and style == "italic":

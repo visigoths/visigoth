@@ -16,12 +16,9 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import math
-import json
-
 from visigoth.charts import ChartElement
-from visigoth.svg import rectangle,text,line,javascript_snippet
-from visigoth.utils.elements.axis import Axis
+from visigoth.svg import rectangle,text,line
+from visigoth.common.axis import Axis
 from visigoth.utils.data import Dataset
 from visigoth.utils.colour import DiscretePalette
 

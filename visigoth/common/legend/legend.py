@@ -18,10 +18,9 @@
 
 import os.path
 
-from visigoth.svg import text, polygon
+from visigoth.svg import text, polygon, circle, line
 from visigoth.common.diagram_element import DiagramElement
-from visigoth.utils.elements.axis import Axis
-from visigoth.utils.colour import Colour
+from visigoth.common.axis import Axis
 from visigoth.utils.js import Js
 from visigoth.utils.fonts.fontmanager import FontManager
 
@@ -59,6 +58,7 @@ class Legend(DiagramElement):
         self.legend_gap = 20
         self.legend_columns = legend_columns
         self.legend_font_height = font_height
+        self.discrete_marker_style = "square"
 
         # Continuous
         self.orientation = orientation
@@ -71,6 +71,9 @@ class Legend(DiagramElement):
 
     def getWidth(self):
         return self.width
+
+    def setDiscreteMarkerStyle(self,style):
+        self.discrete_marker_style = style
 
     def build(self):
         if self.palette.isDiscrete():
@@ -118,9 +121,14 @@ class Legend(DiagramElement):
         config = { "categories": {} }
         for (category, colour) in self.palette.getCategories():
             g = self.legend_font_height
-            points = [(legend_x, legend_y), (legend_x + g, legend_y), (legend_x + g, legend_y + g),
+            if self.discrete_marker_style == "square":
+                points = [(legend_x, legend_y), (legend_x + g, legend_y), (legend_x + g, legend_y + g),
                       (legend_x, legend_y + g)]
-            p = polygon(points, colour, self.stroke, self.stroke_width)
+                p = polygon(points, colour, self.stroke, self.stroke_width)
+            elif self.discrete_marker_style == "circle":
+                p = circle(legend_x+g/2,legend_y+g/2,g/2,fill=colour,stroke=self.stroke,stroke_width=self.stroke_width)
+            else:
+                p = line(legend_x,legend_y+g/2,legend_x+g,legend_y+g/2,stroke=colour,stroke_width=self.stroke_width)
             config["categories"][category] = [p.getId()];
             d.add(p)
             t = text(legend_x+1.5*g, legend_y+g/2, category)

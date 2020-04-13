@@ -17,14 +17,13 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-import json
 import datetime
-from math import pi, floor, log10, ceil
+from math import pi, log10, ceil
 
 from visigoth.common.diagram_element import DiagramElement
 from visigoth.svg import line, text
 from visigoth.utils.mapping import Projections
-from visigoth.utils.elements.axis.axisutils import AxisUtils
+from visigoth.common.axis.axisutils import AxisUtils
 from visigoth.utils.fonts.fontmanager import FontManager
 
 class Axis(DiagramElement):
@@ -74,24 +73,27 @@ class Axis(DiagramElement):
 
     def setMinValue(self,value):
         self.minValue = value
+        return self
 
     def getMinValue(self):
         return self.minValue
 
     def setLength(self,length):
         self.length = length
+        return self
 
     def setMaxValue(self,value):
         self.maxValue = value
+        return self
 
     def getMaxValue(self):
         return self.maxValue
         
     def setLabel(self,label):
         self.label = label
+        return self
 
     def extractBounds(self,lwb,upb):
-        date_based = False
         lwb_date = isinstance(lwb,datetime.datetime)
         upb_date = isinstance(upb,datetime.datetime)
         if lwb_date and upb_date:
@@ -107,6 +109,14 @@ class Axis(DiagramElement):
     def getHeight(self):
         return self.height
 
+    def setFontHeight(self,font_height):
+        self.font_height = font_height
+        return self
+
+    def setTextAttributes(self,text_attributes):
+        self.text_attributes = text_attributes
+        return self
+
     def setStroke(self,stroke,stroke_width):
         """
         Configure line colour and width
@@ -117,12 +127,14 @@ class Axis(DiagramElement):
         """
         self.stroke = stroke
         self.stroke_width = stroke_width
+        return self
 
     def getTickPoints(self):
         return self.tickpoints
 
     def setTickPositions(self,tickpositions):
         self.tickpoints = tickpositions
+        return self
 
     def getTickPositions(self,start):
         return self.axisutils.getTickPositions(start)

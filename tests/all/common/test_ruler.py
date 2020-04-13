@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#    Visigoth: A lightweight Python3 library for rendering data visualizations in SVG
+#    visigoth: A lightweight Python3 library for rendering data visualizations in SVG
 #    Copyright (C) 2020  Niall McCarroll
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -16,18 +16,19 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from .diagram_element import DiagramElement
-from .button import Button
-from .buttongrid import ButtonGrid
-from .embedded_html import EmbeddedHtml
-from .embedded_svg import EmbeddedSvg
-from .event_handler import EventHandler
-from .image import Image
-from .legend import Legend
-from .map_layer_manager import MapLayerManager
-from .search_manager import SearchManager
-from .panzoom import PanZoom
-from .space import Space
-from .text import Text, Span
-from .axis import Axis
-from .ruler import Ruler
+import unittest
+
+from visigoth import Diagram
+from visigoth.utils.test_utils import TestUtils
+from visigoth.common import Ruler
+
+class TestAxis(unittest.TestCase):
+
+    def test_basic(self):
+        d = Diagram(fill="white")
+        d.add(Ruler(200,100000)) # 10km
+        svg = d.draw()
+        TestUtils.output(svg,"test_ruler.svg")
+
+if __name__ == "__main__":
+    unittest.main()

@@ -20,16 +20,18 @@
 """
 
 from setuptools import setup, find_packages
+from visigoth import version, repo_url
 
 setup(
     name='visigoth',
 
-    version='0.2.2',
+    version=version,
 
     description='Python3 library for rendering geospatial infographics',
+
     long_description="Python3 library for creating static data-driven geospatial infographics as SVG files",
 
-    url='https://github.com/visigoths/visigoth',
+    url=repo_url,
 
     author='Niall McCarroll',
     author_email='',

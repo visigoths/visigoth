@@ -56,7 +56,8 @@ if __name__ == "__main__":
     
     d.add(Box(al))
   
-    legend = Legend(al.getPalette(),400,legend_columns=2)
+    legend = Legend(al.getPalette(),400,legend_columns=2, stroke_width=5)
+    legend.setDiscreteMarkerStyle("line")
     d.add(legend)
     d.connect(legend,"brushing",al,"brushing")
     d.connect(al,"brushing",legend,"brushing")

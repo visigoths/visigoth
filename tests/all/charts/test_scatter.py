@@ -20,7 +20,7 @@ import unittest
 
 from visigoth import Diagram
 from visigoth.utils.test_utils import TestUtils
-from visigoth.charts.scatterplot import ScatterPlot
+from visigoth.charts.scatter import Scatter
 from visigoth.containers.box import Box
 
 from visigoth.utils.colour import DiscretePalette
@@ -46,7 +46,7 @@ class TestScatterPlot(unittest.TestCase):
 
         d.add(Text("Multi-colour"))
 
-        scatter0 = ScatterPlot(data0, x=0, y=1, label=2, colour=3, size=4, width=500, height=500, palette=palette0)
+        scatter0 = Scatter(data0, x=0, y=1, label=2, colour=3, size=4, width=500, height=500, palette=palette0)
         (xAxis,yAxis) = scatter0.getAxes()
         xAxis.setLabel("label-x")
         yAxis.setLabel("label-y")
@@ -58,11 +58,23 @@ class TestScatterPlot(unittest.TestCase):
         d.connect(scatter0,"brushing",legend0,"brushing")
 
         d.add(Text("Monochrome"))
-        scatter1 = ScatterPlot(data0, x=0, y=1, label=2, size=4, width=500, height=500)
+        scatter1 = Scatter(data0, x=0, y=1, label=2, size=4, width=500, height=500)
         d.add(scatter1)
 
         svg = d.draw()
         TestUtils.output(svg,"test_scatter.svg")
+
+    def test_scatter(self):
+        d = Diagram(fill="white")
+
+        d.add(Text("Empty"))
+
+        data0 = []
+        scatter0 = Scatter(data0, x=0, y=1, label=2, size=3, width=600, height=600)
+        d.add(scatter0)
+
+        svg = d.draw()
+        TestUtils.output(svg, "test_emptyscatter.svg")
 
 if __name__ == "__main__":
     unittest.main()

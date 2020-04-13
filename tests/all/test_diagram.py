@@ -61,7 +61,7 @@ class TestDiagram(unittest.TestCase):
         d.add(Box(Text("Berlin Map",font_height=32),fill="white"))
         d.add(Box(s1,fill="white"))
 
-        svg = d.draw()
+        svg = d.draw(include_footer=False)
         TestUtils.output(svg,"test_diagram.svg")
 
 if __name__ == '__main__':

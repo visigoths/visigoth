@@ -40,7 +40,7 @@ class Ruler(DiagramElement):
         text_attributes(dict): a dict containing SVG name/value pairs
     """
 
-    def __init__(self,length,distance,ruler_width=10,label=None,decimal_places=2,stroke="black",stroke_width=4,font_height=24,text_attributes={}):
+    def __init__(self,length,distance,ruler_width=10,decimal_places=2,stroke="black",stroke_width=4,font_height=24,text_attributes={}):
         DiagramElement.__init__(self)
         self.length = length
         self.ruler_width = ruler_width

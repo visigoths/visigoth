@@ -17,15 +17,9 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from visigoth.charts import ChartElement
-from visigoth.containers.box import Box
 
-import random
-import sys
-
-from math import radians,sin,cos,pi,sqrt,log
-
-from visigoth.svg import circle, line, text, path
-from visigoth.utils.elements.axis import Axis
+from visigoth.svg import path
+from visigoth.common.axis import Axis
 from visigoth.utils.data import Dataset
 from visigoth.utils.marker import MarkerManager
 from visigoth.utils.colour import DiscretePalette, ContinuousPalette
@@ -85,9 +79,11 @@ class Line(ChartElement):
         
         self.font_height = font_height
         self.text_attributes = text_attributes
-        
-        xy_range = self.dataset.query(aggregations=[Dataset.min(self.x),Dataset.max(self.x),Dataset.min(self.y),Dataset.max(self.y)])[0]
-        
+
+        if len(self.dataset) > 0:
+            xy_range = self.dataset.query(aggregations=[Dataset.min(self.x),Dataset.max(self.x),Dataset.min(self.y),Dataset.max(self.y)])[0]
+        else:
+            xy_range = (0.0,1.0,0.0,1.0)
         (x_axis_min,x_axis_max,y_axis_min,y_axis_max) = tuple(xy_range)
 
         x_label = "X"

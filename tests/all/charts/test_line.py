@@ -68,6 +68,23 @@ class TestLine(unittest.TestCase):
         svg = d.draw()
         TestUtils.output(svg,"test_line.svg")
 
+    def test_empty(self):
+        d = Diagram(fill="white")
+
+        d.add(Text("Empty"))
+
+        data0 = []
+        line0 = Line(data0, x=0, y=1, width=600, height=600)
+        (ax, ay) = line0.getAxes()
+        ax.setMinValue(0.0)
+        ax.setMaxValue(3.0)
+        ay.setMaxValue(20.0)
+        ay.setMinValue(0.0)
+        d.add(line0)
+
+        svg = d.draw()
+        TestUtils.output(svg, "test_emptyline.svg")
+
 
 if __name__ == "__main__":
     unittest.main()
