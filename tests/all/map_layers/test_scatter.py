@@ -25,6 +25,8 @@ from visigoth.utils.test_utils import TestUtils
 from visigoth.containers.map import Map
 from visigoth.containers.box import Box
 from visigoth.map_layers.scatter import Scatter
+from visigoth.utils.colour import DiscretePalette
+from visigoth.utils.marker import MarkerManager
 
 class TestScatter(unittest.TestCase):
 
@@ -47,8 +49,14 @@ class TestScatter(unittest.TestCase):
         data2a = [(0.5+0.3*rng.random()*math.sin(a), 0.5+0.3*rng.random()*math.cos(a)) for a in angles1]
         data2b = [(0.5 + 0.4 * math.sin(a), 0.5 + 0.4 * math.cos(a)) for a in angles2]
 
-        m2.addLayer(Scatter(data2a,fill="green"))
-        m2.addLayer(Scatter(data2b, fill="orange",radius=20,stroke="red",stroke_width=3))
+        p1 = DiscretePalette()
+        p1.setDefaultColour("green")
+        p2 = DiscretePalette()
+        p2.setDefaultColour("orange")
+        mm = MarkerManager(stroke="red",stroke_width=3)
+        mm.setDefaultRadius(20)
+        m2.addLayer(Scatter(data2a,palette=p1))
+        m2.addLayer(Scatter(data2b, palette=p2,marker_manager=mm))
 
         d.add(Box(m2))
 

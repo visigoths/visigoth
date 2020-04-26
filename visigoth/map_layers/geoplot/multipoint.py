@@ -19,7 +19,6 @@
 import os
 
 from visigoth.svg import polygon, circle, path, line, rectangle, clip_path, embedded_svg
-from visigoth.map_layers.geoplot import Geoplot
 from visigoth.map_layers.geoplot.multithing import Multithing
 
 class Multipoint(Multithing):
@@ -43,13 +42,12 @@ class Multipoint(Multithing):
         stroke (stroke): the stroke colour to use
         stroke_width (float): the width of the stroke
         radius (int): the radius of the point
-        marker (bool): whether to draw a marker or circle
+        marker (bool|Marker): whether to draw a marker or circle (bool) or a marker object
     """
 
     def __init__(self,coordinates,id="",category="",label="",tooltip="",popup=None,properties={},fill="red",stroke="black",stroke_width=1,radius=20,marker=True):
         super(Multipoint,self).__init__(id,category,label,tooltip,popup,properties,fill,stroke,stroke_width)
         self.coordinates = coordinates
-
         self.radius = radius
         self.marker = marker
 
@@ -63,23 +61,25 @@ class Multipoint(Multithing):
         return self.marker
 
     def draw(self,doc,xy):
-        if self.marker:
-            off_y = 32*(2*self.radius/512)
-            i = embedded_svg(2*self.radius,2*self.radius,xy[0]-self.radius,xy[1]-2*self.radius+off_y,Multipoint.location_marker)
-            i.addAttr("fill",self.fill)
-            i.addAttr("stroke",self.stroke)
-            i.addAttr("stroke-width",self.stroke_width)
-            if self.tooltip:
-                i.setTooltip(self.tooltip)
-            doc.add(i)
-            return i.getId()
-        else:    
-            c = circle(xy[0],xy[1],self.radius,self.fill)
-            c.addAttr("stroke",self.stroke)
-            c.addAttr("stroke-width",self.stroke_width)
-            if self.tooltip:
-                c.setTooltip(self.tooltip)
-            doc.add(c)
-            return c.getId()
-
+        if isinstance(self.marker,bool):
+            if self.marker:
+                off_y = 32*(2*self.radius/512)
+                i = embedded_svg(2*self.radius,2*self.radius,xy[0]-self.radius,xy[1]-2*self.radius+off_y,Multipoint.location_marker)
+                i.addAttr("fill",self.fill)
+                i.addAttr("stroke",self.stroke)
+                i.addAttr("stroke-width",self.stroke_width)
+                if self.tooltip:
+                    i.setTooltip(self.tooltip)
+                doc.add(i)
+                return i.getId()
+            else:
+                c = circle(xy[0],xy[1],self.radius,self.fill)
+                c.addAttr("stroke",self.stroke)
+                c.addAttr("stroke-width",self.stroke_width)
+                if self.tooltip:
+                    c.setTooltip(self.tooltip)
+                doc.add(c)
+                return c.getId()
+        else:
+            return self.marker.plot(doc,xy[0],xy[1],self.tooltip,self.fill)
     

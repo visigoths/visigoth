@@ -25,7 +25,7 @@ from visigoth.containers import Map, Box
 from visigoth.map_layers.chloropleth import Chloropleth
 from visigoth.common import Text, Space, Legend
 from visigoth.utils.colour import ContinuousPalette
-from visigoth.utils.httpcache import HttpCache
+import os.path
 
 if __name__ == "__main__":
 
@@ -39,18 +39,15 @@ if __name__ == "__main__":
     rng = random.Random()
     d = Diagram(fill="white")
 
-    path = HttpCache.fetch("https://raw.githubusercontent.com/opengeospatial/ets-gpkg12/master/src/test/resources/gpkg/states10.gpkg",suffix=".gpkg",returnPath=True)
-
+    path = os.path.join(os.path.split(__file__)[0],"aus_state.geojson")
     d.add(Text("randomness",font_height=50,text_attributes={"stroke":"purple"}))
     d.add(Space(20,20))
-    c = Chloropleth(path,lambda props:rng.random()*10,"name",palette)
-    bounds = ((-124.848974, 24.396308),(-66.885444, 49.384358))
-    m = Map(1024,bounds,zoom_to=4)
+    c = Chloropleth(path,lambda props:rng.random()*10,"STATE_NAME",palette)
+    m = Map(512,zoom_to=4)
     m.addLayer(c)
     d.add(Box(m))
     d.add(Space(20,20))
     d.add(Legend(palette,width=500,legend_columns=3))
-    d.add(Text("Attribution: https://github.com/opengeospatial/ets-gpkg12",url="https://github.com/opengeospatial/ets-gpkg12",font_height=18))
     svg = d.draw()
 
     f = open(args.outpath, "wb")

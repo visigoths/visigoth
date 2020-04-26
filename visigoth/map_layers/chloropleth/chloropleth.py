@@ -17,31 +17,20 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-import random
-import sys
-import json
-import copy
 import os.path
-
-from math import radians,sin,cos,pi,sqrt,log
-
-from visigoth.svg import polygon
-from visigoth.common import DiagramElement
 from visigoth.map_layers.geoimport import Geoimport
-from visigoth.utils.colour import Colour
-from visigoth.map_layers import MapLayer
 from visigoth.utils.js import Js
 
 
-class Chloropleth(MapLayer):
+class Chloropleth(Geoimport):
 
     """
-    Create a Choloropleth plot
+    Create a Choloropleth plot from a geojson file
 
     Arguments:
-        path : a geojson or geopackage file path
-        valuePropertyName(str) : the name of the property to provide the value to visualize
-        labelPropertyName(str) : the name of the property to provide the label
+        path : file path to a geojson file
+        valueNameOrFn(str|function) : the name of the property (or function of the properties dict) to provide the value to visualize
+        labelNameOrFn(str|function) : the name of the property (or function of the properties dict) to provide the label
         palette(list) : a list of (value, colour) pairs or a list of [(min-value, min-colour),(max-value,max-colour)]
 
     Keyword Arguments:
@@ -53,49 +42,29 @@ class Chloropleth(MapLayer):
 
     """
 
-    def __init__(self, path, valuePropertyName, labelPropertyName, palette, default_fill_colour="white", stroke="black",stroke_width=2):
-        super(Chloropleth, self).__init__()
+    def __init__(self, path, valueNameOrFn, labelNameOrFn, palette, default_fill_colour="white", stroke="black",stroke_width=2):
+        super().__init__(path,polygon_style=lambda props:self.getPolygonStyle(props))
         self.path = path
-        self.value = valuePropertyName
-        self.labelPropertyName = labelPropertyName
-        self.boundaries = None
-        self.width = None
-        self.height = None
-        self.projection = None
+        self.valueNameOrFn = valueNameOrFn
+        self.labelNameOrFn = labelNameOrFn
         self.stroke = stroke
         self.palette = palette
         self.default_fill_colour = default_fill_colour
         self.stroke_width = stroke_width
-        self.ownermap = None
-        self.geojson = Geoimport(self.path,polygon_style=lambda props:self.getPolygonStyle(props))
-
-    def configureLayer(self,ownermap,width,height,boundaries,projection,zoom_to):
-        self.width = width
-        self.height = height
-        self.ownermap = ownermap
-        self.boundaries = boundaries
-        self.projection = projection
-        self.zoom_to = zoom_to
-
-    def getBoundaries(self):
-        if self.boundaries:
-            return self.boundaries
-        boundaries = self.geojson.getBoundaries()
-        return boundaries
 
     def getFill(self,geojson_props):
-        if isinstance(self.value,str):
-            if self.value in geojson_props:
-                val = geojson_props[self.value]
+        if isinstance(self.valueNameOrFn,str):
+            if self.valueNameOrFn in geojson_props:
+                val = geojson_props[self.valueNameOrFn]
             else:
                 return self.default_fill_colour
         else:
-            val = self.value(geojson_props)
+            val = self.valueNameOrFn(geojson_props)
         return self.palette.getColour(val)
 
     def getLabel(self,geojson_props):
-        if self.labelPropertyName in geojson_props:
-            return geojson_props[self.labelPropertyName]
+        if self.labelNameOrFn in geojson_props:
+            return geojson_props[self.labelNameOrFn]
         return ""
 
     def getPolygonStyle(self,geojson_props):
@@ -107,21 +76,8 @@ class Chloropleth(MapLayer):
             "stroke_width": self.stroke_width
         }
 
-    def getWidth(self):
-        return self.width
-
-    def getHeight(self):
-        return self.height
-
-    def build(self):
-        self.geojson.configureLayer(self.ownermap,self.width,self.height,self.boundaries,self.projection,self.zoom_to)
-        self.geojson.build()
-
     def draw(self,doc,cx,cy):
-        self.geojson.draw(doc,cx,cy)
+        config = super().draw(doc,cx,cy,False)
         with open(os.path.join(os.path.split(__file__)[0],"chloropleth.js"),"r") as jsfile:
             jscode = jsfile.read()
-        config = {}
         Js.registerJs(doc,self,jscode,"chloropleth",cx,cy,config)
-        doc.getDiagram().connect(self,"zoom",self.geojson,"zoom")
-        doc.getDiagram().connect(self,"visible_window",self.geojson,"visible_window")

@@ -24,9 +24,9 @@ from visigoth import Diagram
 from visigoth.utils.test_utils import TestUtils
 from visigoth.containers.map import Map
 from visigoth.containers.box import Box
-from visigoth.map_layers.scatter import Scatter
 from visigoth.map_layers.voronoi import Voronoi
-from visigoth.utils.colour import Colour
+from visigoth.utils.colour import DiscretePalette
+from visigoth.utils.marker import MarkerManager
 
 class TestVoronoi(unittest.TestCase):
 
@@ -36,10 +36,11 @@ class TestVoronoi(unittest.TestCase):
         m1 = Map(512)
         rng = random.Random(1)
 
-        data1 = [(rng.random(), rng.random()) for x in range(0, 100)]
-        data1v = [(x,y,Colour.randomColour(),"") for (x,y) in data1]
-        m1.addLayer(Scatter(data1))
-        m1.addLayer(Voronoi(data1v))
+        data1 = [(rng.random(), rng.random(), str(x), "p"+str(x)) for x in range(0, 100)]
+        p = DiscretePalette()
+        mm = MarkerManager()
+        mm.setDefaultRadius(5)
+        m1.addLayer(Voronoi(data1,palette=p,lon=0,lat=1,colour=2,marker_manager=mm))
         d.add(Box(m1))
 
         m2 = Map(512)
@@ -48,10 +49,9 @@ class TestVoronoi(unittest.TestCase):
         angles2 = [math.pi * rng.random() * 2 for r in range(15)]
 
         data2 = [(0.5 + (0.4+0.1*rng.random())*math.sin(a), 0.5 + (0.4 + 0.1*rng.random())*math.cos(a)) for a in angles2]
-        data2v = [(x,y,Colour.randomColour(),"") for (x,y) in data2]
+        data2v = [(x,y,random.choice(["A","B","C"])) for (x,y) in data2]
 
-        m2.addLayer(Voronoi(data2v,radius=8,stroke="red",stroke_width=2))
-        m2.addLayer(Scatter(data2,fill="green"))
+        m2.addLayer(Voronoi(data2v,lon=0,lat=1,colour=2,label=2))
 
         d.add(Box(m2))
 
@@ -63,7 +63,14 @@ class TestVoronoi(unittest.TestCase):
 
         m1 = Map(512)
 
-        data1 = [(0.25,0.25,Colour.randomColour(),""),(0.75,0.75,Colour.randomColour(),""),(0.25,0.75,Colour.randomColour(),""),(0.75,0.25,Colour.randomColour(),"")]
+        p = DiscretePalette()
+        p.addCategory("A","red").addCategory("B","blue").addCategory("C","green").addCategory("D","orange")
+
+        data1 = [(0.25,0.25,"A"),
+                 (0.75,0.75,"B"),
+                 (0.25,0.75,"C"),
+                 (0.75,0.25,"D")]
+
         m1.addLayer(Voronoi(data1))
         d.add(Box(m1))
 

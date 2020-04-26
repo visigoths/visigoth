@@ -36,6 +36,22 @@ class MapLayer(DiagramElement):
         MapLayer.counter += 1
         self.opacity = 1.0
         self.visible = True
+        self.palette = None
+        self.marker_manager = None
+
+    def setPalette(self, palette):
+        self.palette = palette
+        return self
+
+    def getPalette(self):
+        return self.palette
+
+    def setMarkerManager(self, marker_manager):
+        self.marker_manager = marker_manager
+        return self
+
+    def getMarkerManager(self):
+        return self.marker_manager
 
     def configureLayer(self,ownermap,width,height,boundaries,projection,zoom_to):
         pass
@@ -55,12 +71,14 @@ class MapLayer(DiagramElement):
 
     def setOpacity(self,opacity):
         self.opacity = opacity
+        return self
 
     def getOpacity(self):
         return self.opacity
 
     def setVisible(self,visible):
         self.visible = visible
+        return self
 
     def getVisible(self):
         return self.visible
@@ -68,4 +86,49 @@ class MapLayer(DiagramElement):
     def isForegroundLayer(self):
         return False
 
-    
+    @staticmethod
+    def computeBoundaries(locations):
+        min_lon = None
+        min_lat = None
+        max_lon = None
+        max_lat = None
+        for (lon,lat) in locations:
+            if min_lon == None or lon < min_lon:
+                min_lon = lon
+            if min_lat == None or lat < min_lat:
+                min_lat = lat
+            if max_lon == None or lon > max_lon:
+                max_lon = lon
+            if max_lat == None or lat > max_lat:
+                max_lat = lat
+        return ((min_lon, min_lat), (max_lon, max_lat))
+
+    def configureLayer(self,ownermap,width,height,boundaries,projection,zoom_to):
+        self.width = width
+        self.boundaries = boundaries
+        self.projection = projection
+        (self.x0, self.y0) = self.projection.fromLonLat(boundaries[0])
+        (self.x1, self.y1) = self.projection.fromLonLat(boundaries[1])
+        self.height = height
+        self.scale_x = self.width / (self.x1 - self.x0)
+        self.scale_y = self.height / (self.y1 - self.y0)
+
+    def drawTo(self,cx,cy):
+        self.center_x = cx
+        self.center_y = cy
+
+    def getXYFromLonLat(self,lon_lat):
+        (lon,lat) = lon_lat
+        (x, y) = self.projection.fromLonLat((lon, lat))
+        return self.getXY((x,y))
+
+    def getXY(self,e_n):
+        (x,y) = e_n
+        ox = self.center_x - self.width/2
+        oy = self.center_y - self.height/2
+        nw = self.projection.fromLonLat(self.boundaries[0])
+
+        cx = ox + (x - nw[0]) * self.scale_x
+        cy = oy + (self.height - (y - nw[1]) * self.scale_y)
+        return (cx,cy)
+

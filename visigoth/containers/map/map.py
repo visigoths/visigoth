@@ -229,6 +229,7 @@ class Map(DiagramElement):
         # add non-foreground layers
         for (element,identifier) in self.elements:
             if not element.isForegroundLayer():
+                element.drawTo(cx,cy)
                 self.drawLayer(doc,element,identifier,ox,oy,metadata)
                 
         doc.closeGroup()
@@ -238,6 +239,7 @@ class Map(DiagramElement):
         # add any foreground layers
         for (element,identifier) in self.elements:
             if element.isForegroundLayer():
+                element.drawTo(cx,cy)
                 self.drawLayer(doc,element,identifier,ox,oy,metadata)
         
         oy += self.content_height

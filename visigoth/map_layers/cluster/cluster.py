@@ -34,16 +34,20 @@ from visigoth.utils.js import Js
 from visigoth.utils.term.progress import Progress
 from visigoth.utils.colour import Colour
 
-class Cluster(MapLayer):
+from visigoth.utils.data import Dataset
+
+class Cluster(Geoplot):
 
     """
     Create a Cluster plot
 
     Arguments:
-        data(list) : list of (lon,lat) pairs to plot
+         data (list): A relational data set (for example, list of dicts/lists/tuples describing each row)
 
     Keyword Arguments:
         algorithm: the algorithm to use (currently visigoth.map_layers.cluster.AgglomerativeAlgorithm or visigoth.map_layers.cluster.KMeansAlgorithm is supported)
+        lat (str or int): Identify the column to provide the latitude value for each point
+        lon (str or int): Identify the column to provide the longitude value for each point
         fill (tuple): tuple containing the colour for each center
         stroke (str): stroke colour for circles representing points
         stroke_width (int): stroke width for circles representing points
@@ -52,10 +56,10 @@ class Cluster(MapLayer):
         text_attributes(dict): a dict containing SVG name/value attributes to apply to cluster labels
         label_fill(str): background colour to use for cluster labels
     """
-    def __init__(self, data, algorithm,fill=[],stroke="black",stroke_width=1,radius=5,font_height=12,text_attributes={},label_fill="#B0B0B080"):
-        super(Cluster, self).__init__()
-        
-        self.data  = data
+    def __init__(self, data, algorithm,lon=0,lat=1,fill=[],stroke="black",stroke_width=1,radius=5,font_height=12,text_attributes={},label_fill="#B0B0B080"):
+        super(Cluster, self).__init__(font_height=font_height,text_attributes=text_attributes)
+        dataset = Dataset(data)
+        self.data = dataset.query([lon,lat])
         self.algorithm = algorithm
   
         self.width = None
@@ -64,39 +68,18 @@ class Cluster(MapLayer):
         self.stroke = stroke
         self.stroke_width = stroke_width
         self.radius = radius
-        self.points = []
-        self.boundaries = None
-        self.scale  = None
-        self.projection = None
-        self.geoplot = None
         self.font_height = font_height
         self.text_attributes = text_attributes
         self.label_fill = label_fill
-        
-
-    def configureLayer(self,ownermap,width,height,boundaries,projection,zoom_to):
-        self.ownermap = ownermap
-        self.width = width
-        self.height = height
-        self.boundaries = boundaries
-        self.projection = projection
-        self.zoom_to = zoom_to
 
     def getBoundaries(self):
         if not self.boundaries:
             boundaries = Mapping.getBoundingBox(self.data,0.05)
         return boundaries  
 
-    def getWidth(self):
-        return self.geoplot.getWidth()
-
-    def getHeight(self):
-        return self.geoplot.getHeight()
-
     def build(self):
         self.model = self.algorithm.train(self.data,self.projection)
         
-        multipoints = []
         cluster_colours = {idx:self.fill[idx] for idx in range(len(self.fill))}
 
         clusteredpoints = {}
@@ -114,21 +97,17 @@ class Cluster(MapLayer):
             kwargs = {}
             if self.font_height>0:
                 kwargs["label"] = label
-            multipoints.append(Multipoint(
+            self.add(Multipoint(
                 clusteredpoints[cluster],
                 fill=colour,marker=False,radius=self.radius,stroke=self.stroke,stroke_width=self.stroke_width,
                 **kwargs))
             
-        self.geoplot = Geoplot(multipoints=multipoints,font_height=self.font_height,text_attributes=self.text_attributes,label_fill=self.label_fill)
-        self.geoplot.configureLayer(self.ownermap,self.width,self.height,self.boundaries,self.projection,self.zoom_to)
-        self.geoplot.build()
-
+        super().build()
 
     def draw(self,doc,cx,cy):
-        self.geoplot.draw(doc,cx,cy)
+        config = super().draw(doc,cx,cy,False)
         with open(os.path.join(os.path.split(__file__)[0],"cluster.js"),"r") as jsfile:
             jscode = jsfile.read()
-        config = {}
         Js.registerJs(doc,self,jscode,"cluster",cx,cy,config)
-        doc.getDiagram().connect(self,"zoom",self.geoplot,"zoom")
-        doc.getDiagram().connect(self,"visible_window",self.geoplot,"visible_window")
+        # doc.getDiagram().connect(self,"zoom",self.geoplot,"zoom")
+        # doc.getDiagram().connect(self,"visible_window",self.geoplot,"visible_window")

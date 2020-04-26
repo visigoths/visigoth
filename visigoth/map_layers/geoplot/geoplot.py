@@ -17,24 +17,17 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-import random
-import sys
-import json
-import copy
 import os
 import os.path
-import base64
 import math
 
-from math import radians,sin,cos,pi,sqrt,log
-
-from visigoth.svg import text, polygon, circle, path, line, rectangle, clip_path, embedded_svg
-from visigoth.common import DiagramElement
-from visigoth.containers.popup import Popup
-from visigoth.containers.sequence import Sequence
-from visigoth.utils.mapping import Mapping
+from visigoth.svg import text
 from visigoth.map_layers import MapLayer
 from visigoth.utils.js import Js
+
+from .multiline import Multiline
+from .multipoint import Multipoint
+from .multipolygon import Multipolygon
 
 class Geoplot(MapLayer):
 
@@ -88,15 +81,25 @@ class Geoplot(MapLayer):
         self.labels = {} 
         self.popup_groups = {}
 
+    def add(self,multithing):
+        if isinstance(multithing,Multipoint):
+            self.multipoints.append(multithing)
+        elif isinstance(multithing,Multiline):
+            self.multilines.append(multithing)
+        elif isinstance(multithing,Multipolygon):
+            self.multipolys.append(multithing)
+        else:
+            raise Exception("Object is not a Multithing")
+
+    def clear(self):
+        self.multipoints = []
+        self.multipolys = []
+        self.multilines = []
+
     def configureLayer(self,ownermap,width,height,boundaries,projection,zoom_to):
-        self.width = width
-        self.height = height
-        self.ownermap = ownermap
-        self.boundaries = boundaries
+        super().configureLayer(ownermap,width,height,boundaries,projection,zoom_to)
         (self.min_lon,self.min_lat) = boundaries[0]
         (self.max_lon,self.max_lat) = boundaries[1]
-        self.projection = projection
-        self.zoom_to = zoom_to
 
     def isSearchable(self):
         return True
@@ -143,9 +146,13 @@ class Geoplot(MapLayer):
         (lon,lat) = lonlat
         return lon >= self.min_lon and lon <= self.max_lon and lat >= self.min_lat and lat <= self.max_lat
 
+    def drawTo(self,cx,cy):
+        super().drawTo(cx,cy)
+
     def transform(self,point,ox,oy):
-        (x,y) = self.projection.fromLonLat(point)
-        return (self.scale*(x - self.x_axis_min)+ox,oy+self.height-self.scale*(y - self.y_axis_min))
+        return self.getXYFromLonLat(point)
+        # (x,y) = self.projection.fromLonLat(point)
+        # return (self.scale*(x - self.x_axis_min)+ox,oy+self.height-self.scale*(y - self.y_axis_min))
 
     def centroid(self,points):
         mean_x = sum([x for (x,_) in points])/len(points)
@@ -388,7 +395,7 @@ class Geoplot(MapLayer):
         self.labels[g.getId()] = {"x":cx, "y":cy}
 
 
-    def draw(self,doc,cx,cy):
+    def draw(self,doc,cx,cy,constructJs=True):
         ox = cx - self.width/2
         oy = cy - self.height/2
 
@@ -398,9 +405,7 @@ class Geoplot(MapLayer):
      
         self.drawPopups(doc)
 
-        with open(os.path.join(os.path.split(__file__)[0],"geoplot.js"),"r") as jsfile:
-            jscode = jsfile.read()
-        config = { 
+        config = {
             "popup_map": self.popup_map, 
             "label_ids":list(self.label_ids), 
             "group_properties":self.group_properties, 
@@ -412,5 +417,8 @@ class Geoplot(MapLayer):
             "polygons":self.polygons,
             "labels":self.labels,
             "popups":self.popup_groups }
-        Js.registerJs(doc,self,jscode,"geoplot",cx,cy,config)
 
+        with open(os.path.join(os.path.split(__file__)[0], "geoplot.js"), "r") as jsfile:
+            jscode = jsfile.read()
+            Js.registerJs(doc,self,jscode,"geoplot",cx,cy,config,constructJs)
+        return config

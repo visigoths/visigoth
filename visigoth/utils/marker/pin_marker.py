@@ -16,20 +16,27 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from visigoth.svg import circle
+import os.path
+from visigoth.svg import embedded_svg
 from .marker import Marker
 
-class CircleMarker(Marker):
+class PinMarker(Marker):
 
-    def __init__(self,radius,stroke,stroke_width):
+    svg = open(os.path.join(os.path.split(__file__)[0], "location_ionicon.svg"), "rt").read()
+
+    def __init__(self, radius, stroke, stroke_width):
         super().__init__(radius,stroke,stroke_width)
 
-    def plot(self,doc,x,y,tooltip,colour):
-        circ = circle(x,y,self.getRadius(),colour,tooltip=tooltip)
-        circ.addAttr("stroke",self.getStroke())
-        circ.addAttr("stroke-width",self.getStrokeWidth())
-        doc.add(circ)
-        return circ.getId()
+    def plot(self, doc, x, y, tooltip, colour):
+        r = self.getRadius()
+        off_y = 32 * (2 * r / 512)
+        i = embedded_svg(2 * r, 2 * r, x - r, y - 2 * r + off_y, PinMarker.svg)
+        i.addAttr("fill", colour)
+        i.addAttr("stroke", self.getStroke())
+        i.addAttr("stroke-width", self.getStrokeWidth())
+        if tooltip:
+            i.setTooltip(tooltip)
+        doc.add(i)
+        return i.getId()
 
-    
-        
+

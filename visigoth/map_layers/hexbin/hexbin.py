@@ -30,21 +30,25 @@ from visigoth.map_layers.contour import Contour
 from visigoth.svg import hexagon, circle
 from visigoth.utils.js import Js
 
+from visigoth.utils.data import Dataset
 
 class Hexbin(MapLayer):
     """
     Create a Hexagonally binned plot of point density
-        data(list) : list of (lon,lat) datapoints
+        data (list): A relational data set (for example, list of dicts/lists/tuples describing each row)
 
     Keyword Arguments:
+        lat (str or int): Identify the column to provide the latitude value for each point
+        lon (str or int): Identify the column to provide the longitude value for each point
         nr_bins_across: number of bins to arrange across the plot
         palette(ContinuousPalette) : define the colours used in the plot
         stroke(str) : the colour to use for bin lines
         stroke_width(float) : the width (in pixels) to use for bin lines
     """
-    def __init__(self,data,nr_bins_across=10,palette=None,stroke="brown",stroke_width=1):
+    def __init__(self,data,lon=0,lat=1,nr_bins_across=10,palette=None,stroke="grey",stroke_width=1):
         super(Hexbin, self).__init__()
-        self.data = data
+        dataset = Dataset(data)
+        self.data = dataset.query([lon,lat])
         self.palette = palette
         self.nr_bins_across = nr_bins_across
         self.width = None

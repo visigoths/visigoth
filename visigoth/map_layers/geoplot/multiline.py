@@ -19,7 +19,6 @@
 import os
 
 from visigoth.svg import polygon, circle, path, line, rectangle, clip_path, embedded_svg
-from visigoth.map_layers.geoplot import Geoplot
 from visigoth.map_layers.geoplot.multithing import Multithing
 
 class Multiline(Multithing):

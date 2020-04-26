@@ -42,9 +42,6 @@ if __name__ == "__main__":
 
     m1 = Map(768,bounds,projection,zoom_to=4)
 
-    d.add(Text("GeoPackage Example",font_height=50,text_attributes={"stroke":"purple"}))
-    d.add(Space(20,20))
-
     path = HttpCache.fetch("https://s3.eu-west-2.amazonaws.com/openplaques/open-plaques-United-Kingdom-2018-04-08.geojson",suffix=".geojson",returnPath=True)
 
     plaques = Geoimport(path,point_style=lambda p:{"fill":"lightblue","marker":False,"radius":3,"tooltip":p["inscription"]})

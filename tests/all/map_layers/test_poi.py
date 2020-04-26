@@ -36,10 +36,11 @@ class TestPOI(unittest.TestCase):
         bounds = Mapping.computeBoundaries(center,2000000)
         m = Map(512,boundaries=bounds)
 
-        poi = POI()
-        poi.addImage("https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Rio_Collage.png/280px-Rio_Collage.png",-43.196389,-22.908333,title="Rio de Janeiro",scale=0.75)
-        poi.addImage("https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Bras%C3%ADlia_Collage.png/280px-Bras%C3%ADlia_Collage.png",-47.882778,-15.793889,title="Brasília",scale=0.75,fill="blue")
-        poi.addImage("https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Montagem_SP.png/280px-Montagem_SP.png",-46.633333,-23.55,title="São Paulo",fill="purple")
+        p1 = {"url":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Rio_Collage.png/280px-Rio_Collage.png","lon":-43.196389,"lat":-22.908333,"label":"Rio de Janeiro","scale":0.75}
+        p2 = {"url":"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Bras%C3%ADlia_Collage.png/280px-Bras%C3%ADlia_Collage.png","lon":-47.882778,"lat":-15.793889,"label":"Brasília","scale":0.75}
+        p3 = {"url":"https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Montagem_SP.png/280px-Montagem_SP.png","lon":-46.633333,"lat":-23.55,"label":"São Paulo","scale":0.5}
+
+        poi = POI([p1,p2,p3],lat="lat",lon="lon",label="label",image="url",image_scale="scale")
         m.addLayer(WMS())
         m.addLayer(poi)
         d.add(Space(200))

@@ -22,10 +22,7 @@ import random
 
 from visigoth.diagram import Diagram
 from visigoth.map_layers import Geoimport
-from visigoth.common import Text, Space
 from visigoth.containers import Map
-from visigoth.utils.mapping import Projections
-from visigoth.utils.httpcache import HttpCache
 
 if __name__ == "__main__":
 
@@ -35,24 +32,12 @@ if __name__ == "__main__":
 
     rng = random.Random()
     d = Diagram(fill="white")
+    m1 = Map(512)
 
-    projection=Projections.ESPG_3857
-    bounds = None
-    m1 = Map(1024,bounds,projection)
+    path = os.path.join(os.path.split(__file__)[0],"nz_region.geojson")
 
-    d.add(Text("GeoPackage Example",font_height=50,text_attributes={"stroke":"purple"}))
-    d.add(Space(20,20))
-
-    path = "/tmp/rivers.gpkg"
-
-    if not os.path.exists(path):
-        url = "https://raw.githubusercontent.com/opengeospatial/ets-gpkg12/master/src/test/resources/gpkg/rivers.gpkg"
-        with open(path,"wb") as f:
-            f.write(HttpCache.fetch(url))
-
-    m1.addLayer(Geoimport(path,line_style=lambda p:{"stroke":rng.choice(["red","green","blue"])}))
+    m1.addLayer(Geoimport(path,polygon_style=lambda p:{"tooltip":p["REGC2016_N"],"fill":rng.choice(["red","orange","yellow"])}))
     d.add(m1)
-    d.add(Text("Attribution: https://github.com/opengeospatial/ets-gpkg12",url="https://github.com/opengeospatial/ets-gpkg12",font_height=18))
 
     svg = d.draw()
 

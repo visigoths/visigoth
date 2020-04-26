@@ -40,7 +40,6 @@ class DiscretePalette(Palette):
         self.categories = []
         self.categoryset = set()
         self.colourMap = colourMap
-        
 
     def build(self):
         pass
@@ -63,8 +62,8 @@ class DiscretePalette(Palette):
     def getColour(self,value):
         if self.colour == None:
             self.colour = Colour(self.categories,colourMap=self.colourMap)
-        if not value:
-            return self.colour.getDefaultColour()
+        if value is None:
+            return self.getDefaultColour()
         col = self.colour.getColour(value)
         if value not in self.categoryset:
             self.categoryset.add(value)
@@ -164,6 +163,8 @@ class ContinuousPalette(Palette):
         self.colour = Colour(self.intervals)
 
     def getColour(self,value):
+        if value is None:
+            return self.getDefaultColour()
         if self.min_value == None or value < self.min_value:
             self.min_value = value
         if self.max_value == None or value > self.max_value:

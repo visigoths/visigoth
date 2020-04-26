@@ -7,9 +7,6 @@ Points of Interest (POI)
 
 .. autoclass:: visigoth.map_layers.poi.POI
 
-  .. automethod:: addTweet
-  .. automethod:: addImage
-
 -------
 Example
 -------

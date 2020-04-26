@@ -18,7 +18,6 @@
 
 import unittest
 import random
-import math
 
 from visigoth import Diagram
 from visigoth.utils.test_utils import TestUtils
@@ -51,7 +50,7 @@ class TestCartogram(unittest.TestCase):
 
         bounds  = ((0.0,0.0),(1.0,1.0))
         m = Map(512,bounds,projection=Projections.IDENTITY)
-        c = Cartogram(data, palette, iterations=500, stroke_width=2, stroke="black", link_stroke="red")
+        c = Cartogram(data, colour=2, palette=palette, iterations=500, link_stroke="red")
         m.addLayer(c)
         legend = Legend(palette, width=500, legend_columns=3)
         d.add(Box(m))
@@ -62,7 +61,7 @@ class TestCartogram(unittest.TestCase):
 
         svg = d.draw()
 
-        TestUtils.output(svg,"test_cartogtam.svg")
+        TestUtils.output(svg,"test_cartogram.svg")
 
 if __name__ == "__main__":
     unittest.main()

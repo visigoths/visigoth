@@ -24,10 +24,10 @@ from visigoth import Diagram
 from visigoth.utils.test_utils import TestUtils
 from visigoth.containers.map import Map
 from visigoth.containers.box import Box
-from visigoth.common.space import Space
 from visigoth.common.legend import Legend
 from visigoth.utils.colour import ContinuousPalette
-from visigoth.map_layers.network import Network,Node,Edge,DDPageRank
+from visigoth.utils.marker import MarkerManager
+from visigoth.map_layers.network import Network,DDPageRank
 
 class TestNetwork(unittest.TestCase):
 
@@ -47,34 +47,33 @@ class TestNetwork(unittest.TestCase):
                 lon = random.random()
                 lat = random.random()
                 ok = True
-                for existing in nodes:
-                    (elon,elat) = existing.getLonLat()
+                for (_,elon,elat) in nodes:
                     dist = math.sqrt((elon-lon)**2+(elat-lat)**2)
                     if dist < 0.1:
                         ok = False
                         break
                 if ok:
-                    nodes.append(Node(lon,lat,radius=15,fill=random.choice(["red","green","blue"])))
+                    nodes.append((str(i),lon,lat))
                     break
         dists = []
-        for n1 in nodes:
-            for n2 in nodes:
-                if n2 != n1:
-                    (lon1,lat1) = n1.getLonLat()
-                    (lon2,lat2) = n2.getLonLat()
+        for (id1,lon1,lat1) in nodes:
+            for (id2,lon2,lat2) in nodes:
+                if id1 != id2:
                     dist = math.sqrt((lon1-lon2)**2 + (lat1-lat2)**2)
-                    dists.append((n1,n2,dist))
+                    dists.append((id1,id2,dist))
 
         dists = sorted(dists,key=lambda x:x[2])
                     
         for (n1,n2,_) in dists[:100]:
-            edges.append(Edge(n1,n2))
+            edges.append((n1,n2))
     
         palette = ContinuousPalette()
         palette.addColour("blue",0.0)
         palette.addColour("red",1.0)
+        mm = MarkerManager()
+        mm.setDefaultRadius(15)
 
-        nw = Network(nodes=nodes,edges=edges,palette=palette,ranking_algorithm=DDPageRank())
+        nw = Network(node_data=nodes,edge_data=edges,palette=palette,marker_manager=mm,ranking_algorithm=DDPageRank())
         m1.addLayer(nw)
         d.add(Box(m1))
 

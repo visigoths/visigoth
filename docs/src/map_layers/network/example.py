@@ -17,15 +17,14 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import argparse
-import math
-import random
 
 from visigoth import Diagram
 from visigoth.containers import Box, Map
 from visigoth.common import Legend
-from visigoth.map_layers import Network
-from visigoth.map_layers.network import Node,Edge,DDPageRank
+from visigoth.map_layers import Network, WMS
+from visigoth.map_layers.network import DDPageRank
 from visigoth.utils.colour import ContinuousPalette
+from visigoth.utils.marker import MarkerManager
 
 if __name__ == "__main__":
 
@@ -37,32 +36,27 @@ if __name__ == "__main__":
 
     m1 = Map(512,width_to_height=1)
 
-    nodes = []
-    edges = []
-    angle = 0
-    for i in range(0,10):
-        angle = i * math.pi*2 / 10
-        lon = 0.5+0.4*math.sin(angle)
-        lat = 0.5+0.4*math.cos(angle)
+    nodes = [('0', -0.463, 40.588), ('1', -0.769, 40.170),
+     ('2', -0.535, 40.538), ('3', -0.613, 40.026),
+     ('4', -0.868, 40.759), ('5', -0.408, 40.343),
+     ('6', -0.402, 40.755), ('7', -0.197, 40.580),
+     ('8', -0.257, 40.688), ('9', -0.381, 40.518)]
 
-        wlon = 0.5+0.3*math.sin(angle-math.pi/10)
-        wlat = 0.5+0.3*math.cos(angle-math.pi/10)
-        
-        nodes.append(Node(lon,lat,radius=15,fill=random.choice(["red","green","blue"])))
-        if len(nodes)>1:
-            edges.append(Edge(nodes[-2],nodes[-1],waypoints=[(wlon,wlat)]))
-
-    edges.append(Edge(nodes[-1],nodes[0]))
-    edges.append(Edge(nodes[-1],nodes[5]))
-    edges.append(Edge(nodes[0],nodes[4]))
+    edges = [
+        ('2', '0'), ('1', '3'), ('7', '8'), ('4', '2'), ('7', '9'), ('8', '7'), ('6', '8'), ('4', '0'), ('0', '2'),
+     ('8', '6'), ('3', '1'), ('0', '9'), ('5', '9'), ('1', '5'), ('9', '0'), ('5', '2'), ('1', '2'), ('8', '9'),
+     ('4', '6'), ('6', '0')]
 
     palette = ContinuousPalette()
-    palette.addColour("green",0.0)
-    palette.addColour("red",1.0)
+    mm = MarkerManager().setDefaultRadius(10)
+    # palette.addColour("green",0.0)
+    # palette.addColour("red",1.0)
 
-    nw = Network(nodes=nodes,edges=edges,palette=palette,ranking_algorithm=DDPageRank())
+    nw = Network(node_data=nodes,edge_data=edges,marker_manager=mm,palette=palette,ranking_algorithm=DDPageRank())
+    m1.addLayer(WMS("osm").setOpacity(0.5))
     m1.addLayer(nw)
     d.add(Box(m1))
+
 
     d.add(Legend(palette,512))
 

@@ -36,7 +36,10 @@ if __name__ == "__main__":
     data = [(rng.random(),rng.random()) for x in range(0,200)]
 
     m1 = Map(512,bounds)
-    m1.addLayer(Scatter(data,fill="green"))
+    scatter = Scatter(data,lon=0,lat=1)
+    scatter.getMarkerManager().setMarkerType("pin").setDefaultRadius(10)
+    scatter.getPalette().setDefaultColour("blue")
+    m1.addLayer(scatter)
     d.add(Box(m1))
 
     svg = d.draw()

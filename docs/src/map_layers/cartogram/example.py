@@ -27,6 +27,7 @@ from visigoth.common import Legend
 from visigoth.map_layers.cartogram import Cartogram
 from visigoth.utils.mapping.projections import Projections
 from visigoth.utils.colour import DiscretePalette
+from visigoth.utils.marker import MarkerManager
 
 if __name__ == "__main__":
 
@@ -42,27 +43,25 @@ if __name__ == "__main__":
 
     cluster_count = 6
 
-    def gen(px,py,maxdist,minr,maxr):
+    def gen(px,py,maxdist):
         angle = rng.random()*2*math.pi
         d = rng.random()*maxdist
         dx = d*math.sin(angle)
         dy = d*math.cos(angle)
-        radius = minr+rng.random()*(maxr-minr)
+        size = random.choice([2,3,4])
         cat = random.choice(["cat1", "cat2", "cat3"])
         label = "cat: "+cat
-        return (px+dx,py+dy,cat,label,radius)
+        return (px+dx,py+dy,cat,label,size)
 
     palette = DiscretePalette()
-    palette.addCategory("cat1","red")
-    palette.addCategory("cat2","green")
-    palette.addCategory("cat3","blue")
+    mm = MarkerManager(min_radius=40)
 
     cluster_centers = [(0.05+0.9*rng.random(),0.05+0.9*rng.random()) for x in range(0,cluster_count)]
-    data = [gen(cx,cy,0.1,10,25) for (cx,cy) in cluster_centers for x in range(0,10)]
+    data = [gen(cx,cy,0.1) for (cx,cy) in cluster_centers for x in range(0,10)]
 
     bounds  = ((0.0,0.0),(1.0,1.0))
     m = Map(512,bounds,projection=Projections.IDENTITY)
-    c = Cartogram(data, palette, iterations=args.iterations, stroke_width=0.5)
+    c = Cartogram(data, palette=palette, marker_manager=mm, lon=0, lat=1, colour=2, label=3, size=4, iterations=args.iterations)
     m.addLayer(c)
     legend = Legend(palette, width=500, legend_columns=3)
     d.add(Box(m))

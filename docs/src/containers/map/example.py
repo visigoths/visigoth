@@ -42,7 +42,9 @@ if __name__ == "__main__":
     
     m = Map(400,boundaries=bounds,zoom_to=5,projection=Projections.ESPG_3857)
     
-    s = Scatter([center],radius=20,fill="#00FF0080",marker=True)
+    s = Scatter([center])
+    s.getMarkerManager().setDefaultRadius(20).setMarkerType("pin")
+    s.getPalette().setDefaultColour("darkred")
     wms = WMS(type="osm")
     wms.setInfo("Map")
 

@@ -13,19 +13,10 @@
 //    You should have received a copy of the GNU Affero General Public License
 //    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-class POI {
+class POI extends geoplot {
 
     constructor(id,width,height,x,y,sendfn,config) {
-        this.id = id;
-        this.width = width;
-        this.height = height;
-        this.x = x;
-        this.y = y;
-        this.sendfn = sendfn;
-        this.config = config;
+        super(id,width,height,x,y,sendfn,config);
     }
 
-    recieve(obj,channel) {
-        this.sendfn(obj,channel);
-    }
 }

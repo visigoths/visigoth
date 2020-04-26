@@ -23,7 +23,7 @@ from visigoth.containers import Map, Box
 from visigoth.common import Space
 from visigoth.map_layers import WMS, POI
 
-tweets = [{"id": "1094594877923491840", "lon": -0.28002518, "lat": 51.55696202},
+data = [{"id": "1094594877923491840", "lon": -0.28002518, "lat": 51.55696202},
     {"id": "1094595003945488384", "lon": -0.11993334, "lat": 51.53098437},
     {"id": "1094595017631514624", "lon": -0.12731805, "lat": 51.50711486},
     {"id": "1094595262889291777", "lon": -0.48618965, "lat": 51.4718463},
@@ -39,10 +39,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     d = Diagram(fill="white",margin_left=200,margin_right=200)
-    poi = POI()
-    for tweet in tweets:
-        poi.addTweet(tweet["id"],tweet["lon"],tweet["lat"])
- 
+    poi = POI(data,lon="lon",lat="lat",tweet="id")
+
     m1 = Map(512,width_to_height=1)
     m1.addLayer(WMS(type="osm"))
     m1.addLayer(poi)

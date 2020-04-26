@@ -42,11 +42,12 @@ class Js(object):
         return "%s_js"%(elementId)
 
     @staticmethod
-    def registerJs(doc,targetElement,jscode,classname,x,y,config):
+    def registerJs(doc,targetElement,jscode,classname,x,y,config,constructInstance=True):
         if jscode not in doc.getCodeCache():
             doc.add(javascript_snippet(jscode))
             doc.getCodeCache()[jscode] = True
-        Js.constructJs(doc,targetElement,classname,x,y,config)
+        if constructInstance:
+            Js.constructJs(doc,targetElement,classname,x,y,config)
         Js.registered.add(targetElement)
 
     @staticmethod

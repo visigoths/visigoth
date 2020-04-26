@@ -19,33 +19,44 @@
 import math
 import os.path
 
-from visigoth.common import DiagramElement
 from visigoth.svg import circle,polygon
 from visigoth.map_layers import MapLayer
 from visigoth.utils.mapping import Mapping
 from visigoth.utils.js import Js
 from visigoth.map_layers.voronoi.bowyer_watson import circumcircle, bowyer_watson
 
+from visigoth.utils.colour import DiscretePalette, ContinuousPalette
+from visigoth.utils.marker import MarkerManager
+
+from visigoth.utils.data import Dataset
+
 class Voronoi(MapLayer):
     """
     Create a Voronoi plot
 
     Args:
-        data (list): (x,y,col,label) tuples for each point
+        data (list): A relational data set (for example, list of dicts/lists/tuples describing each row)
 
     Keyword Args:
+        lat (str or int): Identify the column to provide the latitude value for each point
+        lon (str or int): Identify the column to provide the longitude value for each point
+        colour (str or int): Identify the column to provide the colour for each point
+        label (str or int): Identify the column to provide the label for each point
+        size (str or int): Identify the column to provide the size for each point
         stroke (str): stroke color for plotting boundaries
         stroke_width (int): stroke width for plotting boundaries
-        radius (int): radius for plotting region centers (set to 0 to omit)
+        palette(object) : a ContinuousPalette or DiscretePalette instance to control chart colour
+        marker_manager(object) : a MarkerManager instance to control marker appearance
     """
-    def __init__(self,data,stroke="black",stroke_width=2,radius=5):
+    def __init__(self,data,lat=0,lon=1,colour=2,label=None,size=None,stroke="black",stroke_width=2,palette=None,marker_manager=None):
         super(Voronoi, self).__init__()
         self.width = 0
         self.height = 0
         self.projection = None
         self.stroke = stroke
         self.stroke_width = stroke_width
-        self.radius = radius
+        self.colour = colour
+
         self.min_x = None
         self.min_y = None
         self.max_x = None
@@ -54,26 +65,29 @@ class Voronoi(MapLayer):
         self.scale_x = None
         self.scale_y = None
         self.polygons = []
-        self.input_data = data
-        self.data = []
+        self.dataset = Dataset(data)
+        self.input_data = self.dataset.query([lon,lat,colour,label,size])
+
+        if not palette:
+            if not self.colour or self.dataset.isDiscrete(self.colour):
+                palette = DiscretePalette()
+            else:
+                palette = ContinuousPalette()
+        self.setPalette(palette)
+
+        if not marker_manager:
+            marker_manager = MarkerManager()
+            marker_manager.setDefaultRadius(15)
+        self.setMarkerManager(marker_manager)
+
+        for (_,_,colour,_,size) in self.input_data:
+            self.getMarkerManager().noteSize(size)
+            self.getPalette().getColour(colour)
 
     def getBoundaries(self):
         if not self.boundaries:
-            self.boundaries = Mapping.getBoundingBox([(lon,lat) for (lon,lat,_,_) in self.input_data],0.05)
+            self.boundaries = Mapping.getBoundingBox([(lon,lat) for (lon,lat,_,_,_) in self.input_data],0.05)
         return self.boundaries
-
-    def configureLayer(self,ownermap,width,height,boundaries,projection,zoom_to):
-        self.ownermap = ownermap
-        self.width = width
-        self.height = height
-        self.boundaries = boundaries
-        self.projection = projection
-
-    def getHeight(self):
-        return self.height
-
-    def getWidth(self):
-        return self.width
 
     def transform(self,ox,oy,x,y):
         px = ox + (x - self.min_x)*self.scale
@@ -100,9 +114,10 @@ class Voronoi(MapLayer):
 
     def build(self):
         self.data = []
-        for (lon,lat,col,label) in self.input_data:
+        for (lon,lat,col,label,size) in self.input_data:
             prj = self.projection.fromLonLat((lon,lat))
-            self.data.append((prj[0],prj[1],col,label))
+            col = self.getPalette().getColour(col)
+            self.data.append((prj[0],prj[1],col,label,size))
 
         self.min_data_x = min([p[0] for p in self.data])
         self.max_data_x = max([p[0] for p in self.data])
@@ -122,15 +137,15 @@ class Voronoi(MapLayer):
         self.height = self.scale * self.y_range
 
         # add extreme points at each corner to create regions at the edge of the diagram
-        self.data.append((self.max_data_x + self.x_data_range*1.1,self.max_data_y + self.y_data_range,"white",""))
-        self.data.append((self.min_data_x - self.x_data_range,self.max_data_y + self.y_data_range,"white",""))
-        self.data.append((self.max_data_x + self.x_data_range,self.min_data_y - self.y_data_range,"white",""))
-        self.data.append((self.min_data_x - self.x_data_range,self.min_data_y - self.y_data_range,"white",""))
+        self.data.append((self.max_data_x + self.x_data_range*1.1,self.max_data_y + self.y_data_range,"white","",0))
+        self.data.append((self.min_data_x - self.x_data_range,self.max_data_y + self.y_data_range,"white","",0))
+        self.data.append((self.max_data_x + self.x_data_range,self.min_data_y - self.y_data_range,"white","",0))
+        self.data.append((self.min_data_x - self.x_data_range,self.min_data_y - self.y_data_range,"white","",0))
 
-        points=[(x,y) for (x,y,_,_) in self.data]
+        points=[(x,y) for (x,y,_,_,_) in self.data]
         delaunay = bowyer_watson(points)
 
-        for (x,y,col,label) in self.data:
+        for (x,y,col,label,size) in self.data:
             triangles = [triangle for triangle in delaunay if (x,y) in list(triangle)]
             polygon_points = self.dual(triangles,(x,y))
             self.polygons.append((polygon_points,col,label))
@@ -142,20 +157,19 @@ class Voronoi(MapLayer):
         for (ppoints,col,label) in self.polygons:
             kwargs={}
             if label:
-                kwargs["tooltip"] = label
+                kwargs["tooltip"] = str(label)
             p = polygon(map(lambda p: self.transform(ox,oy,p[0],p[1]),ppoints),col,self.stroke,self.stroke_width,**kwargs)
             doc.add(p)
 
-        if self.radius:
-            for (x,y,col,label) in self.data:
-                (px,py) = self.transform(ox,oy,x,y)
-                kwargs={}
-                if label:
-                    kwargs["tooltip"] = label
-                c = circle(px,py,self.radius,col,**kwargs)
-                c.addAttr("stroke",self.stroke)
-                c.addAttr("stroke-width",self.stroke_width)
-                doc.add(c)
+        for (x,y,col,label,size) in self.data:
+            (px,py) = self.transform(ox,oy,x,y)
+            kwargs={}
+            if label:
+                kwargs["tooltip"] = str(label)
+            c = circle(px,py,self.getMarkerManager().getRadius(size),col,**kwargs)
+            c.addAttr("stroke",self.stroke)
+            c.addAttr("stroke-width",self.stroke_width)
+            doc.add(c)
 
         doc.closeGroup()
         with open(os.path.join(os.path.split(__file__)[0],"voronoi.js"),"r") as jsfile:

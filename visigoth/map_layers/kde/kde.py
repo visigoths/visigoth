@@ -29,14 +29,16 @@ from visigoth.map_layers import MapLayer
 from visigoth.map_layers.contour import Contour
 from collections import OrderedDict
 from visigoth.utils.js import Js
-
+from visigoth.utils.data import Dataset
 
 class KDE(MapLayer):
     """
     Create a Kernel Density Estimate (KDE) plot
-        data(list) : list of (lon,lat) datapoints
+        data (list): A relational data set (for example, list of dicts/lists/tuples describing each row)
 
     Keyword Arguments:
+        lat (str or int): Identify the column to provide the latitude value for each point
+        lon (str or int): Identify the column to provide the longitude value for each point
         kernel: a kernel function mapping from distance in meters to a probability value
         bandwidth(int): defines the radius of the area of influence of each data point
         nr_samples_across(int): number of points to sample for contours across the plot
@@ -47,9 +49,10 @@ class KDE(MapLayer):
         font_height(int) : font size in pixels for contour labels
         text_attributes(dict): a dict containing SVG name/value attributes to apply to contour labels
     """
-    def __init__(self,data,kernel=None,bandwidth=1000,nr_samples_across=20,contour_interval=0.1,palette=None,label_fn=lambda x:"%.2f"%(x),stroke="brown",stroke_width=0,font_height=8,text_attributes={}):
+    def __init__(self,data,lon=0,lat=1,kernel=None,bandwidth=1000,nr_samples_across=20,contour_interval=0.1,palette=None,label_fn=lambda x:"%.2f"%(x),stroke="brown",stroke_width=0,font_height=8,text_attributes={}):
         super(KDE, self).__init__()
-        self.data = data
+        dataset = Dataset(data)
+        self.data = dataset.query([lon,lat])
         self.kernel = kernel
         self.bandwidth = bandwidth
         self.palette = palette

@@ -16,30 +16,19 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import random
-import sys
-import json
-import copy
 import os.path
-from math import radians,sin,cos,pi,sqrt,log
 import logging
 
-from visigoth.svg import polygon, circle, path, line, rectangle, clip_path
-from visigoth.map_layers import MapLayer
 from visigoth.map_layers.geoplot import Geoplot,Multipoint,Multiline,Multipolygon
 
-from visigoth.containers.box import Box
-from visigoth.utils.mapping import Mapping
 from visigoth.utils.geojson import GeojsonReader
-from visigoth.utils.geopackage import GeopackageReader
 from visigoth.utils.js import Js
 
-class Geoimport(MapLayer):
+class Geoimport(Geoplot):
 
     """
     Import and plot a layer composed of points, lines and polygons described in a source file
-    source file formats supported are geojson (.geojson) or geopackage (.gpkg) (experimental)
-    tiles are currently not imported from geopackage files
+    source file formats supported are geojson (.geojson)
 
     Arguments:
         path: path to the file to be imported
@@ -58,28 +47,24 @@ class Geoimport(MapLayer):
     """
 
     def __init__(self, path, point_style=lambda p:{}, line_style=lambda p:{}, polygon_style=lambda p:{}):
-        super(Geoimport, self).__init__()
+        super().__init__()
         self.path = path
-        self.width = None
-        self.height = None
         self.point_style = point_style
         self.line_style = line_style
         self.polygon_style = polygon_style
-        self.multipolys = []
-        self.multipoints = []
-        self.multilines = []
-        self.boundaries = None
-        self.projection = None
-        self.geoplot = None
         self.extracted = False
 
-    def configureLayer(self,ownermap,width,height,boundaries,projection,zoom_to):
-        self.width = width
-        self.height = height
-        self.ownermap = ownermap
-        self.boundaries = boundaries
-        self.projection = projection
-        self.zoom_to = zoom_to
+    def getBoundaries(self):
+        self.clear()
+        self.extract()
+        self.extracted = True
+        return super().getBoundaries()
+
+    def build(self):
+        if not self.extracted:
+            self.extract()
+            self.extracted = True
+        super().build()
 
     def getPointStyle(self,props):
        return self.invoke(self.point_style,[props])
@@ -96,96 +81,33 @@ class Geoimport(MapLayer):
         else:
             return fn_or_val
 
-    def getWidth(self):
-        return self.geoplot.getWidth()
-
-    def getHeight(self):
-        return self.geoplot.getHeight()
-
     def extractGeojson(self):
         reader = GeojsonReader()
         return reader.extract(self.path)
 
-    def extractGeopackage(self):
-        reader = GeopackageReader()
-        return reader.extract(self.path)
-
-    def trackBoundaries(self,point):
-        (lon,lat) = point
-        if self.min_lon == None or lon < self.min_lon:
-            self.min_lon = lon
-        if self.min_lat == None or lat < self.min_lat:
-            self.min_lat = lat
-        if self.max_lon == None or lon > self.max_lon:
-            self.max_lon = lon
-        if self.max_lat == None or lat > self.max_lat:
-            self.max_lat = lat
-
-    def getBoundaries(self):
-        self.extract()
-
-        self.min_lat = None
-        self.min_lon = None
-        self.max_lat = None
-        self.max_lon = None
-
-        for (_,points) in self.multipoints:
-            for point in points:
-                self.trackBoundaries(point)
-        for (_,lines) in self.multilines:
-            for line in lines:
-                for point in line:
-                    self.trackBoundaries(point)
-        for (_,polys) in self.multipolys:
-            for poly in polys:
-                for ring in poly:
-                    for point in ring:
-                        self.trackBoundaries(point)
-
-        return ((self.min_lon,self.min_lat),(self.max_lon,self.max_lat))
-
     def extract(self):
-        if self.extracted:
-            return
-        self.extracted = True
-
         fext = os.path.splitext(self.path)[1]
+
         if fext == ".geojson":
-            (gpoints,glines,gpolys) = self.extractGeojson()
-        elif fext == ".gpkg":
-            (gpoints,glines,gpolys) = self.extractGeopackage()
+            (points,lines,polys) = self.extractGeojson()
         else:
             msg = "Unable to import file with extension %s"%(fext)
-            logging.getLogger("Geofile").error(msg)
+            logging.getLogger("Geoimport").error(msg)
             raise Exception(msg)
 
-        self.multipoints = gpoints
-        self.multilines = glines
-        self.multipolys = gpolys
+        self.clear()
+        for (props, points) in points:
+            self.add(Multipoint(points, **self.getPointStyle(props)))
 
-    def build(self):
-        self.extract()
-        multipoints = []
-        for (props,points) in self.multipoints:
-            multipoints.append(Multipoint(points,**self.getPointStyle(props)))
+        for (props, lines) in lines:
+            self.add(Multiline(lines, **self.getLineStyle(props)))
 
-        multilines = []
-        for (props,lines) in self.multilines:
-            multilines.append(Multiline(lines,**self.getLineStyle(props)))
+        for (props, polys) in polys:
+            self.add(Multipolygon(polys, **self.getPolygonStyle(props)))
 
-        multipolys = []
-        for (props,polys) in self.multipolys:
-            multipolys.append(Multipolygon(polys,**self.getPolygonStyle(props)))
-
-        self.geoplot = Geoplot(multilines=multilines,multipoints=multipoints,multipolys=multipolys)
-        self.geoplot.configureLayer(self.ownermap,self.width,self.height,self.boundaries,self.projection,self.zoom_to)
-        self.geoplot.build()
-
-    def draw(self,doc,cx,cy):
-        self.geoplot.draw(doc,cx,cy)
+    def draw(self,doc,cx,cy,constructJs=True):
+        config = super().draw(doc,cx,cy,False)
         with open(os.path.join(os.path.split(__file__)[0],"geoimport.js"),"r") as jsfile:
             jscode = jsfile.read()
-        config = {}
-        Js.registerJs(doc,self,jscode,"geoimport",cx,cy,config)
-        doc.getDiagram().connect(self,"zoom",self.geoplot,"zoom")
-        doc.getDiagram().connect(self,"visible_window",self.geoplot,"visible_window")
+        Js.registerJs(doc,self,jscode,"geoimport",cx,cy,config,constructJs)
+        return config

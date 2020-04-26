@@ -26,6 +26,9 @@ from visigoth.svg import circle, line
 from visigoth.map_layers import MapLayer
 from visigoth.utils.term.progress import Progress
 from visigoth.utils.js import Js
+from visigoth.utils.data import Dataset
+from visigoth.utils.colour import DiscretePalette, ContinuousPalette
+from visigoth.utils.marker import MarkerManager
 
 class Cartogram(MapLayer):
 
@@ -36,35 +39,63 @@ class Cartogram(MapLayer):
     Hover over a point to see a link to the original position
 
     Arguments:
-        data(tuple) : data in the form (lon,lat,category,label,radius)
-        palette(list) : a DiscretePalette assigning categories to colours
+        data (list): A relational data set (for example, list of dicts/lists/tuples describing each row)
+
 
     Keyword Arguments:
+
+        lat (str or int): Identify the column to provide the latitude value for each point
+        lon (str or int): Identify the column to provide the longitude value for each point
+        colour (str or int): Identify the column to define the point colour (use palette default colour if not specified)
+        label (str or int): Identify the column to define the label
+        size (str or int): Identify the column to determine the size of each marker
         iterations(int): number of iterations to run
-        stroke (str): stroke color for circumference of circles
-        stroke_width (int): stroke width for circumference of circles
         font_height (int): the height of the font for text labels
         text_attributes (dict): SVG attribute name value pairs to apply to labels
         link_stroke (str): colour to draw links to original position
         link_stroke_width (int): the width of links
         f1 (float): relative force attracting each point to its original location
         f2 (float): relative force repelling overlapping points
+        palette(object) : a ContinuousPalette or DiscretePalette instance to control chart colour
+        marker_manager(object) : a MarkerManager instance to control marker appearance
 
     Notes:
 
     """
 
-    def __init__(self, data, palette, iterations=30, stroke="black",stroke_width=1,font_height=24, text_attributes={},link_stroke="grey",link_stroke_width=2,f1=0.01,f2=0.5):
+    def __init__(self, data, lon=0, lat=1, colour=None, label=None, size=None, iterations=30, font_height=24, text_attributes={},link_stroke="grey",link_stroke_width=2,f1=0.01,f2=0.5, palette=None, marker_manager=None):
         super(Cartogram, self).__init__()
-        self.data = data
+        self.lat = lat
+        self.lon = lon
+        self.colour = colour
+        self.label = label
+        self.size = size
+        self.dataset = Dataset(data)
+        self.data = self.dataset.query([self.lon,self.lat, self.colour,self.label,self.size])
+
         self.width = None
         self.height = None
         self.palette = palette
         self.font_height = font_height
         self.text_attributes = text_attributes
         self.iterations = iterations
-        self.stroke = stroke
-        self.stroke_width = stroke_width
+
+        if not palette:
+            if not self.colour or self.dataset.isDiscrete(self.colour):
+                palette = DiscretePalette()
+            else:
+                palette = ContinuousPalette()
+        self.setPalette(palette)
+
+        if not marker_manager:
+            marker_manager = MarkerManager()
+            marker_manager.setDefaultRadius(15)
+        self.setMarkerManager(marker_manager)
+
+        for (lon,lat,colour,label,size) in self.data:
+            self.getMarkerManager().noteSize(size)
+            self.getPalette().getColour(colour)
+
         self.link_stroke = link_stroke
         self.link_stroke_width = link_stroke_width
         self.built = False
@@ -73,16 +104,6 @@ class Cartogram(MapLayer):
         self.f2 = f2
         self.categories = {}
         self.links = {}
-
-    def configureLayer(self,ownermap,width,height,boundaries,projection,zoom_to):
-        self.width = width
-        self.boundaries = boundaries
-        self.projection = projection
-        (self.x0,self.y0) = projection.fromLonLat(boundaries[0])
-        (self.x1,self.y1) = projection.fromLonLat(boundaries[1])
-        self.height = height
-        self.scale_x = self.width/(self.x1-self.x0)
-        self.scale_y = self.height/(self.y1-self.y0)
 
     def getBoundaries(self):
         return self.boundaries
@@ -109,9 +130,10 @@ class Cartogram(MapLayer):
         if self.built:
             return
 
-        for d in self.data:
-            p = self.projection.fromLonLat((d[0],d[1]))
-            self.plots.append({"x":p[0],"y":p[1],"ox":p[0],"oy":p[1],"fx":0,"fy":0,"label":d[3],"cat":d[2],"r":d[4]})
+        for (lon,lat,colour,label,size) in self.data:
+            r = self.getMarkerManager().getRadius(size)
+            (x,y) = self.projection.fromLonLat((lon,lat))
+            self.plots.append({"x":x,"y":y,"ox":x,"oy":y,"fx":0,"fy":0,"label":label,"cat":colour,"r":r})
 
         for i in range(0,len(self.plots)):
             self.plots[i]["id"] = i
@@ -202,11 +224,6 @@ class Cartogram(MapLayer):
 
     def draw(self,svgdoc,cx,cy):
 
-        ox = cx - self.getWidth()/2
-        oy = cy - self.getHeight()/2
-
-        nw = self.projection.fromLonLat(self.boundaries[0])
-
         for plot in self.plots:
             x = plot["x"]
             y = plot["y"]
@@ -214,19 +231,15 @@ class Cartogram(MapLayer):
             cat = plot["cat"]
             r = plot["r"]
 
-            col = self.palette.getColour(cat)
-            cx = ox+(x-nw[0])*self.scale_x
-            cy = oy+(self.height - (y-nw[1])*self.scale_y)
+            col = self.getPalette().getColour(cat)
+            (cx,cy) = self.getXY((x,y))
 
-            circ = circle(cx,cy,r,col,tooltip=label)
-            cid = circ.getId()
+            cm = self.getMarkerManager().getCircleMarker(r)
+            cid = cm.plot(svgdoc,cx,cy,label,col)
             plot["cid"] = cid
             ids = self.categories.get(cat,[])
             ids.append(cid)
             self.categories[cat] = ids
-            circ.addAttr("stroke",self.stroke)
-            circ.addAttr("stroke-width",self.stroke_width)
-            svgdoc.add(circ)
 
         if self.link_stroke and self.link_stroke_width:
             for plot in self.plots:
@@ -235,11 +248,8 @@ class Cartogram(MapLayer):
                 orig_x = plot["ox"]
                 orig_y = plot["oy"]
 
-                x1 = ox+(x-nw[0])*self.scale_x
-                y1 = oy+(self.height - (y-nw[1])*self.scale_y)
-
-                x2 = ox + (orig_x - nw[0]) * self.scale_x
-                y2 = oy + (self.height - (orig_y - nw[1]) * self.scale_y)
+                (x1,y1) = self.getXY((x,y))
+                (x2,y2) = self.getXY((orig_x,orig_y))
 
                 l = line(x1,y1,x2,y2,stroke=self.link_stroke,stroke_width=self.link_stroke_width)
                 c1 = circle(x1, y1, self.link_stroke_width*2, self.link_stroke)

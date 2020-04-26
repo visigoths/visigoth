@@ -16,20 +16,26 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from visigoth.svg import circle
-from .marker import Marker
+import os.path
+from visigoth.svg import embedded_svg
 
-class CircleMarker(Marker):
+class Marker(object):
 
-    def __init__(self,radius,stroke,stroke_width):
-        super().__init__(radius,stroke,stroke_width)
+    def __init__(self, radius, stroke, stroke_width):
+        self.radius = radius
+        self.stroke = stroke
+        self.stroke_width = stroke_width
 
-    def plot(self,doc,x,y,tooltip,colour):
-        circ = circle(x,y,self.getRadius(),colour,tooltip=tooltip)
-        circ.addAttr("stroke",self.getStroke())
-        circ.addAttr("stroke-width",self.getStrokeWidth())
-        doc.add(circ)
-        return circ.getId()
+    def getRadius(self):
+        return self.radius
 
-    
-        
+    def getStroke(self):
+        return self.stroke
+
+    def getStrokeWidth(self):
+        return self.stroke_width
+
+    def plot(self, doc, x, y, tooltip, colour):
+        raise NotImplementedError("plot")
+
+

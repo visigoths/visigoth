@@ -49,7 +49,7 @@ class Popup(DiagramElement):
         DiagramElement.__init__(self)
         self.element = element
         self.element.setContainer(self)
-        self.title = title
+        self.title = title if title is not None else ""
         self.stroke_width = stroke_width
         self.stroke = stroke
         self.height = 0
