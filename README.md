@@ -30,12 +30,10 @@ python3 -m unittest discover ../tests
 # tests will write svg files to the current directory
 ```
 
-
-
 ### Quick Simple Map Example:
 
 
-![Basic Map with OSM/WMS](http://visigoth.org/src/example.svg)
+![Basic Map with OSM/WMS](http://visigoth.org/_static/src/example.svg)
 
 ```
 # -*- coding: utf-8 -*-
