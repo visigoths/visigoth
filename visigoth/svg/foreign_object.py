@@ -17,11 +17,8 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from xml.dom.minidom import *
-from math import cos,sin,pi
-import json
 
 from visigoth.svg.svgstyled import svgstyled
-
 
 class foreign_object(svgstyled):
 
@@ -31,11 +28,10 @@ class foreign_object(svgstyled):
         self.addAttr("height",height)
         self.addAttr("x",x)
         self.addAttr("y",y)
-        content1 = "<style>"+content_css+"</style>"
-        content2 = "<body xmlns=\"http://www.w3.org/1999/xhtml\" style=\"height:100%;overflow:auto;\">"+content_html+"</body>"
-       
-        edoc1 = parseString(content1).documentElement
-        self.addChild(edoc1)
- 
-        edoc2 = parseString(content2).documentElement
-        self.addChild(edoc2)
+        self.content_str = "<style>"+content_css+"</style>" + "<body style=\"height:100%;overflow:auto;\">"+content_html+"</body>"
+
+    def render(self, svgdoc, parent):
+        fo = super().render(svgdoc,parent)
+        marker = svgdoc.getMarker(self.content_str)
+        fo.appendChild(svgdoc.doc.createTextNode(marker))
+        return fo

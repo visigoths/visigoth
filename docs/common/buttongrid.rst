@@ -13,15 +13,17 @@ ButtonGrid
 Example
 -------
 
-Screenshot `(Link to open SVG for interactive features) <../src/common/buttongrid/example.svg>`_:
+.. raw:: html
 
-.. image:: ../src/common/buttongrid/example.png
+    <iframe src="../_static/src/common/buttongrid/example.html" height="256px" width="100%"></iframe>
+
+`(Link to open example in new tab) <../_static/src/common/buttongrid/example.html>`_:
 
 Source Code `(Link to Github) <https://github.com/visigoths/visigoth/blob/master/docs/src/common/buttongrid/example.py>`_:
 
-.. literalinclude:: ../src/common/buttongrid/example.py
+.. literalinclude:: ../_static/src/common/buttongrid/example.py
     :language: python
-    :lines: 18-
+
 
 
 

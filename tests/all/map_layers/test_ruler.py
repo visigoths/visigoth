@@ -22,7 +22,6 @@ from visigoth import Diagram
 from visigoth.utils.test_utils import TestUtils
 from visigoth.containers.box import Box
 from visigoth.containers.map import Map
-from visigoth.map_layers.gridsquares import GridSquares
 from visigoth.map_layers.ruler import Ruler
 from visigoth.utils.mapping import Projections,Mapping
 
@@ -34,35 +33,27 @@ class TestRuler(unittest.TestCase):
         center0 = (0,0)
         bounds0 = Mapping.computeBoundaries(center0,4000,projection=Projections.ESPG_3857)
         m0 = Map(256,boundaries=bounds0,projection=Projections.ESPG_3857)
-        grid0 = GridSquares()
         r0 = Ruler()
-        m0.addLayer(grid0)
         m0.addLayer(r0)
         d.add(Box(m0))
 
         center1 = (10,10)
         bounds1 = Mapping.computeBoundaries(center1,40000,projection=Projections.ESPG_3857)
         m1 = Map(256,boundaries=bounds1,projection=Projections.ESPG_3857)
-        grid1 = GridSquares()
         r1 = Ruler(stroke="red",font_height=36,stroke_width=5)
-        m1.addLayer(grid1)
         m1.addLayer(r1)
         d.add(Box(m1))
 
         center2 = (10,10)
         bounds2 = Mapping.computeBoundaries(center2,1000,projection=Projections.ESPG_3857)
         m2 = Map(512,boundaries=bounds2,projection=Projections.ESPG_3857)
-        grid2 = GridSquares()
         r2 = Ruler()
-        m2.addLayer(grid2)
         m2.addLayer(r2)
         d.add(Box(m2))
 
         bounds3 = ((0,0),(5,10))
         m3 = Map(512,boundaries=bounds3,projection=Projections.IDENTITY,font_height=18)
-        grid3 = GridSquares()
         r3 = Ruler()
-        m3.addLayer(grid3)
         m3.addLayer(r3)
         d.add(Box(m3))
         svg = d.draw()

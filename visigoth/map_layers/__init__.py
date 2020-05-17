@@ -26,7 +26,6 @@ from .contour import Contour
 from .geoimport import Geoimport
 from .geoplot import Geoplot
 from .gps import GPS
-from .gridsquares import GridSquares
 from .hexbin import Hexbin
 from .kde import KDE
 from .poi import POI

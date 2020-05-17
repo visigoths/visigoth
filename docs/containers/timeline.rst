@@ -13,13 +13,15 @@ TimeLine
 Example
 -------
 
-Screenshot `(Link to open SVG for interactive features) <../src/containers/timeline/example.svg>`_:
+.. raw:: html
 
-.. image:: ../src/containers/timeline/example.png
+    <iframe src="../_static/src/containers/timeline/example.html" height="512px" width="100%"></iframe>
+
+`(Link to open example in new tab) <../_static/src/containers/timeline/example.html>`_:
 
 Source Code `(Link to Github) <https://github.com/visigoths/visigoth/blob/master/docs/src/containers/timeline/example.py>`_:
 
-.. literalinclude:: ../src/containers/timeline/example.py
+.. literalinclude:: ../_static/src/containers/timeline/example.py
     :language: python
-    :lines: 18-
+
 

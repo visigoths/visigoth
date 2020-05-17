@@ -51,8 +51,8 @@ class TestTransition(unittest.TestCase):
         l = Legend(palette,1024, legend_columns=4)
         d.add(l)
 
-        d.connect(t,"brushing",l,"brushing")
-        d.connect(l,"brushing",t,"brushing")
+        d.connect(t,"colour",l,"colour")
+        d.connect(l,"colour",t,"colour")
 
         svg = d.draw()
         TestUtils.output(svg,"test_transition.svg")

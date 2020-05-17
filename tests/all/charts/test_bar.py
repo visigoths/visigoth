@@ -39,8 +39,8 @@ class TestBar(unittest.TestCase):
         d.add(bar0)
         legend0 = Legend(palette0,400,legend_columns=2)
         d.add(legend0)
-        d.connect(legend0,"brushing",bar0,"brushing")
-        d.connect(bar0,"brushing",legend0,"brushing")
+        d.connect(legend0,"colour",bar0,"colour")
+        d.connect(bar0,"colour",legend0,"colour")
 
         palette1 = DiscretePalette()
         
@@ -50,8 +50,8 @@ class TestBar(unittest.TestCase):
         d.add(bar1)
         legend1 = Legend(palette1,400,legend_columns=2)
         d.add(legend1)
-        d.connect(legend1,"brushing",bar1,"brushing")
-        d.connect(bar1,"brushing",legend1,"brushing")
+        d.connect(legend1,"colour",bar1,"colour")
+        d.connect(bar1,"colour",legend1,"colour")
         svg = d.draw()
         TestUtils.output(svg,"test_bar.svg")
 

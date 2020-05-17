@@ -25,5 +25,5 @@ class TestUtils(object):
 
     @staticmethod
     def output(content,filename):
-        with open(filename,"wb") as f:
+        with open(filename,"w") as f:
             f.write(content)

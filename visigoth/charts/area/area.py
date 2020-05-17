@@ -34,7 +34,7 @@ class Area(ChartElement):
         
     Keyword Arguments:
         x (str or int): Identify the column to specify x-axis point value
-        y (str or int): Identify the column to specify y-axis point value
+        y (str or int): Identify the column to specify y-axis point value.  Y values should be positive.
         colour (str or int): Identify the column to define the area and colour 
         id (str or int): Identify the column to define the unique id of each point
         label (str or int): Identify the column to define the label of each point
@@ -90,13 +90,19 @@ class Area(ChartElement):
         self.catmap = {} # mapping from colour-category to list of SVG ids
 
         if len(self.data) > 0:
-            xy_range = self.data.query(
-                aggregations=[Dataset.min(self.x), Dataset.max(self.x), Dataset.min(self.y), Dataset.max(self.y)])[0]
+            x_range = self.data.query(
+                aggregations=[Dataset.min(self.x), Dataset.max(self.x)])[0]
         else:
-            xy_range = (0.0, 1.0, 0.0, 1.0)
+            x_range = (0.0, 1.0)
 
-        (x_axis_min, x_axis_max, y_axis_min, y_axis_max) = tuple(xy_range)
+        (x_axis_min, x_axis_max) = tuple(x_range)
 
+        if len(self.data) > 0:
+            y_range = self.data.query(
+                columns=[self.x],
+                aggregations=[Dataset.sum(self.y)]
+            )
+            y_axis_max = max([y for [_,y] in y_range])
         # always start the y-axis at 0 to correctly represent areas
         y_axis_min = 0
 

@@ -1,38 +1,15 @@
 # -*- coding: utf-8 -*-
 
-#    Visigoth: A lightweight Python3 library for rendering data visualizations in SVG
-#    Copyright (C) 2020  Niall McCarroll
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 import csv
-import argparse
 
 from visigoth import Diagram
-from visigoth.containers.map import Map
-from visigoth.containers.box import Box
+from visigoth.containers import Map, Box
 from visigoth.map_layers import WMS, KDE, Geoplot
 from visigoth.map_layers.geoplot import Multipoint
 from visigoth.charts import Area
 from visigoth.common import Text, MapLayerManager, Legend
-from visigoth.utils.colour import ContinuousPalette
+from visigoth.utils.colour import DiscretePalette, ContinuousPalette
 from visigoth.utils.mapping import Geocoder, Mapping, Projections
-from visigoth.utils.colour import DiscretePalette
-
-parser = argparse.ArgumentParser()
-parser.add_argument("--outpath", help="path for output SVG", default="example.svg")
-args = parser.parse_args()
 
 # get the boundaries of a region approximately 20 km radius around Central London
 
@@ -135,8 +112,8 @@ d.connect(mlm,"manage_layers",m,"manage_layers")
 d.add(Text("Serious and Fatal Accidents By Time Of Day"))
 d.add(area_chart)
 
-svg = d.draw()
+html = d.draw(format="html")
 
-f = open(args.outpath, "wb")
-f.write(svg)
+f = open("example.html", "w")
+f.write(html)
 f.close()

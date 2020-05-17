@@ -25,7 +25,6 @@ from visigoth.containers.map import Map
 from visigoth.common.text import Text
 from visigoth.containers.sequence import Sequence
 
-from visigoth.map_layers.gridsquares import GridSquares
 from visigoth.map_layers.wms import WMS
 from visigoth.utils.mapping import Geocoder
 from visigoth.utils.mapping import Projections, Mapping
@@ -49,11 +48,7 @@ class TestDiagram(unittest.TestCase):
         wms1 = WMS(type="osm")
         wms1.setInfo("Map")
 
-        grid1 = GridSquares()
-        grid1.setInfo("Grid")
-
         m1.addLayer(wms1)
-        m1.addLayer(grid1)
 
         s1 = Sequence()
         s1.add(m1)

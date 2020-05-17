@@ -25,7 +25,8 @@ from visigoth.utils.test_utils import TestUtils
 from visigoth.containers.box import Box
 from visigoth.containers.map import Map
 from visigoth.map_layers.geoplot import Geoplot, Multipoint, Multiline, Multipolygon
-from visigoth.map_layers.gridsquares import GridSquares
+from visigoth.map_layers import WMS
+from visigoth.utils.mapping.projections import Projections
 
 class TestGeoplot(unittest.TestCase):
 
@@ -75,12 +76,41 @@ class TestGeoplot(unittest.TestCase):
 
         multipolys2 = [Multipolygon([[square]+holes], label="squares_with_holes", fill="red")]
         m4 = Map(512, boundaries=((0, 0), (1, 1)))
-        m4.addLayer(GridSquares())
         m4.addLayer(Geoplot(multipolys=multipolys2))
         d.add(Box(m4))
 
         svg = d.draw()
         TestUtils.output(svg,"test_geoplot.svg")
+
+    def test_geoplot_world(self):
+        d = Diagram(fill="white")
+
+        wm = Map(width=1024, boundaries=((-180, -90), (180, 90)), projection=Projections.ESPG_4326)
+
+        def make_box(lon_min,lat_min,lon_max,lat_max):
+            b = []
+            b.append((lon_min, lat_min))
+            b.append((lon_max, lat_min))
+            b.append((lon_max, lat_max))
+            b.append((lon_min, lat_max))
+            return b
+
+        vb1 = make_box(-10,40,10,60)
+        sw = make_box(-180, -90, -170, -80)
+        se = make_box(170, -90, 180, -80)
+        ne = make_box(170, 80, 180, 90)
+        nw = make_box(-180, 80, -170, 90)
+
+        poly = Multipolygon([[vb1],[ne],[nw],[se],[sw]], stroke_width=0, fill="#FF000080")
+
+        wm.addLayer(WMS())
+        geoplot = Geoplot(multipolys=[poly])
+        wm.addLayer(geoplot)
+        d.add(wm)
+
+        svg = d.draw()
+        TestUtils.output(svg, "test_geoplot_world.svg")
+
 
 if __name__ == "__main__":
     unittest.main()

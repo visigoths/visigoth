@@ -65,8 +65,8 @@ class TestScatterPlot(unittest.TestCase):
 
         legend1 = Legend(palette,width=500,legend_columns=2)
         d.add(legend1)
-        d.connect(legend1,"brushing",som,"brushing")
-        d.connect(som,"brushing",legend1,"brushing")
+        d.connect(legend1,"colour",som,"colour")
+        d.connect(som,"colour",legend1,"colour")
 
         svg = d.draw()
 

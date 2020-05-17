@@ -11,14 +11,16 @@ Self Organising Map
 Example
 -------
 
-Screenshot `(Link to open SVG for interactive features) <../src/charts/som/example.svg>`_:
+.. raw:: html
 
-.. image:: ../src/charts/som/example.png
+    <iframe src="../_static/src/charts/som/example.html" height="512px" width="100%"></iframe>
+
+`(Link to open example in new tab) <../_static/src/charts/som/example.html>`_:
 
 Source Code `(Link to Github) <https://github.com/visigoths/visigoth/blob/master/docs/src/charts/som/example.py>`_:
 
-.. literalinclude:: ../src/charts/som/example.py
+.. literalinclude:: ../_static/src/charts/som/example.py
     :language: python
-    :lines: 18-
+
 
 

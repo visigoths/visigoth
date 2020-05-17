@@ -16,7 +16,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from visigoth.svg import rectangle, javascript_snippet
 from visigoth.containers import Grid
 from visigoth.utils.js import Js
 from visigoth.common import DiagramElement

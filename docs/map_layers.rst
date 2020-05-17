@@ -13,7 +13,6 @@ Map Layers
    map_layers/geoimport
    map_layers/geoplot
    map_layers/gps
-   map_layers/gridsquares
    map_layers/hexbin
    map_layers/kde
    map_layers/network

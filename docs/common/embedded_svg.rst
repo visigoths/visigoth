@@ -11,13 +11,15 @@ EmbeddedSvg
 Example
 -------
 
-Screenshot `(Link to open SVG for interactive features) <../src/common/embedded_svg/example.svg>`_:
+.. raw:: html
 
-.. image:: ../src/common/embedded_svg/example.png
+    <iframe src="../_static/src/common/embedded_svg/example.html" height="512px" width="100%"></iframe>
+
+`(Link to open example in new tab) <../_static/src/common/embedded_svg/example.html>`_:
 
 Source Code `(Link to Github) <https://github.com/visigoths/visigoth/blob/master/docs/src/common/embedded_svg/example.py>`_:
 
-.. literalinclude:: ../src/common/embedded_svg/example.py
+.. literalinclude:: ../_static/src/common/embedded_svg/example.py
     :language: python
-    :lines: 18-
+
 

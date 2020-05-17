@@ -32,6 +32,8 @@ class Palette(object):
     def setDefaultColour(self,defaultColour):
         self.defaultColour = defaultColour
 
+
+
 class DiscretePalette(Palette):
 
     def __init__(self,colourMap="pastel",defaultColour="blue"):
@@ -40,6 +42,7 @@ class DiscretePalette(Palette):
         self.categories = []
         self.categoryset = set()
         self.colourMap = colourMap
+        self.opacity = 1.0
 
     def build(self):
         pass
@@ -62,6 +65,7 @@ class DiscretePalette(Palette):
     def getColour(self,value):
         if self.colour == None:
             self.colour = Colour(self.categories,colourMap=self.colourMap)
+            self.colour.setOpacity(self.opacity)
         if value is None:
             return self.getDefaultColour()
         col = self.colour.getColour(value)
@@ -69,6 +73,14 @@ class DiscretePalette(Palette):
             self.categoryset.add(value)
             self.categories.append((value,col))
         return col
+
+    def setOpacity(self,opacity):
+        self.opacity = opacity
+        if self.colour:
+            self.colour.setOpacity(opacity)
+
+    def getOpacity(self):
+        return self.opacity
 
 class ContinuousPalette(Palette):
 

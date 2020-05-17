@@ -23,8 +23,7 @@ from visigoth import Diagram
 
 from visigoth.containers.map import Map
 from visigoth.utils.mapping import Mapping
-
-from visigoth.map_layers import Geoplot, GridSquares
+from visigoth.map_layers import Geoplot
 from visigoth.map_layers.geoplot import Multipoint
 from visigoth.containers.popup import Popup
 from visigoth.containers.box import Box
@@ -65,14 +64,9 @@ class TestSearchManager(unittest.TestCase):
 
         m = Map(768,boundaries=bounds,projection=Projections.ESPG_3857)
 
-        grid = GridSquares()
-        grid.setOpacity(0.8)
-        grid.setVisible(False)
-
         sm = SearchManager(height=150)
         d.add(sm)
 
-        m.addLayer(grid)
         m.addLayer(gp)
         d.add(Box(m))
         d.connect(sm,"search",m,"search")

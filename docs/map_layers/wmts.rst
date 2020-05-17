@@ -11,14 +11,16 @@ WMTS
 Example
 -------
 
-Screenshot `(Link to open SVG for interactive features) <../src/map_layers/wmts/example.svg>`_:
+.. raw:: html
 
-.. image:: ../src/map_layers/wmts/example.png
+    <iframe src="../_static/src/map_layers/wmts/example.html" height="512px" width="100%"></iframe>
+
+`(Link to open example in new tab) <../_static/src/map_layers/wmts/example.html>`_:
 
 Source Code `(Link to Github) <https://github.com/visigoths/visigoth/blob/master/docs/src/map_layers/wmts/example.py>`_:
 
-.. literalinclude:: ../src/map_layers/wmts/example.py
+.. literalinclude:: ../_static/src/map_layers/wmts/example.py
     :language: python
-    :lines: 18-
+
 
 

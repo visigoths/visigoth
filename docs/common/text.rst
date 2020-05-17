@@ -11,15 +11,17 @@ Text
 Example
 -------
 
-Screenshot `(Link to open SVG for interactive features) <../src/common/text/example.svg>`_:
+.. raw:: html
 
-.. image:: ../src/common/text/example.png
+    <iframe src="../_static/src/common/text/example.html" height="512px" width="100%"></iframe>
+
+`(Link to open example in new tab) <../_static/src/common/text/example.html>`_:
 
 Source Code `(Link to Github) <https://github.com/visigoths/visigoth/blob/master/docs/src/common/text/example.py>`_:
 
-.. literalinclude:: ../src/common/text/example.py
+.. literalinclude:: ../_static/src/common/text/example.py
     :language: python
-    :lines: 18-
+
 
 
 

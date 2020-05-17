@@ -1,48 +1,23 @@
 # -*- coding: utf-8 -*-
 
-#    Visigoth: A lightweight Python3 library for rendering data visualizations in SVG
-#    Copyright (C) 2020  Niall McCarroll
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-import argparse
-
 from visigoth import Diagram
-
 from visigoth.containers import Grid
 from visigoth.common import Text
 
-if __name__ == "__main__":
+d = Diagram()
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--outpath", help="path for output SVG", default="example.svg")
-    args = parser.parse_args()
+d.add(Text("Simple Grid"))
 
-    d = Diagram(fill="white")
+g = Grid()
+g.add(0,0,Text("Top-Left Cell in Grid"))
+g.add(1,0,Text("Bottom-Left").setRightJustified())
+g.add(0,1,Text("Top-Right").setLeftJustified())
+g.add(1,1,Text("Bottom-Right Cell in Grid"))
+d.add(g)
 
-    d.add(Text("Simple Grid"))
+html = d.draw(format="html")
 
-    g = Grid()
-    g.add(0,0,Text("Top-Left Cell in Grid"))
-    g.add(1,0,Text("Bottom-Left").setRightJustified())
-    g.add(0,1,Text("Top-Right").setLeftJustified())
-    g.add(1,1,Text("Bottom-Right Cell in Grid"))
-    d.add(g)
-
-    svg = d.draw()
-
-    f = open(args.outpath, "wb")
-    f.write(svg)
-    f.close()
+f = open("example.html", "w")
+f.write(html)
+f.close()
 

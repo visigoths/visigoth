@@ -9,7 +9,9 @@ Chart & Infographic Diagram Elements
    charts/bar
    charts/line
    charts/pie
-   charts/scatterplot
+   charts/scatter
+   charts/histogram
+   charts/table
    charts/som
    charts/transition
    charts/wordcloud

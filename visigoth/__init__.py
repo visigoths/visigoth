@@ -20,4 +20,4 @@ from visigoth.diagram import Diagram
 
 home_url="https://visigoth.org"
 repo_url="https://github.com/visigoths/visigoth"
-version="0.2.3"
+version="0.2.4"

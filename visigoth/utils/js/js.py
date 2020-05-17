@@ -18,8 +18,6 @@
 
 import json
 
-from visigoth.svg import javascript_snippet
-
 class Js(object):
 
     subscribe_template = """
@@ -44,7 +42,7 @@ class Js(object):
     @staticmethod
     def registerJs(doc,targetElement,jscode,classname,x,y,config,constructInstance=True):
         if jscode not in doc.getCodeCache():
-            doc.add(javascript_snippet(jscode))
+            doc.addCode(jscode)
             doc.getCodeCache()[jscode] = True
         if constructInstance:
             Js.constructJs(doc,targetElement,classname,x,y,config)

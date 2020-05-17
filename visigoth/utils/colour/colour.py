@@ -41,6 +41,13 @@ class Colour(object):
             else:
                 self.discrete = False
                 self.palette_lookup = [(val,self.parseColour(col)) for (val,col) in self.palette]
+        self.opacity = 1.0
+
+    def getOpacity(self):
+        return self.opacity
+
+    def setOpacity(self,opacity):
+        self.opacity = opacity
 
     def isDiscrete(self):
         return self.discrete
@@ -79,11 +86,19 @@ class Colour(object):
 
     def getDefaultColour(self):
         return self.defaultColour
-        
+
+    def applyOpacity(self,colour):
+        opacity = self.getOpacity()
+        if opacity < 1.0:
+            (r,g,b) = self.parseColour(colour)
+            return "#%02X%02X%02X%02X"%(r,g,b,round(opacity*255))
+        else:
+            return colour
+
     def getColour(self,val):
         if self.discrete:
             if val in self.palette_lookup:
-                return self.palette_lookup[val]
+                return self.applyOpacity(self.palette_lookup[val])
             if self.colourMap:
                 extendedColour = self.getExtendedPaletteColour(val)
                 if extendedColour:

@@ -50,8 +50,8 @@ class TestLine(unittest.TestCase):
         legend1 = Legend(palette1,400,legend_columns=2)
         d.add(legend1)
         
-        d.connect(legend1,"brushing",line1,"brushing")
-        d.connect(line1,"brushing",legend1,"brushing")
+        d.connect(legend1,"colour",line1,"colour")
+        d.connect(line1,"colour",legend1,"colour")
 
         d.add(Text("Custom Axes"))
 

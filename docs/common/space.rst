@@ -11,15 +11,17 @@ Space
 Example
 -------
 
-Screenshot `(Link to open SVG for interactive features) <../src/common/space/example.svg>`_:
+.. raw:: html
 
-.. image:: ../src/common/space/example.png
+    <iframe src="../_static/src/common/space/example.html" height="256px" width="100%"></iframe>
+
+`(Link to open example in new tab) <../_static/src/common/space/example.html>`_:
 
 Source Code `(Link to Github) <https://github.com/visigoths/visigoth/blob/master/docs/src/common/space/example.py>`_:
 
-.. literalinclude:: ../src/common/space/example.py
+.. literalinclude:: ../_static/src/common/space/example.py
     :language: python
-    :lines: 18-
+
 
 
 

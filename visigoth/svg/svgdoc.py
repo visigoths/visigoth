@@ -20,13 +20,14 @@ from xml.dom.minidom import *
 from math import cos,sin,pi
 import json
 
-from visigoth.svg.javascript_snippet import javascript_snippet
 from visigoth.svg.svgdefinition import svgdefinition
 from visigoth.svg.group import group
 from visigoth.utils.js import Js
 from visigoth.utils.fonts.fontmanager import FontManager
 from visigoth.svg.filters import glow
 from visigoth.svg.css_snippet import css_snippet
+
+from uuid import uuid4
 
 class svgdoc(object):
 
@@ -52,6 +53,12 @@ class svgdoc(object):
         self.meta_home_url = ""
         self.meta_repo_url = ""
         self.html_title = html_title
+        self.markers = {}
+
+    def getMarker(self,txt):
+        uuid_s = str(uuid4())
+        self.markers[uuid_s] = txt
+        return uuid_s
 
     def setMetadata(self,version,home_url,repo_url):
         self.meta_version = version
@@ -143,7 +150,7 @@ class svgdoc(object):
         self.root.setAttribute("width","%d"%(self.width))
         self.root.setAttribute("height", "%d" % (self.height))
         self.root.setAttribute("version", "1.1")
-        self.root.setAttribute("onload","pubsubs_publish(\"\",\"load\");")
+        # self.root.setAttribute("onload","pubsubs_publish(\"\",\"load\");")
 
         title = self.diagram.getTitle()
         if title:
@@ -174,10 +181,6 @@ class svgdoc(object):
         for o in self.pop_groups:
             o.render(self,self.root)
 
-        if self.codez:
-            o = javascript_snippet("\n\n"+"\n\n".join(self.codez))
-            o.render(self)
-
         if self.embed_fonts:
             for (name,weight,style) in self.fonts:
                 if FontManager.containsFont(name,weight,style):
@@ -194,7 +197,20 @@ class svgdoc(object):
         if self.format == "html":
             html = self.doc.createElement("html")
             head = self.doc.createElement("head")
+            meta1 = self.doc.createElement("meta")
+            meta1.setAttribute("charset", "UTF-8")
+            head.appendChild(meta1)
+
+            if self.codez:
+                script = self.doc.createElement("script")
+                script.setAttribute("type", "text/ecmascript")
+                code = "function boot() {"+"\n\n".join(self.codez) + "\n\n};\n"
+                marker = self.getMarker(code)
+                script.appendChild(self.doc.createTextNode(marker))
+                head.appendChild(script)
+
             body = self.doc.createElement("body")
+            body.setAttribute("onload","boot()")
             html.appendChild(head)
             html.appendChild(body)
 
@@ -212,6 +228,8 @@ class svgdoc(object):
         
     def render(self):
         doc = self.construct()
-        return doc.toprettyxml(encoding="utf-8")
-
+        xml = doc.toprettyxml(encoding="utf-8").decode("utf-8")
+        for marker_uuid in self.markers:
+            xml = xml.replace(marker_uuid,self.markers[marker_uuid])
+        return xml
 

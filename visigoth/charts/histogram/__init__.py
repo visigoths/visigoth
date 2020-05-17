@@ -1,0 +1,1 @@
+from visigoth.charts.histogram.histogram import Histogram

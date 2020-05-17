@@ -13,13 +13,15 @@ Grid
 Example
 -------
 
-Screenshot `(Link to open SVG for interactive features) <../src/containers/grid/example.svg>`_:
+.. raw:: html
 
-.. image:: ../src/containers/grid/example.png
+    <iframe src="../_static/src/containers/grid/example.html" height="512px" width="100%"></iframe>
+
+`(Link to open example in new tab) <../_static/src/containers/grid/example.html>`_:
 
 Source Code `(Link to Github) <https://github.com/visigoths/visigoth/blob/master/docs/src/containers/grid/example.py>`_:
 
-.. literalinclude:: ../src/containers/grid/example.py
+.. literalinclude:: ../_static/src/containers/grid/example.py
     :language: python
-    :lines: 18-
+
 

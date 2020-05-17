@@ -11,15 +11,17 @@ Pie
 Example
 -------
 
-Screenshot `(Link to open SVG for interactive features) <../src/charts/pie/example.svg>`_:
+.. raw:: html
 
-.. image:: ../src/charts/pie/example.png
+    <iframe src="../_static/src/charts/pie/example.html" height="512px" width="100%"></iframe>
+
+`(Link to open example in new tab) <../_static/src/charts/pie/example.html>`_:
 
 Source Code `(Link to Github) <https://github.com/visigoths/visigoth/blob/master/docs/src/charts/pie/example.py>`_:
 
-.. literalinclude:: ../src/charts/pie/example.py
+.. literalinclude:: ../_static/src/charts/pie/example.py
     :language: python
-    :lines: 18-
+
 
 
 

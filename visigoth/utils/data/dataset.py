@@ -148,6 +148,18 @@ class Dataset(object):
             return EqualityFilter(column,literal)
         raise Exception("invalid filter operation:"+op)
 
+    def getColumns(self):
+        columns = []
+        for row in self.data:
+            if isinstance(row,list):
+                if len(columns) < len(row):
+                    columns = list(range(0,len(row)))
+            elif isinstance(row,dict):
+                for key in row:
+                    if key not in columns:
+                        columns.append(key)
+        return columns
+
     def isDiscrete(self,column):
         # FIXME currently mark a column as discrete if values are of type str
         # we need also to consider int columns of "low" cardinality as discrete

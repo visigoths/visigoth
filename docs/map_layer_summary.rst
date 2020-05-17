@@ -40,6 +40,5 @@ Layer                              Thumbnail
 :doc:`map_layers/gps`              .. image:: src/map_layers/gps/thumbnail.png
 :doc:`map_layers/compass`          .. image:: src/map_layers/compass/thumbnail.png
 :doc:`map_layers/ruler`            .. image:: src/map_layers/ruler/thumbnail.png
-:doc:`map_layers/gridsquares`      .. image:: src/map_layers/gridsquares/thumbnail.png
 ===============================    ===========================================================
 

@@ -24,7 +24,6 @@ from visigoth.containers.box import Box
 from visigoth.containers.map import Map
 from visigoth.containers.sequence import Sequence
 
-from visigoth.map_layers.gridsquares import GridSquares
 from visigoth.map_layers.wms import WMS
 from visigoth.utils.mapping import Geocoder
 from visigoth.utils.mapping import Projections,Mapping
@@ -43,11 +42,7 @@ class TestMap(unittest.TestCase):
         wms1 = WMS(type="osm")
         wms1.setInfo("Map")
 
-        grid1 = GridSquares()
-        grid1.setInfo("Grid")
-
         m1.addLayer(wms1)
-        m1.addLayer(grid1)
 
         s1 = Sequence()
         s1.add(m1)
@@ -60,12 +55,7 @@ class TestMap(unittest.TestCase):
         wms2 = WMS(type="osm")
         wms2.setInfo("Map")
 
-        grid2 = GridSquares()
-        grid2.setInfo("Grid")
-
         m2.addLayer(wms2)
-        m2.addLayer(grid2)
-        grid2.setOpacity(0.5)
 
         s2 = Sequence()
         s2.add(m2)

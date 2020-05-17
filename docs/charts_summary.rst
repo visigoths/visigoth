@@ -1,17 +1,19 @@
 Charts & Infographics
 =====================
 
-Basic Charts
-------------
+Basic Charts and Tables
+-----------------------
 
 ===============================    ===========================================================
 Chart                              Thumbnail
 ===============================    ===========================================================
-:doc:`charts/scatterplot`          .. image:: src/charts/scatterplot/thumbnail.png
+:doc:`charts/scatter`              .. image:: src/charts/scatter/thumbnail.png
 :doc:`charts/line`                 .. image:: src/charts/line/thumbnail.png
 :doc:`charts/bar`                  .. image:: src/charts/bar/thumbnail.png
 :doc:`charts/pie`                  .. image:: src/charts/pie/thumbnail.png
 :doc:`charts/area`                 .. image:: src/charts/area/thumbnail.png
+:doc:`charts/table`                .. image:: src/charts/table/thumbnail.png
+:doc:`charts/histogram`            .. image:: src/charts/histogram/thumbnail.png
 ===============================    ===========================================================
 
 Infographics

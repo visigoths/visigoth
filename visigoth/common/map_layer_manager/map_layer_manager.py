@@ -28,14 +28,13 @@ control_template = """
         <input id="%(control_id)s" type="checkbox"></input>
         <label for="%(control_id)s">%(control_label)s</label>
     </p>
-    <script>
-    <![CDATA[
-          document.getElementById("%(control_id)s").checked = %(visible)s;
-          document.getElementById("%(control_id)s").onclick = function(evt) {
-              pubsubs_publish("%(id)s",{"layer":"%(layer_id)s","value":evt.target.checked},"manage_layers");
-          };
-    ]]>
-    </script>
+"""
+
+js_template = """
+document.getElementById("%(control_id)s").checked = %(visible)s;
+document.getElementById("%(control_id)s").onclick = function(evt) {
+    pubsubs_publish("%(id)s",{"layer":"%(layer_id)s","value":evt.target.checked},"manage_layers");
+};
 """
 
 end = """</fieldset>"""
@@ -60,8 +59,9 @@ class MapLayerManager(EmbeddedHtml):
     """
 
     def __init__(self,map_layers,title="Layer Controls",width=512,height=512):
-        EmbeddedHtml.__init__(self,"%(content)s",css,width,height)
+        EmbeddedHtml.__init__(self,"",css,width,height)
         html_content = start%({"id":self.getId(),"title":html.escape(title,True)})
+        js_content = ""
         for map_layer in map_layers:
             control_label = map_layer["label"]
             layer_obj = map_layer["layer"]
@@ -72,9 +72,17 @@ class MapLayerManager(EmbeddedHtml):
             control_id = DiagramElement.getNextId()
             html_content += control_template%({
                 "id":self.getId(),
-                "control_label":html.escape(control_label,True),
+                "control_label":control_label,
                 "control_id":control_id,
                 "visible":visible,
                 "layer_id":layer_id})
+            js_content += js_template%({
+                "id":self.getId(),
+                "control_label":control_label,
+                "control_id":control_id,
+                "visible":visible,
+                "layer_id":layer_id})
+
         html_content += end
-        self.substituteHtml({"content":html_content})
+        self.setHtml(html_content)
+        self.setJs(js_content)

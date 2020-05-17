@@ -38,12 +38,19 @@ class EmbeddedHtml(DiagramElement):
         self.height = height
         self.content_html = content_html
         self.content_css = content_css
+        self.content_js = ""
 
     def substituteHtml(self,d):
         self.content_html = self.content_html%d
 
     def substituteCss(self,d):
         self.content_css = self.content_css%d
+
+    def setHtml(self,html):
+        self.content_html = html
+
+    def setJs(self,js):
+        self.content_js = js
 
     def getWidth(self):
         return self.width
@@ -56,3 +63,5 @@ class EmbeddedHtml(DiagramElement):
         ox = cx
         fo = foreign_object(self.width,self.height,ox-self.width/2,oy,self.content_html,self.content_css)
         d.add(fo)
+        if self.content_js:
+            d.addCode(self.content_js)

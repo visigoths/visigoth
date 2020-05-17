@@ -54,8 +54,8 @@ class TestScatterPlot(unittest.TestCase):
         d.add(Box(scatter0))
         legend0 = Legend(palette0,400,legend_columns=2)
         d.add(legend0)
-        d.connect(legend0,"brushing",scatter0,"brushing")
-        d.connect(scatter0,"brushing",legend0,"brushing")
+        d.connect(legend0,"colour",scatter0,"colour")
+        d.connect(scatter0,"colour",legend0,"colour")
 
         d.add(Text("Monochrome"))
         scatter1 = Scatter(data0, x=0, y=1, label=2, size=4, width=500, height=500)

@@ -20,7 +20,7 @@ import json
 import os
 
 from visigoth.common.diagram_element import DiagramElement
-from visigoth.svg import polygon, line, javascript_snippet, circle, rectangle
+from visigoth.svg import polygon, line, circle, rectangle
 from visigoth.utils.mapping import Mapping
 from visigoth.utils.mapping import Projections
 from visigoth.common.text import Text
@@ -184,6 +184,7 @@ class Map(DiagramElement):
 
     def drawLayer(self,doc,element,identifier,ox,oy,metadata):
         g = doc.openGroup(identifier)
+        element.drawTo(ox+self.content_width/2,oy+self.content_height/2)
         element.draw(doc,ox+self.content_width/2,oy+self.content_height/2)
         g.addAttr("opacity",element.getOpacity())
         if not element.getVisible():
@@ -229,7 +230,6 @@ class Map(DiagramElement):
         # add non-foreground layers
         for (element,identifier) in self.elements:
             if not element.isForegroundLayer():
-                element.drawTo(cx,cy)
                 self.drawLayer(doc,element,identifier,ox,oy,metadata)
                 
         doc.closeGroup()
@@ -239,7 +239,6 @@ class Map(DiagramElement):
         # add any foreground layers
         for (element,identifier) in self.elements:
             if element.isForegroundLayer():
-                element.drawTo(cx,cy)
                 self.drawLayer(doc,element,identifier,ox,oy,metadata)
         
         oy += self.content_height

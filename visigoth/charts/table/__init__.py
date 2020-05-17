@@ -1,0 +1,1 @@
+from visigoth.charts.table.table import Table

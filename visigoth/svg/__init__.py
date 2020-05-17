@@ -23,7 +23,6 @@ from .curvedtext import curvedtext
 from .embedded_svg import embedded_svg
 from .group import group
 from .image import image
-from .javascript_snippet import javascript_snippet
 from .css_snippet import css_snippet
 from .line import line
 from .path import path

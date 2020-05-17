@@ -80,8 +80,8 @@ class TestPie(unittest.TestCase):
         d.add(Box(pie3))
         legend3 = Legend(pie3.getPalette(),400)
         d.add(legend3)
-        d.connect(legend3,"brushing",pie3,"brushing")
-        d.connect(pie3,"brushing",legend3,"brushing")
+        d.connect(legend3,"colour",pie3,"colour")
+        d.connect(pie3,"colour",legend3,"colour")
 
         d.add(Text("Multi-level Doughnut"))
 

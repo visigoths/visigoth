@@ -22,7 +22,7 @@ import os
 import visigoth
 from visigoth.svg import svgdoc,rectangle
 from visigoth.utils.js import Js
-from visigoth.svg import javascript_snippet, css_snippet
+from visigoth.svg import css_snippet
 from visigoth.common.text import Text, Span
 from visigoth.utils.fonts import FontManager
 from visigoth.containers.sequence import Sequence
@@ -242,14 +242,14 @@ class Diagram:
         for style in self.styles:
             d.addStyle(css_snippet(style))
 
+        for snippet in self.snippets:
+            d.addCode(snippet)
+
         if self.fill:
             d.add(rectangle(0,0,w,h,fill=self.fill))
 
         off_x = self.margin_left
         off_y = self.margin_top
-
-        for snippet in self.snippets:
-            d.add(javascript_snippet(snippet,False))
 
         target.draw(d, off_x+target.getWidth()/2, off_y+target.getHeight()/2)
 

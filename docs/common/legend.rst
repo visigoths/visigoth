@@ -11,15 +11,18 @@ Legend
 Example
 -------
 
-Screenshot `(Link to open SVG for interactive features) <../src/common/legend/example.svg>`_:
+.. raw:: html
 
-.. image:: ../src/common/legend/example.png
+    <iframe src="../_static/src/common/legend/example.html" height="512px" width="100%"></iframe>
+
+`(Link to open example in new tab) <../_static/src/common/legend/example.html>`_:
+
 
 Source Code `(Link to Github) <https://github.com/visigoths/visigoth/blob/master/docs/src/common/legend/example.py>`_:
 
-.. literalinclude:: ../src/common/legend/example.py
+.. literalinclude:: ../_static/src/common/legend/example.py
     :language: python
-    :lines: 18-
+
 
 
 

@@ -7,6 +7,13 @@ DiagramElement
 
 .. autoclass:: visigoth.common.DiagramElement
 
-  .. automethod:: __init__
+  .. automethod:: getHeight
+
+  .. automethod:: getWidth
+
+  .. automethod:: build
+
+  .. automethod:: draw
+
 
 

@@ -258,7 +258,7 @@ class Geoplot(MapLayer):
                     if category:
                         self.points[pid]["category"] = category
                 
-                pids.append(pid)
+                    pids.append(pid)
             if label:
                 (clon,clat) = self.centroid(points)
                 (mlon,mlat) = self.max(points)

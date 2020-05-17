@@ -76,8 +76,8 @@ class TestArea(unittest.TestCase):
 
         legend1 = Legend(dp,400,legend_columns=2)
         d.add(legend1)
-        d.connect(legend1,"brushing",area1,"brushing")
-        d.connect(area1,"brushing",legend1,"brushing")
+        d.connect(legend1,"colour",area1,"colour")
+        d.connect(area1,"colour",legend1,"colour")
         
         for smoothing in [0.1,0.3,0.5]:
             d.add(Text("Smoothing=%f"%(smoothing)))

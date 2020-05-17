@@ -11,15 +11,17 @@ EventHandler
 Example
 -------
 
-Screenshot `(Link to open SVG for interactive features) <../src/common/event_handler/example.svg>`_:
+.. raw:: html
 
-.. image:: ../src/common/event_handler/example.png
+    <iframe src="../_static/src/common/event_handler/example.html" height="256px" width="100%"></iframe>
+
+`(Link to open example in new tab) <../_static/src/common/event_handler/example.html>`_:
 
 Source Code `(Link to Github) <https://github.com/visigoths/visigoth/blob/master/docs/src/common/event_handler/example.py>`_:
 
-.. literalinclude:: ../src/common/event_handler/example.py
+.. literalinclude:: ../_static/src/common/event_handler/example.py
     :language: python
-    :lines: 18-
+
 
 
 

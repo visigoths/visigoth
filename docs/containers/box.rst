@@ -11,14 +11,16 @@ Box
 Example
 -------
 
-Screenshot `(Link to open SVG for interactive features) <../src/containers/box/example.svg>`_:
+.. raw:: html
 
-.. image:: ../src/containers/box/example.png
+    <iframe src="../_static/src/containers/box/example.html" height="512px" width="100%"></iframe>
+
+`(Link to open example in new tab) <../_static/src/containers/box/example.html>`_:
 
 Source Code `(Link to Github) <https://github.com/visigoths/visigoth/blob/master/docs/src/containers/box/example.py>`_:
 
-.. literalinclude:: ../src/containers/box/example.py
+.. literalinclude:: ../_static/src/containers/box/example.py
     :language: python
-    :lines: 18-
+
 
 

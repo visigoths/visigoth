@@ -25,3 +25,5 @@ from .scatter import Scatter
 from .wordcloud import WordCloud
 from .som import SOM
 from .transition import Transition
+from .table import Table
+from .histogram import Histogram

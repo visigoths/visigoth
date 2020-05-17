@@ -56,8 +56,8 @@ class TestCartogram(unittest.TestCase):
         d.add(Box(m))
         d.add(legend)
 
-        d.connect(c,"brushing",legend,"brushing")
-        d.connect(legend,"brushing",c,"brushing")
+        d.connect(c,"colour",legend,"colour")
+        d.connect(legend,"colour",c,"colour")
 
         svg = d.draw()
 

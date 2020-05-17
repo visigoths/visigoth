@@ -126,9 +126,9 @@ class MapLayer(DiagramElement):
         (x,y) = e_n
         ox = self.center_x - self.width/2
         oy = self.center_y - self.height/2
-        nw = self.projection.fromLonLat(self.boundaries[0])
-
-        cx = ox + (x - nw[0]) * self.scale_x
-        cy = oy + (self.height - (y - nw[1]) * self.scale_y)
+        on = self.projection.fromLonLat(self.boundaries[1])[1]
+        oe = self.projection.fromLonLat(self.boundaries[0])[0]
+        cx = ox + (x - oe) * self.scale_x
+        cy = oy + (on - y) * self.scale_y
         return (cx,cy)
 

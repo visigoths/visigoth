@@ -36,7 +36,7 @@ class css_snippet(svgdefinition):
         s = doc.createElement("style")
         s.setAttribute("id", self.getId())
         s.setAttribute("type","text/css")
-        tn = doc.createCDATASection("\n"+self.css+"\n")
-        s.appendChild(tn)
+        marker = svgdoc.getMarker(self.css)
+        s.appendChild(doc.createTextNode(marker))
         svgdoc.defs.appendChild(s)
         return s

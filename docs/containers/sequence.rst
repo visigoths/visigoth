@@ -13,13 +13,15 @@ Sequence
 Example
 -------
 
-Screenshot `(Link to open SVG for interactive features) <../src/containers/sequence/example.svg>`_:
+.. raw:: html
 
-.. image:: ../src/containers/sequence/example.png
+    <iframe src="../_static/src/containers/sequence/example.html" height="512px" width="100%"></iframe>
+
+`(Link to open example in new tab) <../_static/src/containers/sequence/example.html>`_:
 
 Source Code `(Link to Github) <https://github.com/visigoths/visigoth/blob/master/docs/src/containers/sequence/example.py>`_:
 
-.. literalinclude:: ../src/containers/sequence/example.py
+.. literalinclude:: ../_static/src/containers/sequence/example.py
     :language: python
-    :lines: 18-
+
 

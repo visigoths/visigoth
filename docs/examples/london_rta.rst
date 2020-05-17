@@ -7,14 +7,16 @@ London Road Safety
 Example
 -------
 
-Screenshot `(Link to open SVG for interactive features) <../src/examples/london_road_safety/example.svg>`_:
+.. raw:: html
 
-.. image:: ../../examples/london_road_safety/example.png
+    <iframe src="../_static/examples/london_road_safety/example.html" height="512px" width="100%"></iframe>
+
+`(Link to open example in new tab) <../_static/examples/london_road_safety/example.html>`_:
 
 Source Code `(Link to Github) <https://github.com/visigoths/visigoth/blob/master/examples/london_road_safety/example.py>`_:
 
-.. literalinclude:: ../../examples/london_road_safety/example.py
+.. literalinclude:: ../_static/xamples/london_road_safety/example.py
     :language: python
-    :lines: 18-
+
 
 

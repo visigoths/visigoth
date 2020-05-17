@@ -84,9 +84,8 @@ class svgstyled(object):
         return None
 
     # set the XML content of the element
-    def setContent(self,content,raw=False):
+    def setContent(self,content):
         self.content = content
-        self.content_raw = raw
         return self
 
     # construct the style attribute
