@@ -9,7 +9,7 @@ Example
 
 .. raw:: html
 
-    <iframe src="../_static/examples/iris/example.html" height="512px" width="100%"></iframe>
+    <iframe src="../_static/examples/iris/example.html" height="1300px" width="1300px"></iframe>
 
 `(Link to open example in new tab) <../_static/examples/iris/example.html>`_:
 
