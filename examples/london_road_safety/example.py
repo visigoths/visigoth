@@ -66,8 +66,7 @@ wms.setInfo("Map")
 m.addLayer(wms)
 
 # define a palette for the heatmap ranging from white to blue to red
-palette = ContinuousPalette()
-palette.addColour("#FFFFFF",0).addColour("#0000FF",1).addColour("#FF0000",2)
+palette = ContinuousPalette(colourMap=[(1,1,1),(0,0,1),(1,0,0)])
 
 # define the heatmap
 heatmap = KDE([(lon,lat) for (lon,lat,_) in data],bandwidth=300,nr_samples_across=100,palette=palette,label_fn=None)
@@ -99,7 +98,7 @@ d.add(Text("London Area Serious and Fatal Road Accidents 2018"))
 
 # define a palette for the accident site plot with totals
 discrete_palette = DiscretePalette()
-discrete_palette.addCategory("%d Serious Non-Fatal Accidents"%(total_serious), "grey").addCategory("%d Fatal Accidents"%(total_fatal), "red")
+discrete_palette.addColour("%d Serious Non-Fatal Accidents"%(total_serious), "grey").addColour("%d Fatal Accidents"%(total_fatal), "red")
 
 # add the legend and map
 d.add(Legend(discrete_palette,width=700, legend_columns=2, font_height=18))

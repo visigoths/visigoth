@@ -20,6 +20,7 @@ from .map_layer import MapLayer
 
 from .cartogram import Cartogram
 from .chloropleth import Chloropleth
+from .colourgrid import ColourGrid
 from .cluster import Cluster
 from .compass import Compass
 from .contour import Contour
@@ -35,3 +36,4 @@ from .scatter import Scatter
 from .voronoi import Voronoi
 from .wms import WMS
 from .wmts import WMTS
+from .colourgrid.colourgrid import ColourGrid

@@ -109,12 +109,10 @@ class Map(DiagramElement):
         if not self.boundaries:
             # default to world display if unable to determine boundaries otherwise
             self.boundaries = ((-180,-75),(180,75))
-            self.square = False # we cannot square the world display ;-)
                         
         (lonmin,latmin) = self.boundaries[0]
         (lonmax,latmax) = self.boundaries[1]
-        (xmin,ymin) = self.projection.fromLonLat((lonmin,latmin))
-        (xmax,ymax) = self.projection.fromLonLat((lonmax,latmax))
+        ((xmin,ymin),(xmax,ymax)) = Projections.getENBoundaries(self.projection,self.boundaries)
 
         if self.width_to_height:
             width = xmax-xmin

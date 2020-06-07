@@ -32,9 +32,9 @@ class TestScatterPlot(unittest.TestCase):
         d = Diagram(fill="white")
 
         palette0 = DiscretePalette()
-        palette0.addCategory("A","red")
-        palette0.addCategory("B","purple")
-        palette0.addCategory("C","orange")
+        palette0.addColour("A","red")
+        palette0.addColour("B","purple")
+        palette0.addColour("C","orange")
 
 
         d = Diagram(fill="white")

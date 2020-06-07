@@ -28,8 +28,18 @@ class TestAxis(unittest.TestCase):
         d = Diagram(fill="white")
         d.add(Axis(500,"horizontal",0,90,label="h-axis"))
         d.add(Axis(500,"vertical", 0, 100, label="v-axis"))
+
+        a = Axis(500,"horizontal",1,3,label="integer-axis")
+        a.setIntegerTicks(1)
+        d.add(a)
+
+        a1 = Axis(500, "horizontal", discreteValues=["red","green","blue"], label="discrete-axis")
+        d.add(a1)
+
         svg = d.draw()
         TestUtils.output(svg,"test_axis.svg")
+
+
 
 if __name__ == "__main__":
     unittest.main()

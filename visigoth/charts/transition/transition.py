@@ -19,7 +19,7 @@
 from visigoth.charts import ChartElement
 from visigoth.common.axis import Axis
 from visigoth.svg import text,polygon,linear_gradient,group
-
+from visigoth.utils.colour import DiscretePalette
 from visigoth.utils.data import Dataset
 
 class Transition(ChartElement):
@@ -105,10 +105,14 @@ class Transition(ChartElement):
                             if catA == cat0 and catB == cat1:
                                 self.transitions[transition][side].append(key)
 
-        self.palette = {k: col for (k, col) in palette.getCategories()}
+        if palette == None:
+            palette = DiscretePalette()
+        self.setPalette(palette)
 
-        # flows going through the missing category should be coloured transparent white
-        self.palette[""] = "#FFFFFF00"
+        # make sure that all categories are added to the palette
+        for cat in self.categories:
+            if cat != "":
+                self.getPalette().getColour(cat)
 
         ay = Axis(self.height-self.font_height,"vertical",0,len(self.keys),label=self.y_axis_label,font_height=self.font_height,text_attributes=self.text_attributes)
         self.setAxes(None,ay)
@@ -120,10 +124,17 @@ class Transition(ChartElement):
     def getHeight(self):
         return self.height
 
+    def getColourForCategory(self,cat):
+        if cat == "":
+            # flows going through the missing category should be coloured transparent white
+            return "#FFFFFF00"
+        else:
+            return self.getPalette().getColour(cat)
+
     def defineGradient(self,d,cat0,cat1):
         if (cat0,cat1) in self.gradients:
             return self.gradients[(cat0,cat1)]
-        lg = linear_gradient(self.palette[cat0],self.palette[cat1])
+        lg = linear_gradient(self.getColourForCategory(cat0),self.getColourForCategory(cat1))
         d.add(lg)
         lgid = lg.getId()
         self.gradients[(cat0,cat1)] = lgid
@@ -132,7 +143,7 @@ class Transition(ChartElement):
     def drawTransitionGroup(self,diagram,group,axis_x0,axis_x1,oy,width,height,state,tooltip):
         (pcat0, pcat1, (pidx_min, pidx_max), (poidx_min, poidx_max)) = state
         if pcat0 == pcat1:
-            fill = self.palette[pcat0]
+            fill = self.getColourForCategory(pcat0)
         else:
             fill = "url(#"+self.defineGradient(diagram,pcat0,pcat1)+")"
         p = polygon([(axis_x0, oy + pidx_min * height),("C"),(axis_x0 + width, oy + pidx_min * height),(axis_x1 - width, oy + poidx_min * height),

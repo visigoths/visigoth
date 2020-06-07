@@ -68,8 +68,7 @@ class TestNetwork(unittest.TestCase):
             edges.append((n1,n2))
     
         palette = ContinuousPalette()
-        palette.addColour("blue",0.0)
-        palette.addColour("red",1.0)
+
         mm = MarkerManager()
         mm.setDefaultRadius(15)
 

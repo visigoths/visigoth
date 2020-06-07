@@ -39,7 +39,6 @@ class TestChloropleth(unittest.TestCase):
     def test_basic(self):
         
         palette = ContinuousPalette()
-        palette.addColour("red",0.0).addColour("purple",10.0)
 
         rng = random.Random()
         d = Diagram()

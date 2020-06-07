@@ -40,7 +40,6 @@ class TestHexbin(unittest.TestCase):
         data1 = [(rng.random(), rng.random()) for x in range(0, 100)]
 
         palette1 = ContinuousPalette()
-        palette1.addColour("#0000FF",0).addColour("#FF0000",1)
 
         m1.addLayer(Hexbin(data1, nr_bins_across=10, palette=palette1,stroke="purple",stroke_width=3))
         m1.addLayer(Scatter(data1))
@@ -55,7 +54,6 @@ class TestHexbin(unittest.TestCase):
         data2 = [(0.5+0.2*math.sin(a), 0.5+0.2*math.cos(a)) for a in angles]
 
         palette2 = ContinuousPalette()
-        palette2.addColour("#0000FF",0).addColour("#FF0000",1)
 
         m2.addLayer(Hexbin(data2, nr_bins_across=15, palette=palette2,stroke=None))
         m2.addLayer(Scatter(data2))

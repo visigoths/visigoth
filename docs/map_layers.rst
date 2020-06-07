@@ -7,6 +7,7 @@ Map Layers
 
    map_layers/chloropleth
    map_layers/cartogram
+   map_layers/colourgrid
    map_layers/cluster
    map_layers/compass
    map_layers/contour

@@ -17,7 +17,7 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import datetime
-from math import floor, log10
+from math import floor, log10, floor, ceil
 from visigoth.utils.mapping import Projections
 
 class AxisUtils(object):
@@ -32,12 +32,19 @@ class AxisUtils(object):
         self.spacing = 1
         self.date_based = date_based
         self.MIN_TICKS = 10
+        self.integer_interval = None
+
+    def setIntegerInterval(self,interval):
+        self.integer_interval = interval
 
     def projectLat(self,lat):
         return self.projection.fromLonLat((0.0,lat))[1]
 
     def projectLon(self,lon):
         return self.projection.fromLonLat((lon,0.0))[0]
+
+    def getIntegerTicks(self):
+        return [p for p in range(ceil(self.lwb),1+floor(self.upb),self.integer_interval)]
 
     def getDateTicks(self):
         r = self.upb - self.lwb
@@ -126,6 +133,8 @@ class AxisUtils(object):
     def computeTickPoints(self):
         if self.date_based:
             self.tickpoints = self.getDateTicks()
+        elif self.integer_interval is not None:
+            self.tickpoints = self.getIntegerTicks()
         else:
             rng = self.upb - self.lwb
             spacing = 10**floor(log10(rng))

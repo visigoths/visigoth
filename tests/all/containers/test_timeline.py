@@ -32,8 +32,8 @@ class TestSequence(unittest.TestCase):
         timeline2 = TimeLine(orientation="horizontal")
 
         palette = DiscretePalette()
-        palette.addCategory("A","#E7FFAC").addCategory("B","#FFC9DE")
-        palette.addCategory("C","#B28DFF").addCategory("D","#ACE7FF")
+        palette.addColour("A","#E7FFAC").addColour("B","#FFC9DE")
+        palette.addColour("C","#B28DFF").addColour("D","#ACE7FF")
 
         data1 = [("A",10),("B",5),("C",-4),("D",3)]
         data2 = [("A",8),("B",2),("C",-1),("D",6)]

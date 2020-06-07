@@ -20,7 +20,7 @@ from visigoth.charts import ChartElement
 from visigoth.svg import rectangle,text,line
 from visigoth.common.axis import Axis
 from visigoth.utils.data import Dataset
-from visigoth.utils.colour import DiscretePalette
+from visigoth.utils.colour import DiscretePalette, ContinuousPalette
 
 class Bar(ChartElement):
     """
@@ -35,7 +35,7 @@ class Bar(ChartElement):
         colour (str or int): Identify the column to define the bar colour (use palette default colour if not specified)
         width (int): the width of the plot in pixels
         height (int): the height of the plot in pixels
-        palette(list) : a DiscretePalette object
+        palette(list) : a DiscretePalette|ContinuousPalette object
         stroke (str): stroke color for bars
         stroke_width (int): stroke width for bars
         font_height (int): the height of the font for text labels
@@ -43,7 +43,7 @@ class Bar(ChartElement):
         text_attributes (dict): SVG attribute name value pairs to apply to labels
         labelfn (lambda): function to compute a label string, given a category and numeric value
     """
-    def __init__(self,data,x=0,y=1,colour=0,width=512,height=512,palette=None,stroke="black",stroke_width=2,font_height=12,spacing_fraction=0.1,text_attributes={},labelfn=lambda k,v:"%0.2f"%v):
+    def __init__(self,data,x=0,y=1,colour=None,width=512,height=512,palette=None,stroke="black",stroke_width=2,font_height=12,spacing_fraction=0.1,text_attributes={},labelfn=lambda k,v:"%0.2f"%v):
         super(Bar, self).__init__()
         self.dataset = Dataset(data)
         self.setDrawGrid(True)
@@ -61,7 +61,10 @@ class Bar(ChartElement):
         self.labelfn = labelfn
         
         if not palette:
-            palette = DiscretePalette()
+            if self.colour is None or self.dataset.isDiscrete(self.colour):
+                palette = DiscretePalette()
+            else:
+                palette = ContinuousPalette()
         self.setPalette(palette)
 
         querycols = [self.x]
@@ -74,9 +77,9 @@ class Bar(ChartElement):
             querycols.append(self.colour)
 
         self.data = self.dataset.query(querycols)
-        if self.getPalette() and self.colour != None:
-            for tup in self.dataset.query([self.colour],unique=True):
-                self.getPalette().getColour(tup[0])
+        if self.colour is not None:
+            for v in self.dataset.query([self.colour],unique=True,flatten=True):
+                self.getPalette().getColour(v)
 
         self.setMargins(10,self.font_height*1.5)
 
@@ -98,8 +101,13 @@ class Bar(ChartElement):
 
         self.configureYRange(self.valuemin,self.valuemax)
 
-        axis = Axis(self.height,"vertical",self.valuemin,self.valuemax)
-        self.setAxes(None,axis)
+        y_axis = Axis(self.height,"vertical",self.valuemin,self.valuemax)
+        x_axis = Axis(self.height, "horizontal", discreteValues=self.bar_keys)
+        if isinstance(self.x,str):
+            x_axis.setLabel(self.x)
+        if isinstance(self.y,str):
+            y_axis.setLabel(self.y)
+        self.setAxes(x_axis,y_axis)
 
     def getHeight(self):
         return self.height
@@ -114,8 +122,6 @@ class Bar(ChartElement):
         barcount = len(self.data)
         barwidth = width / barcount
 
-        bx = cx - width/2
-
         def compute_segments(key):
             if not self.y:
                 return self.dataset.query([self.colour],aggregations=[Dataset.count()],filters=[Dataset.filter(self.x,"=",key)])
@@ -126,6 +132,8 @@ class Bar(ChartElement):
 
             barkey = self.bar_keys[index]
             barvalue = self.bar_values[index]
+
+            bx = self.computeX(barkey)
 
             if self.colour and self.colour != self.x:
                 segments = compute_segments(barkey)
@@ -142,31 +150,29 @@ class Bar(ChartElement):
                     colour = self.palette.getDefaultColour()
                 y1 = self.computeY(value)
                 y0 = self.computeY(lastvalue)
-                bh = abs(y1-y0)
 
+                bh = abs(y1-y0)
                 bt = min(y0,y1)
                 bb = max(y0,y1)
-                r = rectangle(bx+(self.spacing_fraction*0.5*barwidth),bt,barwidth*(1-self.spacing_fraction),bh,colour,stroke=self.stroke,stroke_width=self.stroke_width,tooltip=self.getTooltip(cat,value))
+
+                r = rectangle(bx-(1-self.spacing_fraction)*barwidth*0.5,bt,barwidth*(1-self.spacing_fraction),bh,colour,stroke=self.stroke,stroke_width=self.stroke_width,tooltip=self.getTooltip(cat,value))
 
                 categories[cat] = [r.getId()]
                 doc.add(r)
                 lastvalue = value
 
             if self.labelfn:
+                # display the label above the bar
                 value_str = self.labelfn(barkey,total)
-
-                if value > 0:
-                    ty = bt-self.font_height*0.2
-                else:
-                    ty = bb+self.font_height*1.2
-                t = text(bx+barwidth/2,ty,value_str)
+                ty = bt-self.font_height*0.2
+                t = text(bx,ty,value_str)
                 t.addAttr("font-size",self.font_height)
                 t.addAttrs(self.text_attributes)
                 doc.add(t)
 
-            bx += barwidth
-
-        # horizontal axis line
-        axis = line(cx-width/2,self.computeY(0),cx+width/2,self.computeY(0),self.stroke,self.stroke_width)
-        doc.add(axis)
+        _, yAxis = self.getAxes()
+        if yAxis.getMinValue() < 0 and yAxis.getMaxValue() > 0:
+            # draw horizontal axis line at 0
+            axis = line(cx-width/2,self.computeY(0),cx+width/2,self.computeY(0),self.stroke,self.stroke_width)
+            doc.add(axis)
         return {"categories":categories}

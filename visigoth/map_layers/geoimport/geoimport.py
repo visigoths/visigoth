@@ -52,19 +52,7 @@ class Geoimport(Geoplot):
         self.point_style = point_style
         self.line_style = line_style
         self.polygon_style = polygon_style
-        self.extracted = False
-
-    def getBoundaries(self):
-        self.clear()
-        self.extract()
-        self.extracted = True
-        return super().getBoundaries()
-
-    def build(self):
-        if not self.extracted:
-            self.extract()
-            self.extracted = True
-        super().build()
+        self.objects = self.extract()
 
     def getPointStyle(self,props):
        return self.invoke(self.point_style,[props])
@@ -95,15 +83,37 @@ class Geoimport(Geoplot):
             logging.getLogger("Geoimport").error(msg)
             raise Exception(msg)
 
+        # register the points/lines and polys without style information
+        # so the boundaries are established.  Re-add them during build.
+        for (_, ppoints) in points:
+            self.add(Multipoint(points))
+
+        for (_, plines) in lines:
+            self.add(Multiline(plines))
+
+        for (_, ppolys) in polys:
+            self.add(Multipolygon(ppolys))
+
+        return (points,lines,polys)
+
+    def getPolygonProperties(self):
+        (opoints, olines, opolys) = self.objects
+        return [props for (props, polys) in opolys]
+
+    def build(self):
+        super().build()
         self.clear()
-        for (props, points) in points:
+        (opoints, olines, opolys) = self.objects
+
+        for (props, points) in opoints:
             self.add(Multipoint(points, **self.getPointStyle(props)))
 
-        for (props, lines) in lines:
+        for (props, lines) in olines:
             self.add(Multiline(lines, **self.getLineStyle(props)))
 
-        for (props, polys) in polys:
+        for (props, polys) in opolys:
             self.add(Multipolygon(polys, **self.getPolygonStyle(props)))
+
 
     def draw(self,doc,cx,cy,constructJs=True):
         config = super().draw(doc,cx,cy,False)

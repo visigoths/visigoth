@@ -32,7 +32,7 @@ class TestTransition(unittest.TestCase):
     def test_basic(self):
 
         palette = DiscretePalette()
-        palette.addCategory("A", "green").addCategory("B", "blue").addCategory("C", "red").addCategory("D","orange")
+        palette.addColour("A", "green").addColour("B", "blue").addColour("C", "red").addColour("D","orange")
 
         data = [
             ["S0", "","","A","A","A"],

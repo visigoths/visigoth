@@ -106,7 +106,8 @@ class HexGrid(object):
             dvals = [self.model.getDimensionValue(self.dimension,xc,yc) for xc in range(0,self.gx) for yc in range(0,self.gy)]
             minVal = min(dvals)
             maxVal = max(dvals)
-            self.dimensionPalette.rescaleTo(minVal,maxVal)
+            self.dimensionPalette.getColour(minVal)
+            self.dimensionPalette.getColour(maxVal)
 
     def hexacenter(self,origin,x,y):
         (ox,oy) = origin

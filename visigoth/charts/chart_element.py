@@ -100,6 +100,9 @@ class ChartElement(DiagramElement):
         return self.yAxis.getPointPosition(self.chart_oy,value)
 
     def build(self):
+        if self.palette:
+            self.palette.build()
+
         x_axis_height = 0
         y_axis_width = 0
 
@@ -127,7 +130,7 @@ class ChartElement(DiagramElement):
 
     def drawGrid(self,doc):
 
-        if self.yAxis:
+        if self.yAxis and not self.yAxis.isDiscrete():
             y_ticks = self.yAxis.getTickPositions(self.chart_oy)
             x1 = self.chart_ox
             x2 = self.chart_ox + self.chart_width
@@ -135,7 +138,7 @@ class ChartElement(DiagramElement):
                 l = line(x1,y,x2,y,self.grid_stroke,self.grid_stroke_width)
                 doc.add(l)
 
-        if self.xAxis:
+        if self.xAxis and not self.xAxis.isDiscrete:
             x_ticks = self.xAxis.getTickPositions(self.chart_ox)
             y1 = self.chart_oy
             y2 = self.chart_oy + self.chart_height

@@ -103,6 +103,8 @@ class Area(ChartElement):
                 aggregations=[Dataset.sum(self.y)]
             )
             y_axis_max = max([y for [_,y] in y_range])
+        else:
+            y_axis_max = 1.0
         # always start the y-axis at 0 to correctly represent areas
         y_axis_min = 0
 

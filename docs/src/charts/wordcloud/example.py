@@ -12,7 +12,7 @@ from visigoth.utils.httpcache import HttpCache
 from visigoth.containers import Box
 
 palette = DiscretePalette()
-palette.addCategory("A","green").addCategory("B","blue").addCategory("C","red").addCategory("D","purple")
+palette.addColour("A","green").addColour("B","blue").addColour("C","red").addColour("D","purple")
 
 folder = os.path.split(sys.argv[0])[0]
 path = HttpCache.fetch("https://gutenberg.ca/ebooks/huxleya-bravenewworld/huxleya-bravenewworld-00-t.txt",suffix=".txt",returnPath=True)

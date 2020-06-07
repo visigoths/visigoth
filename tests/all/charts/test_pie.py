@@ -32,8 +32,8 @@ class TestPie(unittest.TestCase):
 
         d.add(Text("Basic"))
         palette0 = DiscretePalette()
-        palette0.addCategory("category A","#E7FFAC").addCategory("category B","#FFC9DE")
-        palette0.addCategory("category C","#B28DFF").addCategory("category D","#ACE7FF")
+        palette0.addColour("category A","#E7FFAC").addColour("category B","#FFC9DE")
+        palette0.addColour("category C","#B28DFF").addColour("category D","#ACE7FF")
 
         data0 = [("category A",1.2),("category B",0.1),("category C",0.4),("category D",0.5)]
         pie0 = Pie(data0, value=1,colour=0, width=400, height=400, palette=palette0)

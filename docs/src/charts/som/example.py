@@ -9,16 +9,12 @@ from visigoth.utils.colour import ContinuousPalette
 
 
 cpalette0 = ContinuousPalette(withIntervals=False)
-cpalette0.addColour("#000000",0.0).addColour("red",1.0)
 
 cpalette1 = ContinuousPalette(withIntervals=False)
-cpalette1.addColour("#000000",0.0).addColour("red",1.0)
 
 cpalette2 = ContinuousPalette(withIntervals=False)
-cpalette2.addColour("#000000",0.0).addColour("blue",1.0)
 
 cpalette3 = ContinuousPalette(withIntervals=False)
-cpalette3.addColour("#000000",0.0).addColour("white",1.0)
 
 min_temp_data = []
 max_temp_data = []

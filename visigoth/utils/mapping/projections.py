@@ -78,3 +78,29 @@ class Projections(object):
     @staticmethod
     def getProjection(name):
         return Projections.knownProjections.get(name)
+
+    @staticmethod
+    def getENBoundaries(projection,lonlat_boundaries):
+        ((lon_min,lat_min),(lon_max,lat_max)) = lonlat_boundaries
+        xmin = None
+        ymin = None
+        xmax = None
+        ymax = None
+        res = 2
+        lon_step = (lon_max - lon_min)/res
+        lat_step = (lat_max - lat_min)/res
+        for x in range(0,res+1):
+            lon = lon_min + (x*lon_step)
+            for y in range(0,res+1):
+                lat = lat_min + (y*lat_step)
+                (x,y) = projection.fromLonLat((lon,lat))
+                if xmin == None or x < xmin:
+                    xmin = x
+                if xmax == None or x > xmax:
+                    xmax = x
+                if ymin == None or y < ymin:
+                    ymin = y
+                if ymax == None or y > ymax:
+                    ymax = y
+
+        return ((xmin,ymin),(xmax,ymax))

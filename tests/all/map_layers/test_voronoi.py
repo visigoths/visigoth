@@ -64,7 +64,7 @@ class TestVoronoi(unittest.TestCase):
         m1 = Map(512)
 
         p = DiscretePalette()
-        p.addCategory("A","red").addCategory("B","blue").addCategory("C","green").addCategory("D","orange")
+        p.addColour("A","red").addColour("B","blue").addColour("C","green").addColour("D","orange")
 
         data1 = [(0.25,0.25,"A"),
                  (0.75,0.75,"B"),

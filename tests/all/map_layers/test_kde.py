@@ -42,7 +42,6 @@ class TestKDE(unittest.TestCase):
         data1 = [(rng.random(), rng.random()) for x in range(0, 100)]
 
         palette1 = ContinuousPalette()
-        palette1.addColour("#0000FF",0).addColour("#FF0000",1)
 
         m1.addLayer(KDE(data1, bandwidth=4000, nr_samples_across=100, palette=palette1, label_fn=None))
         m1.addLayer(Scatter(data1))
@@ -57,7 +56,6 @@ class TestKDE(unittest.TestCase):
         data2 = [(0.5+0.2*math.sin(a), 0.5+0.2*math.cos(a)) for a in angles]
 
         palette2 = ContinuousPalette()
-        palette2.addColour("#0000FF", 0).addColour("#FF0000", 1)
 
         m2.addLayer(KDE(data2, bandwidth=4000, nr_samples_across=100, palette=palette2, label_fn=None))
         m2.addLayer(Scatter(data2))

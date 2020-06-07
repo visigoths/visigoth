@@ -33,7 +33,6 @@ class Palette(object):
         self.defaultColour = defaultColour
 
 
-
 class DiscretePalette(Palette):
 
     def __init__(self,colourMap="pastel",defaultColour="blue"):
@@ -54,7 +53,7 @@ class DiscretePalette(Palette):
     def isDiscrete(self):
         return True
 
-    def addCategory(self,category,colour):
+    def addColour(self,category,colour):
         self.categories.append((category,colour))
         self.categoryset.add(category)
         return self
@@ -84,7 +83,7 @@ class DiscretePalette(Palette):
 
 class ContinuousPalette(Palette):
 
-    def __init__(self, withIntervals=True,colourMap="viridis", defaultColour="blue"):
+    def __init__(self, withIntervals=True, colourMap="viridis", defaultColour="blue"):
         super(ContinuousPalette,self).__init__(defaultColour)
         self.colour = None
         self.range = []
@@ -94,16 +93,22 @@ class ContinuousPalette(Palette):
         self.colourMap = None
         self.min_value = None
         self.max_value = None
-        self.built = False
-        if colourMap:
+
+        if isinstance(colourMap,str):
             if colourMap not in ColourMaps:
                 raise Exception("Unknown colourmap %s"%(colourMap))
-            self.colourMap = ColourMaps[colourMap]
-            for i in range(len(self.colourMap)):
+            colourMap = ColourMaps[colourMap]
+
+        self.colourMap = colourMap
+        for i in range(len(self.colourMap)):
+            entry = self.colourMap[i]
+            if isinstance(entry,list) or isinstance(entry,tuple):
                 r = self.colourMap[i][0]
                 g = self.colourMap[i][1]
                 b = self.colourMap[i][2]
-                self.appendColour("#%02X%02X%02X"%(int(255*r),int(255*g),int(255*b)),i)
+                self.__appendColour("#%02X%02X%02X"%(int(255*r),int(255*g),int(255*b)),i)
+            else:
+                self.__appendColour(entry,i)
 
     @staticmethod
     def listColourMaps():
@@ -115,64 +120,62 @@ class ContinuousPalette(Palette):
     def isDiscrete(self):
         return False
 
-    def build(self):
-        if not self.built:
-            self.rescaleTo(self.min_value,self.max_value)
-        self.built = True
-
-    def addColour(self,colour,value):
-        # override preset colourMap
-        if self.colourMap:
-            self.colourMap = None
-            self.range = []
-            self.intervals = []
-        self.appendColour(colour,value)
-        return self
-
-    def appendColour(self,colour,value):
+    def __appendColour(self,colour,value):
         self.range.append((value,colour))
         self.range = sorted(self.range,key = lambda x:x[0])
-        if len(self.range)>1 and self.withIntervals:
-            self.setIntervals()
-        else:
-            self.colour = Colour(self.range)
-        return self
 
     def getMinValue(self):
-        return self.range[0][0]
+        return self.min_value
 
     def getMaxValue(self):
-        return self.range[-1][0]
+        return self.max_value
 
-    def rescaleTo(self,minval,maxval):
-        if self.rescaled:
-            return
-        self.rescaled = True
+    def build(self):
+        # if no values have been set, set some dummy ones
+        if self.min_value == None:
+            self.min_value = 0
+        if self.max_value == None:
+            self.max_value = 0
+        # make sure max is > min
+        if self.max_value <= self.min_value:
+            self.max_value = self.min_value + 1
+        # set the domain of the colour range linearly from min to max
         for idx in range(0,len(self.range)):
             frac = idx / (len(self.range)-1)
-            val = minval + (frac * (maxval-minval))
+            val = self.min_value + (frac * (self.max_value-self.min_value))
             self.range[idx] = (val,self.range[idx][1])
+        #
         if self.withIntervals:
             self.setIntervals()
         else:
-            self.colour = Colour(self.range)
+            self.colour = Colour(self.range,self.min_value,self.max_value)
 
     def setIntervals(self):
-        self.colour = Colour(self.range)
-        lwb = self.range[0][0]
-        upb = self.range[-1][0]
-        axisutils = AxisUtils(100,"vertical",lwb,upb)
+        self.colour = Colour(self.range,self.min_value,self.max_value)
+        lwb = self.min_value
+        upb = self.max_value
+
+        axisutils = AxisUtils(100,"vertical",self.min_value,self.max_value)
         ticks = axisutils.build()
         self.intervals = []
-        self.intervals.append((lwb,self.colour.getColour(lwb)))
-        prev = lwb
-        for val in ticks:
-            delta = val - prev
-            col = self.colour.getColour(val)
-            self.intervals.append((max(val-delta/2,lwb),col))
-            self.intervals.append((min(val+delta/2,upb),col))
-            prev = val
-        self.colour = Colour(self.intervals)
+        # intervals will be a list of (val0,val1,col) associating colour col with values in the range v >= val0 and v < val1
+        for idx in range(len(ticks)):
+            val = ticks[idx]
+            if idx == 0 and val > lwb:
+                col = self.colour.getColour(lwb + (val-lwb)/2)
+                self.intervals.append((lwb,val,col))
+            if idx > 0:
+                val0 = ticks[idx-1]
+                val1 = ticks[idx]
+                col = self.colour.getColour(val0 + (val1-val0)/2)
+                self.intervals.append((val0,val1,col))
+            if idx == len(ticks)-1 and val < upb:
+                col = self.colour.getColour(val + (upb - val) / 2)
+                self.intervals.append((val, upb, col))
+        self.colour = Colour(self.intervals,self.min_value,self.max_value)
+
+    def getIntervals(self):
+        return self.intervals
 
     def getColour(self,value):
         if value is None:
@@ -181,7 +184,10 @@ class ContinuousPalette(Palette):
             self.min_value = value
         if self.max_value == None or value > self.max_value:
             self.max_value = value
-        return self.colour.getColour(value)
+        if self.colour:
+            return self.colour.getColour(value)
+        else:
+            return None
 
     def drawColourRectangle(self,doc,x,y,width,height,orientation,stroke_width=None,stroke=None):
         return self.colour.drawColourRectangle(doc,x,y,width,height,orientation,stroke_width=stroke_width,stroke=stroke)

@@ -14,7 +14,6 @@ bounds = ((0,0),(1,1))
 data = [(rng.random(),rng.random()) for x in range(0,100)]
 
 palette = ContinuousPalette()
-palette.addColour("#0000FF",0).addColour("#00FF00",1).addColour("#FF0000",2)
 
 m1 = Map(512,bounds)
 m1.addLayer(KDE(data,bandwidth=4000,nr_samples_across=100,palette=palette,label_fn=None))

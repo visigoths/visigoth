@@ -43,7 +43,7 @@ class Contour(MapLayer):
         font_height(int) : font size in pixels for contour labels
         text_attributes(dict): a dict containing SVG name/value attributes to apply to contour labels
     """
-    def __init__(self,data=[],contour_interval=10,palette=None,label_fn=lambda x:"%d"%(x),stroke="brown",stroke_width=1,font_height=8,text_attributes={}):
+    def __init__(self,data=[],contour_interval=10,label_fn=lambda x:"%d"%(x),stroke="brown",stroke_width=1,font_height=8,text_attributes={}):
         super(Contour, self).__init__()
         self.data = data
         self.width = None
@@ -71,7 +71,6 @@ class Contour(MapLayer):
         self.stroke_width = stroke_width
         self.font_height = font_height
         self.text_attributes = text_attributes
-        self.palette = palette
         self.clip = True
         self.boundaries = None
 
@@ -321,9 +320,12 @@ class Contour(MapLayer):
     def build(self):
         self.sw = self.boundaries[0]
         self.ne = self.boundaries[1]
+        super().build()
 
-        if self.palette:
-            self.palette.rescaleTo(self.min_val,self.max_val)
+    def setPalette(self,palette):
+        super().setPalette(palette)
+        palette.getColour(self.min_val)
+        palette.getColour(self.max_val)
 
     def generateLabel(self,points,threshold):
 

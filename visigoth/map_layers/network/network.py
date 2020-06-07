@@ -147,6 +147,7 @@ class Network(Geoplot):
         self.font_height = font_height
         self.text_attributes = text_attributes
         self.boundaries = None
+        self.ranks = {}
         
     def getBoundaries(self):
         locations = [node.getLonLat() for node in self.nodes]
@@ -154,31 +155,44 @@ class Network(Geoplot):
             self.boundaries = Mapping.getBoundingBox(locations,0.05)
         return self.boundaries
 
-    def build(self):
-        super().clear()
-        ranks = {}
-        if self.ranking_algorithm:
-            ranks = self.ranking_algorithm.compute(self.nodes,self.edges,self.projection)
-            min_rank = min([ranks[n] for n in ranks])
-            max_rank = max([ranks[n] for n in ranks])
-            self.palette.rescaleTo(min_rank,max_rank)
+    def configureLayer(self, ownermap, width, height, boundaries, projection, zoom_to):
+        super().configureLayer(ownermap, width, height, boundaries, projection, zoom_to)
+        self.buildLayer()
 
+    def buildLayer(self):
+        super().clear()
+        if self.ranking_algorithm:
+            self.ranks = self.ranking_algorithm.compute(self.nodes,self.edges,self.projection)
+            min_rank = min([self.ranks[n] for n in self.ranks])
+            max_rank = max([self.ranks[n] for n in self.ranks])
+            # add the value range to the palette
+            self.getPalette().getColour(min_rank)
+            self.getPalette().getColour(max_rank)
+
+        # add minimal points to establish boundaries for the map
         for idx in range(len(self.nodes)):
             node = self.nodes[idx]
-            if ranks:
-                col = self.palette.getColour(ranks[idx])
-            else:
-                col = self.palette.getColour(node.getColour())
-            marker = self.getMarkerManager().getMarker(node.getSize())
-            self.add(Multipoint([node.getLonLat()],label=node.getLabel(),marker=marker,tooltip=str(ranks[idx]),fill=col))
-        
-        for edge in self.edges:
-            self.add(Multiline([edge.getLonLats()],stroke="grey",stroke_width=3))
-        
-        super().build()
+            self.getMarkerManager().getMarker(node.getSize())
+            self.add(Multipoint([node.getLonLat()]))
+
+        self.palette.build()
 
     def draw(self,doc,cx,cy):
-        super().draw(doc,cx,cy)
+        # add edges and re-add the points now we can establish the colours
+        self.clear()
+        for idx in range(len(self.nodes)):
+            node = self.nodes[idx]
+            if len(self.ranks):
+                col = self.getPalette().getColour(self.ranks[idx])
+            else:
+                col = self.getPalette().getColour(node.getColour())
+            marker = self.getMarkerManager().getMarker(node.getSize())
+            self.add(Multipoint([node.getLonLat()],label=node.getLabel(),marker=marker,tooltip=str(self.ranks[idx]),fill=col))
+
+        for edge in self.edges:
+            self.add(Multiline([edge.getLonLats()],stroke="grey",stroke_width=3))
+
+        super().draw(doc, cx, cy)
         with open(os.path.join(os.path.split(__file__)[0],"network.js"),"r") as jsfile:
             jscode = jsfile.read()
         config = {}

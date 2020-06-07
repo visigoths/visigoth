@@ -36,13 +36,8 @@ d.add(Text("Where does \"Hello World\" Geolocate to?",font_height=18))
 d.add(Box(m))
 
 html = d.draw(format="html")
-svg = d.draw(format="svg")
 
 f = open("example.html", "w")
 f.write(html)
-f.close()
-
-f = open("example.svg","w")
-f.write(svg)
 f.close()
 

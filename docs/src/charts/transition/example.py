@@ -6,7 +6,7 @@ from visigoth.utils.colour import DiscretePalette
 from visigoth.common import Legend, Space, Text
 
 palette = DiscretePalette()
-palette.addCategory("Status A", "green").addCategory("Status B", "blue").addCategory("Status C", "red")
+palette.addColour("Status A", "green").addColour("Status B", "blue").addColour("Status C", "red")
 
 data = [
     ["M1", "","Status B","Status B","Status B"],

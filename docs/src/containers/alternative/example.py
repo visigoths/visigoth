@@ -9,8 +9,8 @@ from visigoth.utils.colour import DiscretePalette
 d = Diagram()
 
 palette0 = DiscretePalette()
-palette0.addCategory("A","#E7FFAC").addCategory("B","#FFC9DE")
-palette0.addCategory("C","#B28DFF").addCategory("D","#ACE7FF")
+palette0.addColour("A","#E7FFAC").addColour("B","#FFC9DE")
+palette0.addColour("C","#B28DFF").addColour("D","#ACE7FF")
 
 legend = Legend(palette0,legend_columns=2)
 

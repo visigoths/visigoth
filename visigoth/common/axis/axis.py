@@ -34,14 +34,15 @@ class Axis(DiagramElement):
     Arguments:
         length(int): length of the axis in pixels
         orientation(str):  horizontal or vertical
-        minValue(numeric): lower bound for axis 
-        maxValue(numeric): upper bound for axis 
+
 
     Keyword Arguments:
+        minValue(numeric): lower bound for continuous axis
+        maxValue(numeric): upper bound for continuous axis
+        discreteValues(list): list of values for discrete axis
         projection(visigoth.utils.mapping.projections.Projection): the projection in use
         label(str): label for axis
-        decimal_places(int): the number of decimal places to display
-        labelfn(function): function which accepts an axis value and returns a label string (overrides decimal_places)
+        labelfn(function): function which accepts an axis value and returns a label string
         stroke(str): stroke colour for axis line
         stroke_width(int): width of axis line
         font_height(int): the axis label font size in pixels 
@@ -49,15 +50,15 @@ class Axis(DiagramElement):
         text_attributes(dict): a dict containing SVG name/value pairs
     """
 
-    def __init__(self,length,orientation,minValue,maxValue,projection=Projections.IDENTITY,label=None,decimal_places=2,labelfn=None,stroke="black",stroke_width=2,font_height=24,axis_font_height=16,text_attributes={}):
+    def __init__(self,length,orientation,minValue=None,maxValue=None,discreteValues=None,projection=Projections.IDENTITY,label=None,labelfn=None,stroke="black",stroke_width=2,font_height=24,axis_font_height=16,text_attributes={}):
         DiagramElement.__init__(self)
         self.length = length
         self.orientation = orientation
         self.minValue = minValue
         self.maxValue = maxValue
+        self.discreteValues = discreteValues
         self.label = label
         self.labelfn = labelfn
-        self.decimal_places = decimal_places
         self.stroke = stroke
         self.stroke_width = stroke_width
         self.font_height = font_height
@@ -70,6 +71,9 @@ class Axis(DiagramElement):
         self.width = 0
         self.height = 0
         self.projection = projection
+        self.integer_ticks = False
+        self.integer_interval = None
+        self.decimal_places = None
 
     def setMinValue(self,value):
         self.minValue = value
@@ -92,6 +96,9 @@ class Axis(DiagramElement):
     def setLabel(self,label):
         self.label = label
         return self
+
+    def setDecimalPlaces(self,decimal_places):
+        self.decimal_places = decimal_places
 
     def extractBounds(self,lwb,upb):
         lwb_date = isinstance(lwb,datetime.datetime)
@@ -121,6 +128,10 @@ class Axis(DiagramElement):
         self.text_attributes = text_attributes
         return self
 
+    def setIntegerTicks(self,interval=1):
+        self.integer_ticks = True
+        self.integer_interval = interval
+
     def setStroke(self,stroke,stroke_width):
         """
         Configure line colour and width
@@ -134,9 +145,6 @@ class Axis(DiagramElement):
         self.tick_width = self.stroke_width * 2
         return self
 
-    def getTickPoints(self):
-        return self.tickpoints
-
     def setTickPositions(self,tickpositions):
         self.tickpoints = tickpositions
         return self
@@ -145,38 +153,60 @@ class Axis(DiagramElement):
         return self.axisutils.getTickPositions(start)
 
     def getPointPosition(self,start,value):
+        if self.discreteValues:
+            if value in self.discreteValues:
+                tickwidth = self.length / len(self.discreteValues)
+                i = self.discreteValues.index(value)
+                return start + tickwidth*(i + 0.5)
+            else:
+                return None
         return self.axisutils.getPointPosition(start,value)
 
+    def isDiscrete(self):
+        return self.discreteValues is not None
+
     def build(self):
-        (self.lwb,self.upb,self.date_based) = self.extractBounds(self.minValue,self.maxValue)
-        self.axisutils = AxisUtils(self.length,self.orientation,self.lwb,self.upb,self.projection,self.date_based)
-        if not self.tickpoints:
-            self.tickpoints = self.axisutils.computeTickPoints()
+        if self.discreteValues:
+            self.tickpoints = self.discreteValues
+            self.ticks = [(value, value) for value in self.tickpoints]
+            self.axisutils = None
         else:
-            self.axisutils.setTickPoints(self.tickpoints[:])
+            (self.lwb,self.upb,self.date_based) = self.extractBounds(self.minValue,self.maxValue)
+            self.axisutils = AxisUtils(self.length,self.orientation,self.lwb,self.upb,self.projection,self.date_based)
+            if self.integer_ticks:
+                self.axisutils.setIntegerInterval(self.integer_interval)
 
-        if not self.labelfn:
-            if self.date_based:
-                self.labelfn = lambda val:str(val)
+            if not self.tickpoints:
+                self.tickpoints = self.axisutils.computeTickPoints()
             else:
-                spacing = self.axisutils.getSpacing()
-                l10s = log10(spacing)
-                if spacing == float(int(spacing)):
-                    if l10s > 5:
-                        self.axis_format = "%.2e"
-                    else:
-                        self.axis_format = "%.0f"
-                else:
-                    if l10s < -5:
-                        self.axis_format = "%.2e"
-                    else:
-                        axis_dp = self.decimal_places
-                        if axis_dp < 0:
-                            axis_dp = ceil(abs(l10s))
-                        self.axis_format = "%."+str(axis_dp)+"f"
-                self.labelfn = lambda v: self.axis_format%(v)
+                self.axisutils.setTickPoints(self.tickpoints[:])
 
-        self.ticks = [(point,self.labelfn(point)) for point in self.tickpoints]
+            if not self.labelfn:
+                if self.date_based:
+                    self.labelfn = lambda val:str(val)
+                else:
+                    spacing = self.axisutils.getSpacing()
+                    l10s = log10(spacing)
+                    if spacing == float(int(spacing)):
+                        if l10s > 5:
+                            self.axis_format = "%.2e"
+                        else:
+                            self.axis_format = "%.0f"
+                    else:
+                        if l10s < -5:
+                            self.axis_format = "%.2e"
+                        else:
+                            if self.decimal_places is None:
+                                self.decimal_places = max(2,2-round(log10(self.maxValue - self.minValue)))
+                            axis_dp = self.decimal_places
+                            if axis_dp < 0:
+                                axis_dp = ceil(abs(l10s))
+                            self.axis_format = "%."+str(axis_dp)+"f"
+
+                    self.labelfn = lambda v: self.axis_format%(v)
+
+            self.ticks = [(point,self.labelfn(point)) for point in self.tickpoints]
+
         maxlen = max([FontManager.getTextLength(self.text_attributes,label,self.axis_font_height) for (tickv,label) in self.ticks])
 
         self.width = self.length
@@ -193,6 +223,13 @@ class Axis(DiagramElement):
         ox = cx - self.width/2
         oy = cy - self.height/2
 
+        oo = ox if self.orientation == "horizontal" else oy
+        if self.discreteValues:
+            tickwidth = self.length / len(self.discreteValues)
+            positions = [oo + (i + 0.5) * tickwidth for i in range(len(self.discreteValues))]
+        else:
+            positions = self.axisutils.getTickPositions(oo)
+
         if self.orientation == "horizontal":
             l = line(ox,oy,ox+self.width,oy,self.stroke,self.stroke_width)
             l.addAttr("stroke-linecap","square")
@@ -204,7 +241,6 @@ class Axis(DiagramElement):
                 t.setVerticalCenter()
                 doc.add(t)
 
-            positions = self.axisutils.getTickPositions(ox)
             for idx in range(len(self.ticks)):
                 (tv,label) = self.ticks[idx]
                 tx = positions[idx]
@@ -227,7 +263,6 @@ class Axis(DiagramElement):
                 t.setRotation(pi/-2)
                 doc.add(t)
 
-            positions = self.axisutils.getTickPositions(oy)
             for idx in range(len(self.ticks)):
                 (tv,label) = self.ticks[idx]
                 ty = positions[idx]

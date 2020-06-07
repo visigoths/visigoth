@@ -84,6 +84,8 @@ class Voronoi(MapLayer):
             self.getMarkerManager().noteSize(size)
             self.getPalette().getColour(colour)
 
+
+
     def getBoundaries(self):
         if not self.boundaries:
             self.boundaries = Mapping.getBoundingBox([(lon,lat) for (lon,lat,_,_,_) in self.input_data],0.05)
@@ -113,10 +115,10 @@ class Voronoi(MapLayer):
         return [(p[1][0],p[1][1]) for p in sorted(points_and_angle,key=lambda x:x[0])]
 
     def build(self):
+        super().build()
         self.data = []
         for (lon,lat,col,label,size) in self.input_data:
             prj = self.projection.fromLonLat((lon,lat))
-            col = self.getPalette().getColour(col)
             self.data.append((prj[0],prj[1],col,label,size))
 
         self.min_data_x = min([p[0] for p in self.data])
@@ -137,10 +139,10 @@ class Voronoi(MapLayer):
         self.height = self.scale * self.y_range
 
         # add extreme points at each corner to create regions at the edge of the diagram
-        self.data.append((self.max_data_x + self.x_data_range*1.1,self.max_data_y + self.y_data_range,"white","",0))
-        self.data.append((self.min_data_x - self.x_data_range,self.max_data_y + self.y_data_range,"white","",0))
-        self.data.append((self.max_data_x + self.x_data_range,self.min_data_y - self.y_data_range,"white","",0))
-        self.data.append((self.min_data_x - self.x_data_range,self.min_data_y - self.y_data_range,"white","",0))
+        self.data.append((self.max_data_x + self.x_data_range*1.1,self.max_data_y + self.y_data_range,None,"",0))
+        self.data.append((self.min_data_x - self.x_data_range,self.max_data_y + self.y_data_range,None,"",0))
+        self.data.append((self.max_data_x + self.x_data_range,self.min_data_y - self.y_data_range,None,"",0))
+        self.data.append((self.min_data_x - self.x_data_range,self.min_data_y - self.y_data_range,None,"",0))
 
         points=[(x,y) for (x,y,_,_,_) in self.data]
         delaunay = bowyer_watson(points)
@@ -155,6 +157,10 @@ class Voronoi(MapLayer):
         oy = cy - self.height/2
 
         for (ppoints,col,label) in self.polygons:
+            if col is not None:
+                col = self.getPalette().getColour(col)
+            else:
+                col = "white" # colour so-called edge regions white
             kwargs={}
             if label:
                 kwargs["tooltip"] = str(label)
@@ -162,6 +168,7 @@ class Voronoi(MapLayer):
             doc.add(p)
 
         for (x,y,col,label,size) in self.data:
+            col = self.getPalette().getColour(col)
             (px,py) = self.transform(ox,oy,x,y)
             kwargs={}
             if label:

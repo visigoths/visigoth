@@ -20,6 +20,7 @@
 import os.path
 from visigoth.map_layers.geoimport import Geoimport
 from visigoth.utils.js import Js
+from visigoth.utils.colour import ContinuousPalette
 
 
 class Chloropleth(Geoimport):
@@ -31,36 +32,38 @@ class Chloropleth(Geoimport):
         path : file path to a geojson file
         valueNameOrFn(str|function) : the name of the property (or function of the properties dict) to provide the value to visualize
         labelNameOrFn(str|function) : the name of the property (or function of the properties dict) to provide the label
-        palette(list) : a list of (value, colour) pairs or a list of [(min-value, min-colour),(max-value,max-colour)]
+        palette(list) : a DiscretePalette|ContinuousPalette object for mapping values to colours
 
     Keyword Arguments:
-        default_fill_colour (str): default colour for areas where a value cannot be obtained
-        stroke (str): stroke color for circumference of circles
-        stroke_width (int): stroke width for circumference of circles
+        stroke (str): stroke color
+        stroke_width (int): stroke width
 
     Notes:
 
     """
 
-    def __init__(self, path, valueNameOrFn, labelNameOrFn, palette, default_fill_colour="white", stroke="black",stroke_width=2):
+    def __init__(self, path, valueNameOrFn, labelNameOrFn, palette, stroke="black",stroke_width=2):
         super().__init__(path,polygon_style=lambda props:self.getPolygonStyle(props))
         self.path = path
         self.valueNameOrFn = valueNameOrFn
         self.labelNameOrFn = labelNameOrFn
         self.stroke = stroke
-        self.palette = palette
-        self.default_fill_colour = default_fill_colour
+        if palette is None:
+            palette = ContinuousPalette()
+        self.setPalette(palette)
         self.stroke_width = stroke_width
+        for props in self.getPolygonProperties():
+            self.getPalette().getColour(self.valueNameOrFn(props))
 
     def getFill(self,geojson_props):
         if isinstance(self.valueNameOrFn,str):
             if self.valueNameOrFn in geojson_props:
                 val = geojson_props[self.valueNameOrFn]
             else:
-                return self.default_fill_colour
+                return self.getPalette().getDefaultColour()
         else:
             val = self.valueNameOrFn(geojson_props)
-        return self.palette.getColour(val)
+        return self.getPalette().getColour(val)
 
     def getLabel(self,geojson_props):
         if self.labelNameOrFn in geojson_props:

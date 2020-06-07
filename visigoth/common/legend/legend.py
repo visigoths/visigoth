@@ -23,6 +23,7 @@ from visigoth.common.diagram_element import DiagramElement
 from visigoth.common.axis import Axis
 from visigoth.utils.js import Js
 from visigoth.utils.fonts.fontmanager import FontManager
+from visigoth.utils.colour import ContinuousPalette
 
 class Legend(DiagramElement):
     """
@@ -34,16 +35,15 @@ class Legend(DiagramElement):
     Keyword Arguments:
         width(int): width of the legend area
         label(str): a descriptive label to display
-        orientation(str): "horizontal"|"vertical" whether to display legend horizontally or vertically (continuous palette)
-        legend_columns(int): the number of columns to split the legend into
+        orientation(str): "horizontal"|"vertical" whether to display legend horizontally or vertically (applies only to continuous palette)
+        legend_columns(int): the number of columns to split the legend into (applies only to discrete palette)
         stroke(str): the stroke colour for the line around the toggle control
         stroke_width(int): the stroke width for the line around the toggle control
         font_height(int): the font size for the legend (optional, defaults to 24)
         text_attributes(dict): a dict containing SVG name/value pairs
-        decimal_places(int): the number of decimal places to display
     """
 
-    def __init__(self,palette,width=512,label=None,orientation="horizontal",legend_columns=0,stroke="black",stroke_width=2, font_height=24,text_attributes={},decimal_places=3):
+    def __init__(self,palette,width=512,label=None,orientation="horizontal",legend_columns=0,stroke="black",stroke_width=2, font_height=24,text_attributes={}):
         DiagramElement.__init__(self)
         self.palette = palette
         self.text_attributes = text_attributes
@@ -62,9 +62,14 @@ class Legend(DiagramElement):
 
         # Continuous
         self.orientation = orientation
-        self.decimal_places = decimal_places
-        self.bar_width = 40 # width of legend bar
-        self.bar_spacing = 10 # space between axis and legend bar
+
+        self.bar_width = 40  # width of legend bar
+        self.bar_spacing = 10  # space between axis and legend bar
+
+        if isinstance(self.palette,ContinuousPalette):
+            self.axis = Axis(self.width, self.orientation, self.palette.getMinValue(), self.palette.getMaxValue(),
+                         label=self.label, font_height=self.legend_font_height, text_attributes=self.text_attributes,
+                         stroke=self.stroke, stroke_width=self.stroke_width)
 
     def getHeight(self):
         return self.height
@@ -72,10 +77,14 @@ class Legend(DiagramElement):
     def getWidth(self):
         return self.width
 
+    def getAxis(self):
+        return self.axis
+
     def setDiscreteMarkerStyle(self,style):
         self.discrete_marker_style = style
 
     def build(self):
+        self.palette.build()
         if self.palette.isDiscrete():
             if not self.legend_columns:
                 max_text_width = max(map(lambda x:FontManager.getTextLength(self.text_attributes,x[0],self.legend_font_height),self.palette.getCategories()))
@@ -83,7 +92,8 @@ class Legend(DiagramElement):
                 self.legend_columns = max(1,self.width // column_content_width)
             self.height = (self.legend_font_height*len(self.palette.getCategories())*2) // self.legend_columns
         else:
-            self.axis = Axis(self.width,self.orientation,self.palette.getMinValue(),self.palette.getMaxValue(),label=self.label,font_height=self.legend_font_height,text_attributes=self.text_attributes,stroke=self.stroke,stroke_width=self.stroke_width,decimal_places=self.decimal_places)
+            self.axis.setMinValue(self.palette.getMinValue())
+            self.axis.setMaxValue(self.palette.getMaxValue())
             self.axis.build()
             if self.orientation == "horizontal":
                 self.height = self.bar_width + self.bar_spacing + self.axis.getHeight()
@@ -96,10 +106,6 @@ class Legend(DiagramElement):
         if self.palette.isDiscrete():
             config = self.drawDiscrete(d,cx,cy)
         else:
-            # rebuild the axis in case a continuous palette has been rescaled
-            self.axis = Axis(self.width,self.orientation,self.palette.getMinValue(),self.palette.getMaxValue(),label=self.label,font_height=self.legend_font_height,text_attributes=self.text_attributes,stroke=self.stroke,stroke_width=self.stroke_width,decimal_places=self.decimal_places)
-            self.axis.build()
-
             config = self.drawContinuous(d,cx,cy)
 
         with open(os.path.join(os.path.split(__file__)[0],"legend.js"),"r") as jsfile:

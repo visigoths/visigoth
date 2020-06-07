@@ -37,7 +37,7 @@ class TestWordCloud(unittest.TestCase):
     def test_basic(self):
 
         palette = DiscretePalette()
-        palette.addCategory("A","green").addCategory("B","blue").addCategory("C","red").addCategory("D","purple")
+        palette.addColour("A","green").addColour("B","blue").addColour("C","red").addColour("D","purple")
 
         d = Diagram()
     

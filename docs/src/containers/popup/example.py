@@ -3,7 +3,7 @@
 from visigoth import Diagram
 from visigoth.containers import Map, Popup
 from visigoth.utils.mapping import Geocoder, Mapping, Projections
-from visigoth.map_layers import WMS, Geoplot
+from visigoth.map_layers import WMTS, Geoplot
 from visigoth.map_layers.geoplot import Multipoint
 from visigoth.common import Space
 
@@ -18,13 +18,13 @@ timesq = gc.fetchCenter("Times Square, New York")
 timesq_bounds = Mapping.computeBoundaries(timesq,500,projection=Projections.ESPG_3857)
 
 timesq_m = Map(256,boundaries=timesq_bounds,projection=Projections.ESPG_3857,font_height=5)
-timesq_wms = WMS(type="osm")
+timesq_wms = WMTS()
 timesq_m.addLayer(timesq_wms)
 timesq_popup = Popup(timesq_m,"Times Square",fill="white")
 
 m = Map(512,boundaries=bounds,projection=Projections.ESPG_3857,zoom_to=2)
 
-wms = WMS(type="osm")
+wms = WMTS()
 wms.setInfo("Map")
 
 gp = Geoplot(multipoints=[Multipoint([timesq],label="Times Square",popup=timesq_popup)])

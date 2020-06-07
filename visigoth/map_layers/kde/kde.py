@@ -17,17 +17,13 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import math
-import urllib
 import os
-import json
 import os.path
 
-from visigoth.common import DiagramElement
-from visigoth.common.image import Image
 from visigoth.utils.mapping import Mapping
 from visigoth.map_layers import MapLayer
 from visigoth.map_layers.contour import Contour
-from collections import OrderedDict
+from visigoth.utils.colour import ContinuousPalette
 from visigoth.utils.js import Js
 from visigoth.utils.data import Dataset
 
@@ -44,28 +40,22 @@ class KDE(MapLayer):
         nr_samples_across(int): number of points to sample for contours across the plot
         contour_interval(float): height difference between contours
         palette(ContinuousPalette) : define the colours used in the plot
-        stroke(str) : the colour to use for contour lines
-        stroke_width(float) : the width (in pixels) to use for contour lines
-        font_height(int) : font size in pixels for contour labels
-        text_attributes(dict): a dict containing SVG name/value attributes to apply to contour labels
     """
-    def __init__(self,data,lon=0,lat=1,kernel=None,bandwidth=1000,nr_samples_across=20,contour_interval=0.1,palette=None,label_fn=lambda x:"%.2f"%(x),stroke="brown",stroke_width=0,font_height=8,text_attributes={}):
+    def __init__(self,data,lon=0,lat=1,kernel=None,bandwidth=1000,nr_samples_across=20,contour_interval=0.1,palette=None,label_fn=lambda x:"%.2f"%(x),font_height=8,text_attributes={}):
         super(KDE, self).__init__()
         dataset = Dataset(data)
         self.data = dataset.query([lon,lat])
         self.kernel = kernel
         self.bandwidth = bandwidth
-        self.palette = palette
+        if not palette:
+            palette = ContinuousPalette()
+        self.setPalette(palette)
         if self.kernel == None:
             self.kernel = KDE.createGaussianKernel(self.bandwidth)
         self.nr_samples_across = nr_samples_across
         self.width = None
         self.height = None
         self.projection = None
-        self.stroke = stroke
-        self.stroke_width = stroke_width
-        self.font_height = font_height
-        self.text_attributes = text_attributes
         self.contour_interval = contour_interval
         self.label_fn = label_fn
         self.boundaries = None
@@ -88,6 +78,7 @@ class KDE(MapLayer):
         self.scale_y = self.height/(y1-y0)
         self.nr_samples_down = int(self.nr_samples_across * (self.height/self.width))
         self.zoom_to = zoom_to
+        self.buildLayer()
 
     def getHeight(self):
         return self.height
@@ -95,7 +86,7 @@ class KDE(MapLayer):
     def getWidth(self):
         return self.width
 
-    def build(self):
+    def buildLayer(self):
         tdata = []
         sw = self.boundaries[0]
         ne = self.boundaries[1]
@@ -119,9 +110,15 @@ class KDE(MapLayer):
                     maxval = val
                 tdata_row.append(val)
             tdata.append(tdata_row)
-        self.palette.rescaleTo(0.0,maxval)
-        self.contour = Contour(tdata,maxval*0.1,palette=self.palette,label_fn=self.label_fn,stroke=self.stroke,stroke_width=self.stroke_width,font_height=self.font_height,text_attributes=self.text_attributes)
+        self.palette.getColour(0)
+        self.palette.getColour(maxval)
+        self.contour = Contour(tdata,maxval*0.1,label_fn=self.label_fn,stroke_width=0)
+        self.contour.setPalette(self.getPalette())
         self.contour.configureLayer(self.ownermap,self.width,self.height,self.boundaries,self.projection,self.zoom_to)
+
+
+    def build(self):
+        super().build()
         self.contour.build()
 
     def draw(self,doc,cx,cy):

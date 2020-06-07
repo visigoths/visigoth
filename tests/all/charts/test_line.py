@@ -36,7 +36,7 @@ class TestLine(unittest.TestCase):
         d.add(line0)
         
         palette1 = DiscretePalette()
-        palette1.addCategory("A","red").addCategory("B","purple").addCategory("C","orange")
+        palette1.addColour("A","red").addColour("B","purple").addColour("C","orange")
 
         data1 = [(1,11,"A"),(2,11.5,"A"),(3,13.7,"A"),(4,18,"A"),(5,25,"A")]
         data1 += [(1,5,"B"),(2,4.3,"B"),(3,3.2,"B"),(4,5.7,"B"),(5,9.4,"B")]

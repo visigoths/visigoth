@@ -86,6 +86,10 @@ class MapLayer(DiagramElement):
     def isForegroundLayer(self):
         return False
 
+    def build(self):
+        if self.palette:
+            self.palette.build()
+
     @staticmethod
     def computeBoundaries(locations):
         min_lon = None

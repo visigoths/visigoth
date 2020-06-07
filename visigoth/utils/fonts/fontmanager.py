@@ -136,7 +136,8 @@ class FontManager(object):
                     filename += "-BoldItalic.ttf"
                 else:
                     filename += "-Regular.ttf"
-                url = "https://raw.githubusercontent.com/google/fonts/master/%s/%s/%s"%(license,name.lower(),filename)
+                url = "https://github.com/google/fonts/blob/master/%s/%s/static/%s?raw=true"%(license,name.lower(),filename)
+                # url = "https://raw.githubusercontent.com/google/fonts/master/%s/%s/%s"%(license,name.lower(),filename)
                 path=HttpCache.fetch(url,returnPath=True)
                 mimetype = "font/ttf"
 

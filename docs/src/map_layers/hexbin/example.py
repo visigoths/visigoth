@@ -14,7 +14,6 @@ bounds = ((0,0),(1,1))
 data = [(rng.random(),rng.random()) for x in range(0,100)]
 
 palette = ContinuousPalette()
-palette.addColour("#0000FF",0.0).addColour("#FF0000",1.0)
 
 m1 = Map(512,bounds)
 m1.addLayer(Hexbin(data,palette=palette,stroke=None))

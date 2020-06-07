@@ -34,10 +34,9 @@ class TestScatterPlot(unittest.TestCase):
 
         palette = DiscretePalette()
 
-        palette.addCategory("A","green").addCategory("B","blue").addCategory("C","red").addCategory("D","purple").addCategory("E","yellow")
+        palette.addColour("A","green").addColour("B","blue").addColour("C","red").addColour("D","purple").addColour("E","yellow")
 
         cpalette = ContinuousPalette(withIntervals=False)
-        cpalette.addColour("#000000",0.0).addColour("green",0.5)
 
         rng = random.Random(1)
 

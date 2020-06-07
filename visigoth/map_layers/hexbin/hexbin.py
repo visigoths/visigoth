@@ -89,6 +89,7 @@ class Hexbin(MapLayer):
         self.centers = {}
         self.freqs = {}
         self.points = []
+        self.buildLayer()
 
     def getHeight(self):
         return self.height
@@ -117,7 +118,7 @@ class Hexbin(MapLayer):
         y = abs(py - hy)
         return x < 3**0.5 * min(s - y, s / 2)
 
-    def build(self):
+    def buildLayer(self):
         for row in range(0,self.nr_bins_down):
             for col in range(0,self.nr_bins_across):
                 self.centers[(col,row)] = self.hexacenter(col,row)
@@ -137,7 +138,8 @@ class Hexbin(MapLayer):
                         if freq > maxfreq:
                             maxfreq = freq
 
-        self.palette.rescaleTo(0,maxfreq)
+        self.palette.getColour(0)
+        self.palette.getColour(maxfreq)
 
     def draw(self,doc,cx,cy):
         ox = cx - self.width/2

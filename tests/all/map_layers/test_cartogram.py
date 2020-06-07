@@ -42,9 +42,9 @@ class TestCartogram(unittest.TestCase):
             return (cx,cy,cat,label,radius)
 
         palette = DiscretePalette()
-        palette.addCategory("cat1","yellow")
-        palette.addCategory("cat2","green")
-        palette.addCategory("cat3","purple")
+        palette.addColour("cat1","yellow")
+        palette.addColour("cat2","green")
+        palette.addColour("cat3","purple")
 
         data = [gen(cx,cy,10,25) for (cx,cy) in [(0.25,0.25),(0.75,0.75),(0.25,0.75),(0.75,0.25)] for _ in range(0,25)]
 
