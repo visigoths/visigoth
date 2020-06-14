@@ -24,7 +24,7 @@ class gps {
         this.sendfn = sendfn;
         this.config = config;
 
-        this.proj = new PROJ_ESPG_3857();
+        this.proj = new PROJ_EPSG_3857();
 
         var ne_min = this.proj.fromLonLat({"lat":this.config["lat_min"],"lon":this.config["lon_min"]});
         

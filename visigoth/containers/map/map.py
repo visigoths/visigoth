@@ -46,7 +46,7 @@ class Map(DiagramElement):
         panzoom_radius(int) : specify redius in pixels for the pan/zoom control
         fill(str): specify a background colour
     """
-    def __init__(self,width,boundaries=None,projection=Projections.ESPG_3857,font_height=10,text_attributes={},width_to_height=None,zoom_to=1,panzoom_radius=40,fill="white"):
+    def __init__(self,width,boundaries=None,projection=Projections.EPSG_3857,font_height=10,text_attributes={},width_to_height=None,zoom_to=1,panzoom_radius=40,fill="white"):
         DiagramElement.__init__(self)
         self.layers = []
         self.elements = []
@@ -159,13 +159,13 @@ class Map(DiagramElement):
                     displaytext += " - " + md.getAttribution()
                     if displaytext not in self.displayed:
                         self.displayed.add(displaytext)
-                        t = Text(displaytext,font_height=self.font_height,text_attributes=self.text_attributes)
+                        t = Text(displaytext,max_width=self.content_width,font_height=self.font_height,text_attributes=self.text_attributes)
                         t.build()
                         self.attributions.append(t)
                         self.height += t.getHeight()
                         url = md.getUrl()
                         if url:
-                            t = Text(url,font_height=self.font_height,url=url,text_attributes=self.text_attributes)
+                            t = Text(url,max_width=self.content_width,font_height=self.font_height,url=url,text_attributes=self.text_attributes)
                             t.build()
                             self.attributions.append(t)
                             self.height += t.getHeight()

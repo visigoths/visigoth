@@ -10,9 +10,9 @@ d = Diagram()
 
 gc = Geocoder()
 center = gc.fetchCenter("Berlin")
-bounds = Mapping.computeBoundaries(center,10000,projection=Projections.ESPG_3857)
+bounds = Mapping.computeBoundaries(center,10000,projection=Projections.EPSG_3857)
 
-m = Map(400,boundaries=bounds,zoom_to=5,projection=Projections.ESPG_3857)
+m = Map(400,boundaries=bounds,zoom_to=5,projection=Projections.EPSG_3857)
 
 s = Scatter([center])
 s.getMarkerManager().setDefaultRadius(20).setMarkerType("pin")

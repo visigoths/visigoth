@@ -16,26 +16,32 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import math
 import os
+import urllib
+from xml.dom.minidom import parseString
 
-from visigoth.common import DiagramElement
 from visigoth.common.image import Image
-from visigoth.utils.mapping import Mapping
-from visigoth.utils.httpcache import HttpCache
+from visigoth.utils.httpcache import HttpCache, HTTP
 from visigoth.map_layers import MapLayer
-from visigoth.utils.mapping import Metadata
 from visigoth.utils.js import Js
+from visigoth.utils.mapping import Projections
 
 class WMS(MapLayer):
 
-    eox_url = "https://tiles.maps.eox.at/wms?service=WMS&version=1.1.1&request=GetMap&layers=%(layers)s&srs=%(projection)s&bbox=%(e_min)f,%(n_min)f,%(e_max)f,%(n_max)f&format=image/%(image_type)s&width=%(width)d&height=%(height)d"
+    mundialis_url = "http://ows.mundialis.de/services/service?&VERSION=1.1.1"
+
+    gibs_4326_url = "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?VERSION=1.1.1"
+
+    gibs_3857_url = "https://gibs.earthdata.nasa.gov/wms/epsg3857/best/wms.cgi?VERSION=1.1.1"
+
+    gibs_attribution = ("We acknowledge the use of imagery provided by services from NASA's Global Imagery Browse Services (GIBS), part of NASA's Earth Observing System Data and Information System (EOSDIS).","https://earthdata.nasa.gov/")
+    mundialis_attribution = ("Contains modified SRTM data (2014)/NASA, processed by mundialis (www.mundialis.de) and vector data by OpenStreetMap contributors (2020), www.openstreetmap.org","https://www.mundialis.de/en/ows-mundialis/")
 
     layer_lookup = {
-        ("satellite","EPSG:3857"):"s2cloudless_3857",
-        ("osm","EPSG:3857"):"osm_3857",
-        ("satellite","EPSG:4326"):"s2cloudless",
-        ("osm","EPSG:4326"):"osm",
+        ("satellite","EPSG:3857"):(gibs_3857_url,"MODIS_Terra_CorrectedReflectance_TrueColor",gibs_attribution),
+        ("satellite", "EPSG:4326"):(gibs_4326_url, "MODIS_Terra_CorrectedReflectance_TrueColor",gibs_attribution),
+        ("osm","EPSG:3857"):(mundialis_url,"OSM-WMS",mundialis_attribution),
+        ("osm","EPSG:4326"):(mundialis_url,"OSM-WMS",mundialis_attribution),
     }
 
     """
@@ -44,27 +50,36 @@ class WMS(MapLayer):
     Keyword Arguments:
         type(str): "satellite" or "osm"
         image(str): type of image, for example "jpeg", "png"
-        custom_url(str): a URL with the following format strings %(height)d, %(width)d, %(e_min)f, %(e_max)f, %(n_min)f, %(n_max)f
+        layer_name(str): the name of the layer to use
+        url(str): a URL with the following format strings %(height)d, %(width)d, %(e_min)f, %(e_max)f, %(n_min)f, %(n_max)f
+        date(datetime): date for which imagery is requested
+        attribution(str): a citation or acknowledgement for the data provider
+        attribution_url(str): a URL for the data provider
         
-        Note: specify either type/image (for EOX WMS service) or custom_url
-        Note: WMS can only currently work with the default Web Mercator (EPSG:3857) or Platte-Carrerre (ESPG:4326) projection
+        Note: specify either (type AND image) OR (url)
+        Note: WMS layer can only currently work with the default Web Mercator (EPSG:3857) or Platte-Carrerre (EPSG:4326) projection
     """
     def __init__(self,
         type="satellite",
-        image="jpeg",
-        custom_url=""):
+        image="png",
+        layer_name="",
+        url="",
+        date=None,
+        attribution="",
+        attribution_url=""
+        ):
         super(WMS, self).__init__()
-        if not custom_url:
-            self.setInfo(name="WMS",attribution="Data © OpenStreetMap contributors and others, Rendering © EOX",url="https://maps.eox.at/")
         self.bounds = None
         self.width = None
-        self.custom_url = custom_url
+        self.attribution = attribution
+        self.attribution_url = attribution_url
+        self.url = url
+        self.date = date
+        self.layer_name = layer_name
         self.projection = None
         self.type = type
-        # https://tiles.maps.eox.at/wms?service=wms&request=getcapabilities
         self.image = image
         self.content = {}
-
 
     def configureLayer(self,ownermap,width,height,boundaries,projection,zoom_to):
         self.ownermap = ownermap
@@ -74,6 +89,82 @@ class WMS(MapLayer):
         self.projection = projection
         self.zoom_to = zoom_to
 
+    @staticmethod
+    def getCapabilitiesUrl(base_url):
+        scheme, netloc, path, query_string, fragment = urllib.parse.urlsplit(base_url)
+        params = urllib.parse.parse_qs(query_string)
+        keys = list(params.keys())
+        for key in keys:
+            if key != "SERVICE" and key != "VERSION":
+                del params[key]
+
+        if "VERSION" not in params:
+            params["VERSION"] = "1.1.1"
+
+        params["SERVICE"] = "WMS"
+        params["REQUEST"] = "GetCapabilities"
+        query_string = urllib.parse.urlencode(params, doseq=True)
+        return urllib.parse.urlunsplit((scheme, netloc, path, query_string, fragment))
+
+    @staticmethod
+    def getMapUrl(base_url,parameters):
+        # good concise summary of the WMS protocol
+        # https://www.nrcan.gc.ca/earth-sciences/geomatics/canadas-spatial-data-infrastructure/standards-policies/8938
+        scheme, netloc, path, query_string, fragment = urllib.parse.urlsplit(base_url)
+        params = urllib.parse.parse_qs(query_string)
+        if "VERSION" not in params:
+            params["VERSION"] = "1.1.1"
+        if "STYLES" not in params:
+            params["STYLES"] = ""
+        params["SERVICE"] = "WMS"
+        params["SRS"] = "%(projection)s" % (parameters)
+        params["TRANSPARENT"] = "true"
+        params["FORMAT"] = "image/%(image_type)s" % (parameters)
+        params["LAYERS"] = "%(layers)s" % (parameters)
+        params["HEIGHT"] = "%(height)d" % (parameters)
+        params["WIDTH"] = "%(width)d" % (parameters)
+        params["BBOX"] = "%(e_min)f,%(n_min)f,%(e_max)f,%(n_max)f" % (parameters)
+        params["REQUEST"] = "GetMap"
+        if "date" in parameters:
+            params["TIME"] = parameters["date"].strftime("%Y-%m-%d")
+
+
+        query_string = urllib.parse.urlencode(params, doseq=True)
+        return urllib.parse.urlunsplit((scheme, netloc, path, query_string, fragment))
+
+    @staticmethod
+    def getLayerNames(type = "satellite",projection = Projections.EPSG_3857,url = ""):
+        projname = projection.getName()
+        if not url:
+            details = WMS.layer_lookup.get((type,projname), None)
+            url = details[0]
+
+
+        capabilities_url = WMS.getCapabilitiesUrl(url)
+
+        # fire off the GetCapabilities request
+        capabilities = HTTP.fetch(capabilities_url)
+
+        s = capabilities.decode("utf-8")
+
+        d = parseString(s)
+        layer_names = []
+
+        def getText(node):
+            rc = []
+            for childnode in node.childNodes:
+                if childnode.nodeType == node.TEXT_NODE:
+                    rc.append(childnode.data)
+            return ''.join(rc)
+
+        layers = d.getElementsByTagName("Layer")
+        for layer in layers:
+            names = layer.getElementsByTagName("Name")
+            for name in names:
+                if name.parentNode == layer:
+                    layer_names.append(getText(name))
+
+        return layer_names
 
     def getHeight(self):
         return self.height
@@ -82,18 +173,26 @@ class WMS(MapLayer):
         return self.width
 
     def build(self):
-        type_proj = (self.type,self.projection.getName())
-        layer_name = WMS.layer_lookup.get(type_proj,None)
-        if layer_name == None:
-            raise Exception("No WMS configuration for combination "+str(type_proj))
-        self.layers = [layer_name]
+        url = self.url
+        projname = self.projection.getName()
+        attribution = self.attribution
+        attribution_url = self.attribution_url
+        if not url:
+            details = WMS.layer_lookup.get((self.type,projname),None)
+            if details is not None:
+                (url,layer_name,attribution) = details
+                (attribution,attribution_url) = attribution
+            else:
+                raise Exception("No WMS configuration for combination "+str((self.type,projname)))
+        if self.layer_name:
+            layer_name = self.layer_name
+        self.setInfo(name="WMS", attribution=attribution, url=attribution_url)
+
         (lonmin,latmin) = self.bounds[0]
         (lonmax,latmax) = self.bounds[1]
         (xmin,ymin) = self.projection.fromLonLat((lonmin,latmin))
         (xmax,ymax) = self.projection.fromLonLat((lonmax,latmax))
-                 
-        projname = self.projection.getName()
-        layers = ",".join(self.layers)
+
         zoom = 1
         while zoom <= self.zoom_to:
             self.content[zoom] = {}
@@ -103,12 +202,23 @@ class WMS(MapLayer):
                     x2 = xmin + (zx+1)*(xmax-xmin)/zoom
                     y1 = ymin + zy*(ymax-ymin)/zoom
                     y2 = ymin + (zy+1)*(ymax-ymin)/zoom
-                    if not self.custom_url:
-                        url = WMS.eox_url%{"layers":layers,"projection":projname,"e_min":x1,"n_min":y1,"e_max":x2,"n_max":y2,"image_type":self.image,"width":self.width,"height":self.height}
-                    else:
-                        url = self.custom_url%{"e_min":x1,"n_min":y1,"e_max":x2,"n_max":y2,"width":self.width,"height":self.height}
-                    self.content[zoom][(zx,zy)] = HttpCache.fetch(url)
+                    parameters = {
+                        "layers":layer_name,
+                        "projection":projname,
+                        "e_min":x1,
+                        "n_min":y1,
+                        "e_max":x2,
+                        "n_max":y2,
+                        "image_type":self.image,
+                        "width":self.width,
+                        "height":self.height}
+                    if self.date != None:
+                        parameters["date"] = self.date
+                    resolved_url = WMS.getMapUrl(url,parameters)
+                    print(resolved_url)
+                    self.content[zoom][(zx,zy)] = HttpCache.fetch(resolved_url)
             zoom *= 2
+
 
     def getBoundaries(self):
         return self.bounds
@@ -139,3 +249,7 @@ class WMS(MapLayer):
         config = { "zoom_groups":zoom_groups }
         Js.registerJs(doc,self,jscode,"wms",cx,cy,config)
 
+if __name__ == '__main__':
+    # capabilities_endpoint = "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0"
+    names = WMS.getLayerNames(type="osm")
+    print(names)

@@ -90,7 +90,7 @@ class Contour(MapLayer):
         self.projection = projection
         if self.boundaries == None:
             self.boundaries = ((0,0),(self.columns-1,self.rows-1))
-            self.projection = Projections.ESPG_4326
+            self.projection = Projections.EPSG_4326
 
     def computeCellIndex(self,tdata,cell_x,cell_y):
         sw = tdata[cell_y+1][cell_x]

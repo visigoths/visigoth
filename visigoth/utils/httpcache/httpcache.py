@@ -25,6 +25,10 @@ import tempfile
 import os.path
 
 import hashlib
+import ssl
+
+ctx = ssl.create_default_context()
+ctx.set_ciphers("DEFAULT:@SECLEVEL=1")
 
 from visigoth.utils.term.progress import Progress
 
@@ -42,9 +46,21 @@ class HttpCache(object):
         def hook(a,b,c):
             progress_frac = a*b / c
             p.report("",progress_frac)
+        try:
+            urllib.request.urlretrieve(url,path,hook,data)
+            sys.stdout.write("\n")
+        except Exception as ex:
+            if str(ex).find("signature type") > 0:
+                p.report("", 0.0)
+                with urllib.request.urlopen(url, None, context=ctx) as u:
+                    response = u.read()
+                    with open(path, "wb") as fout:
+                        fout.write(response)
+                p.report("", 1.0)
+                sys.stdout.write("\n")
+            else:
+                raise ex
 
-        urllib.request.urlretrieve(url,path,hook,data)
-        sys.stdout.write("\n")
 
     @staticmethod
     def fetch(url,data=None,mimeType='application/json',suffix="",returnPath=False):
@@ -75,11 +91,13 @@ class HttpCache(object):
             if not data:
                 HttpCache.meteredFetch("Downloading...",url,cachepath)
             else:
-                req = urllib.request.Request(url)
-                req.add_header('Content-Type', mimeType)
-                response = urllib.request.urlopen(req,enc_data).read()
-                with open(cachepath,"wb") as fout:
-                    fout.write(response)
+                # req = urllib.request.Request(url,context=ctx)
+                # req.add_header('Content-Type', mimeType)
+
+                with urllib.request.urlopen(url,enc_data,context=ctx) as u:
+                    response=u.read()
+                    with open(cachepath,"wb") as fout:
+                        fout.write(response)
         if returnPath:
             return cachepath
         else:

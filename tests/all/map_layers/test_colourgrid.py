@@ -27,7 +27,7 @@ from visigoth.utils.colour import ContinuousPalette
 from visigoth.utils.mapping.projections import Projections
 from visigoth.common import Legend
 
-class TestContour(unittest.TestCase):
+class TestColourGrid(unittest.TestCase):
 
     def computeHeight(self, peaks, x, y):
         h = 0

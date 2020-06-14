@@ -26,27 +26,36 @@ from visigoth.map_layers import MapLayer
 
 class WMTS(MapLayer):
 
-    default_osm_url = "https://a.tile.openstreetmap.de/%(zoom)d/%(tilex)d/%(tiley)d.png"
+    default_url = "https://a.tile.openstreetmap.de/{z}/{x}/{y}.png"
+    default_attribution = "© OpenStreetMap contributors"
+    default_attribution_link = "http://www.openstreetmap.org/copyright"
 
     """
-    Create a WMTS plot using open streetmap by default
+    Add a WMTS base map using open streetmap by default
     
     Keyword Arguments:
-            url(str): WMTS url with three  format string parameters %(zoom)d, %(tilex)d, %(tiley)d
-
-            Note:  WMTS can only currently work with the default Web Mercator (ESPG:3857) projection
+            url(str): WMTS url with three  format string parameters {z}, {x}, {y}
+            image_type(str): the type of the returned images as "jpeg" or "png", can usually be determined from the URL
+            attribution(str): set the attribution text for the WMTS provider
+            attribution_link(str): set the attribution link for the WMTS provider
+            
+    Note:  this WMTS layer can only currently work with the default Web Mercator (EPSG:3857) projection
     """
-    def __init__(self,url=default_osm_url):
+    def __init__(self,url=default_url,image_type=None,attribution=default_attribution, default_attribution_link=default_attribution_link):
         super(WMTS, self).__init__()
-        if url == WMTS.default_osm_url:
-            self.setInfo(name="WMTS",attribution="© OpenStreetMap contributors",url="http://www.openstreetmap.org/copyright")
+        if url == WMTS.default_url:
+            self.setInfo(name="WMTS",attribution=attribution,url=default_attribution_link)
         self.bounds = None
         self.width = None
         self.wmts_url = url
 
-        self.image = "png"
-        if self.wmts_url.endswith("jpg"):
-            self.image = "jpeg"
+        self.image = image_type
+
+        if not self.image:
+            if self.wmts_url.endswith("jpg") or self.wmts_url.endswith("jpeg"):
+                self.image = "jpeg"
+            else:
+                self.image = "png"
 
         self.projection = None
         self.content = {}
@@ -61,7 +70,7 @@ class WMTS(MapLayer):
         self.zoom_to = zoom_to
 
         if self.projection.getName() != "EPSG:3857":
-            raise Exception("WMTS layer does not yet support projection=\""+self.projection.getName()+"\" - currently only \"ESPG:3857\" is supported")
+            raise Exception("WMTS layer does not yet support projection=\""+self.projection.getName()+"\" - currently only \"EPSG:3857\" is supported")
 
     def getTileWidthM(self,lat_deg,zoom_level):
         return 40075016.686*math.cos(math.radians(lat_deg))/(2**zoom_level)
@@ -93,9 +102,6 @@ class WMTS(MapLayer):
     def build(self):
         (lonmin,latmin) = self.bounds[0]
         (lonmax,latmax) = self.bounds[1]
-
-        latmid = latmin + (latmax-latmin)/2
-        lonmid = lonmin + (lonmax-lonmin)/2
 
         (xmin,ymin) = self.projection.fromLonLat((lonmin,latmin))
         (xmax,ymax) = self.projection.fromLonLat((lonmax,latmax))
@@ -133,12 +139,10 @@ class WMTS(MapLayer):
             self.content[zoom_level]["offset_x"] = (256.0/zoom_level)*(xoff+(tx-txmin))
             self.content[zoom_level]["offset_y"] = (256.0/zoom_level)*(yoff+(ty-tymin))
             self.content[zoom_level]["tiles"] = {}
-            #print("scale="+str(self.scale))
-            #print("offset:"+str(self.offset_x)+","+str(self.offset_y))
 
             for tilex in range(txmin,txmax+1):
                 for tiley in range(tymin,tymax+1):
-                    url =  self.wmts_url%{"zoom":zoom,"tilex":tilex,"tiley":tiley}
+                    url =  self.wmts_url.replace("{z}",str(zoom)).replace("{x}",str(tilex)).replace("{y}",str(tiley))
                     self.content[zoom_level]["tiles"][(tilex,tiley)] = HttpCache.fetch(url)
 
             zoom_level *= 2
@@ -168,9 +172,7 @@ class WMTS(MapLayer):
             for (xtile,ytile) in tiles:
                 i = Image("image/%s"%(self.image),content_bytes=tiles[(xtile,ytile)],width=tilesz,height=tilesz)
                 i.draw(doc,ox+tilesz/2+tilesz*(xtile-xtilemin),oy+tilesz/2+tilesz*(ytile-ytilemin))
-                # r = rectangle(ox+256*(xtile-xtilemin),oy+256*(ytile-ytilemin),256,256,stroke_width=1,stroke="red")
-                # doc.add(r)
-            
+
             dx = self.width/2-offset_x
             dy = self.height/2-offset_y
             

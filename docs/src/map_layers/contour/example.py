@@ -24,7 +24,7 @@ resolution=100
 for y in range(resolution):
     data.append([computeHeight(x/resolution,y/resolution) for x in range(resolution)])
 
-m = Map(512,boundaries=((20.0,20.0),(21.0,21.0)),projection=Projections.ESPG_3857)
+m = Map(512,boundaries=((20.0,20.0),(21.0,21.0)),projection=Projections.EPSG_3857)
 c = Contour(data,10,stroke_width=0.5)
 m.addLayer(c)
 d.add(Box(m))

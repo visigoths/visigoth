@@ -15,7 +15,7 @@ d = Diagram(fill="white")
 gc = Geocoder()
 center = gc.fetchCenter("Berlin")
 bounds = Mapping.computeBoundaries(center,4000)
-m = Map(768,boundaries=bounds,projection=Projections.ESPG_3857)
+m = Map(768,boundaries=bounds,projection=Projections.EPSG_3857)
 
 wms1 = WMS("osm")
 wms1.setInfo("Open Street Map").setOpacity(0.5)

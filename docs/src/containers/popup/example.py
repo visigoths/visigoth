@@ -12,17 +12,17 @@ d = Diagram()
 gc = Geocoder()
 
 center = gc.fetchCenter("New York")
-bounds = Mapping.computeBoundaries(center,200000,projection=Projections.ESPG_3857)
+bounds = Mapping.computeBoundaries(center,200000,projection=Projections.EPSG_3857)
 
 timesq = gc.fetchCenter("Times Square, New York")
-timesq_bounds = Mapping.computeBoundaries(timesq,500,projection=Projections.ESPG_3857)
+timesq_bounds = Mapping.computeBoundaries(timesq,500,projection=Projections.EPSG_3857)
 
-timesq_m = Map(256,boundaries=timesq_bounds,projection=Projections.ESPG_3857,font_height=5)
+timesq_m = Map(256,boundaries=timesq_bounds,projection=Projections.EPSG_3857,font_height=5)
 timesq_wms = WMTS()
 timesq_m.addLayer(timesq_wms)
 timesq_popup = Popup(timesq_m,"Times Square",fill="white")
 
-m = Map(512,boundaries=bounds,projection=Projections.ESPG_3857,zoom_to=2)
+m = Map(512,boundaries=bounds,projection=Projections.EPSG_3857,zoom_to=2)
 
 wms = WMTS()
 wms.setInfo("Map")

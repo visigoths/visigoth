@@ -85,7 +85,7 @@ class TestGeoplot(unittest.TestCase):
     def test_geoplot_world(self):
         d = Diagram(fill="white")
 
-        wm = Map(width=1024, boundaries=((-180, -90), (180, 90)), projection=Projections.ESPG_4326)
+        wm = Map(width=1024, boundaries=((-180, -90), (180, 90)), projection=Projections.EPSG_4326)
 
         def make_box(lon_min,lat_min,lon_max,lat_max):
             b = []

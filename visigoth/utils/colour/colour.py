@@ -75,7 +75,12 @@ class Colour(object):
         r = col1[0]+int(frac*(col2[0]-col1[0]))
         g = col1[1]+int(frac*(col2[1]-col1[1]))
         b = col1[2]+int(frac*(col2[2]-col1[2]))
-        return "#%02X%02X%02X"%(r,g,b)
+        return self.rgb2colour((r,g,b))
+
+    def rgb2colour(self,rgb):
+        (r,g,b) = rgb
+        return "#%02X%02X%02X" % (r, g, b)
+
 
     @staticmethod
     def randomColour(opacity=None):
@@ -131,9 +136,9 @@ class Colour(object):
             else:
                 for (val0,val1,col) in self.palette_lookup:
                     if val >= val0 and val < val1:
-                        return col
+                        return self.rgb2colour(col)
                 if val == self.palette_lookup[-1][1]:
-                    return self.palette_lookup[-1][2]
+                    return self.rgb2colour(self.palette_lookup[-1][2])
 
             return self.defaultColour
 

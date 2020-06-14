@@ -33,7 +33,7 @@ class TestCompass(unittest.TestCase):
 
         d = Diagram()
         bounds  = ((-180,-60),(180,60))
-        m = Map(512,bounds,projection=Projections.ESPG_3857)
+        m = Map(512,bounds,projection=Projections.EPSG_3857)
         c = Compass()
         w = WMS()
         m.addLayer(w)

@@ -60,7 +60,7 @@ total_serious = len([1 for (_,_,cat) in data if cat == "serious" ])
 d = Diagram(fill="white")
 
 # create the map and and an open street map base layer
-m = Map(768,bounds,projection=Projections.ESPG_3857,zoom_to=2)
+m = Map(768,bounds,projection=Projections.EPSG_3857,zoom_to=2)
 wms = WMS("osm")
 wms.setInfo("Map")
 m.addLayer(wms)

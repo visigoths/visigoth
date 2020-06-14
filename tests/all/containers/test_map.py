@@ -36,8 +36,8 @@ class TestMap(unittest.TestCase):
 
         gc = Geocoder()
         center = gc.fetchCenter("Berlin")
-        bounds = Mapping.computeBoundaries(center,4000,projection=Projections.ESPG_3857)
-        m1 = Map(768, boundaries=bounds, projection=Projections.ESPG_3857)
+        bounds = Mapping.computeBoundaries(center,4000,projection=Projections.EPSG_3857)
+        m1 = Map(768, boundaries=bounds, projection=Projections.EPSG_3857)
         
         wms1 = WMS(type="osm")
         wms1.setInfo("Map")
@@ -49,8 +49,8 @@ class TestMap(unittest.TestCase):
 
         d.add(Box(s1))
 
-        bounds = Mapping.computeBoundaries(center,4000,projection=Projections.ESPG_3857)
-        m2 = Map(768,boundaries=bounds,projection=Projections.ESPG_3857)
+        bounds = Mapping.computeBoundaries(center,4000,projection=Projections.EPSG_3857)
+        m2 = Map(768,boundaries=bounds,projection=Projections.EPSG_3857)
 
         wms2 = WMS(type="osm")
         wms2.setInfo("Map")

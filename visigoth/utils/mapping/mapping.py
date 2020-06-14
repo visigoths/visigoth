@@ -36,7 +36,7 @@ class Mapping(object):
         boundaries(tuple): tuple containing (min-lon,min-lat) and (max-lon,max-lat) pairs   
     """
     @staticmethod
-    def computeBoundaries(center,distance,projection=Projections.ESPG_3857):
+    def computeBoundaries(center,distance,projection=Projections.EPSG_3857):
 
         # based on:
         # https://github.com/jfein/PyGeoTools/blob/master/geolocation.py

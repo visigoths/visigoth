@@ -32,31 +32,31 @@ class Projection(object):
     def toLonLat(self,e_n):
         pass
 
-class PROJ_ESPG_3857(Projection):
+class PROJ_EPSG_3857(Projection):
 
     C1 = 20037508.34
 
     def __init__(self):
-        super(PROJ_ESPG_3857,self).__init__("EPSG:3857")
+        super(PROJ_EPSG_3857,self).__init__("EPSG:3857")
 
     def fromLonLat(self,lon_lat):
         (lon,lat) = lon_lat
-        e = lon * PROJ_ESPG_3857.C1 / 180
+        e = lon * PROJ_EPSG_3857.C1 / 180
         n = math.log(math.tan((90+lat) * math.pi / 360.0)) / (math.pi / 180)
-        n = n * PROJ_ESPG_3857.C1 / 180
+        n = n * PROJ_EPSG_3857.C1 / 180
         return (e,n)
 
     def toLonLat(self,e_n):
         (e,n) = e_n
-        lon = e * 180 / PROJ_ESPG_3857.C1
-        lat = n * 180 / PROJ_ESPG_3857.C1
+        lon = e * 180 / PROJ_EPSG_3857.C1
+        lat = n * 180 / PROJ_EPSG_3857.C1
         lat = 180/math.pi * (2 * math.atan(math.exp(lat*math.pi/180)) - math.pi/2)
         return (lon,lat)
 
-class PROJ_ESPG_4326(Projection):
+class PROJ_EPSG_4326(Projection):
 
     def __init__(self):
-        super(PROJ_ESPG_4326,self).__init__("EPSG:4326")
+        super(PROJ_EPSG_4326,self).__init__("EPSG:4326")
 
     def fromLonLat(self,lon_lat):
         return lon_lat
@@ -66,13 +66,13 @@ class PROJ_ESPG_4326(Projection):
 
 class Projections(object):
 
-    ESPG_3857 = PROJ_ESPG_3857()
-    ESPG_4326 = PROJ_ESPG_4326()
-    IDENTITY = PROJ_ESPG_4326()
+    EPSG_3857 = PROJ_EPSG_3857()
+    EPSG_4326 = PROJ_EPSG_4326()
+    IDENTITY = PROJ_EPSG_4326()
 
     knownProjections = {
-        "3857": ESPG_3857,
-        "4326": ESPG_4326,
+        "3857": EPSG_3857,
+        "4326": EPSG_4326,
     }
 
     @staticmethod

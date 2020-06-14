@@ -10,7 +10,7 @@ d = Diagram()
 
 bounds = ((166.509144322, -46.641235447),(178.517093541, -34.4506617165))
 
-m1 = Map(512,boundaries=bounds,zoom_to=2,projection=Projections.ESPG_3857)
+m1 = Map(512,boundaries=bounds,zoom_to=2,projection=Projections.EPSG_3857)
 m1.addLayer(WMTS())
 m1.addLayer(Geoplot(multipoints=[Multipoint([(172.639847,-43.525650)],label="Christchurch",marker=True,fill="#FF000050")]))
 d.add(Box(m1))

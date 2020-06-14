@@ -128,10 +128,10 @@ function pubsubs_publish(source,value,channel) {
     }
 }
 
-class PROJ_ESPG_3857 {
+class PROJ_EPSG_3857 {
 
     constructor() {
-        this.name = "ESPG:3857";
+        this.name = "EPSG:3857";
         this.C1 = 20037508.34;
     }
 

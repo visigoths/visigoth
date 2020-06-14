@@ -62,7 +62,7 @@ class TestSearchManager(unittest.TestCase):
 
         gp = Geoplot(multipoints=multipoints)
 
-        m = Map(768,boundaries=bounds,projection=Projections.ESPG_3857)
+        m = Map(768,boundaries=bounds,projection=Projections.EPSG_3857)
 
         sm = SearchManager(height=150)
         d.add(sm)

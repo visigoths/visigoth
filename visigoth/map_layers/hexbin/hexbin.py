@@ -17,17 +17,12 @@
 #    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import math
-import urllib
 import os
-import json
 import os.path
 
-from visigoth.common import DiagramElement
-from visigoth.common.image import Image
-from visigoth.utils.mapping import Mapping
+from visigoth.utils.colour import ContinuousPalette
 from visigoth.map_layers import MapLayer
-from visigoth.map_layers.contour import Contour
-from visigoth.svg import hexagon, circle
+from visigoth.svg import hexagon
 from visigoth.utils.js import Js
 
 from visigoth.utils.data import Dataset
@@ -49,7 +44,9 @@ class Hexbin(MapLayer):
         super(Hexbin, self).__init__()
         dataset = Dataset(data)
         self.data = dataset.query([lon,lat])
-        self.palette = palette
+        if palette == None:
+            palette = ContinuousPalette()
+        self.setPalette(palette)
         self.nr_bins_across = nr_bins_across
         self.width = None
         self.height = None
@@ -138,8 +135,9 @@ class Hexbin(MapLayer):
                         if freq > maxfreq:
                             maxfreq = freq
 
-        self.palette.getColour(0)
-        self.palette.getColour(maxfreq)
+        self.getPalette().getColour(0)
+        self.getPalette().getColour(maxfreq)
+        self.getPalette().build()
 
     def draw(self,doc,cx,cy):
         ox = cx - self.width/2
@@ -148,7 +146,7 @@ class Hexbin(MapLayer):
             for col in range(0,self.nr_bins_across):
                 (hx,hy) = self.centers[(col,row)]
                 freq = self.freqs[(col,row)]
-                col = self.palette.getColour(freq)
+                col = self.getPalette().getColour(freq)
                 h = hexagon(ox+hx,oy+hy,self.dlength,col,self.stroke,self.stroke_width)
                 doc.add(h)
 

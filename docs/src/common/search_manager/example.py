@@ -39,7 +39,7 @@ for i in range(20):
 
 gp = Geoplot(multipoints=multipoints)
 
-m = Map(768,boundaries=bounds,projection=Projections.ESPG_3857)
+m = Map(768,boundaries=bounds,projection=Projections.EPSG_3857)
 
 wms = WMS("osm")
 wms.setInfo("Map")
