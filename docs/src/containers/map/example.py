@@ -20,8 +20,8 @@ s.getPalette().setDefaultColour("darkred")
 wms = WMS(type="osm")
 wms.setInfo("Map")
 
-m.addLayer(wms)
-m.addLayer(s)
+m.add(wms)
+m.add(s)
 d.add(Text("Berlin Stadtmitte"))
 d.add(Box(m))
 

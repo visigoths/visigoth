@@ -3,18 +3,20 @@
 #    Visigoth: A lightweight Python3 library for rendering data visualizations in SVG
 #    Copyright (C) 2020  Niall McCarroll
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#   Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+#   and associated documentation files (the "Software"), to deal in the Software without 
+#   restriction, including without limitation the rights to use, copy, modify, merge, publish,
+#   distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
+#   Software is furnished to do so, subject to the following conditions:
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
+#   The above copyright notice and this permission notice shall be included in all copies or 
+#   substantial portions of the Software.
 #
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+#   BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+#   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+#   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import unittest
 import random
@@ -41,8 +43,8 @@ class TestHexbin(unittest.TestCase):
 
         palette1 = ContinuousPalette()
 
-        m1.addLayer(Hexbin(data1, nr_bins_across=10, palette=palette1,stroke="purple",stroke_width=3))
-        m1.addLayer(Scatter(data1))
+        m1.add(Hexbin(data1, nr_bins_across=10, palette=palette1,stroke="purple",stroke_width=3))
+        m1.add(Scatter(data1))
         legend1 = Legend(palette1,512)
         d.add(m1)
         d.add(legend1)
@@ -55,14 +57,13 @@ class TestHexbin(unittest.TestCase):
 
         palette2 = ContinuousPalette()
 
-        m2.addLayer(Hexbin(data2, nr_bins_across=15, palette=palette2,stroke=None))
-        m2.addLayer(Scatter(data2))
+        m2.add(Hexbin(data2, nr_bins_across=15, palette=palette2,stroke=None))
+        m2.add(Scatter(data2))
         legend2 = Legend(palette2, 512)
         d.add(m2)
         d.add(legend2)
 
-        svg = d.draw()
-        TestUtils.output(svg,"test_hexbin.svg")
+        TestUtils.draw_output(d,"test_hexbin")
 
 if __name__ == "__main__":
     unittest.main()

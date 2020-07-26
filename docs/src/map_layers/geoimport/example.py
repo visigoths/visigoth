@@ -13,7 +13,7 @@ m1 = Map(512)
 
 path = os.path.join(os.path.split(__file__)[0],"nz_region.geojson")
 
-m1.addLayer(Geoimport(path,polygon_style=lambda p:{"tooltip":p["REGC2016_N"],"fill":rng.choice(["red","orange","yellow"])}))
+m1.add(Geoimport(path,polygon_style=lambda p:{"tooltip":p["REGC2016_N"],"fill":rng.choice(["red","orange","yellow"])}))
 d.add(m1)
 
 html = d.draw(format="html")

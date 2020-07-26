@@ -9,8 +9,8 @@ d = Diagram()
 
 bounds  = ((-180,-70),(180,70))
 m = Map(512,bounds)
-m.addLayer(WMS(type="osm"))
-m.addLayer(Compass())
+m.add(WMS(type="osm"))
+m.add(Compass())
 d.add(Box(Text("Compass Test",text_attributes={"font-style":"italic"})))
 d.add(Box(m))
 

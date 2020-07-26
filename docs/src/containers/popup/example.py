@@ -19,7 +19,7 @@ timesq_bounds = Mapping.computeBoundaries(timesq,500,projection=Projections.EPSG
 
 timesq_m = Map(256,boundaries=timesq_bounds,projection=Projections.EPSG_3857,font_height=5)
 timesq_wms = WMTS()
-timesq_m.addLayer(timesq_wms)
+timesq_m.add(timesq_wms)
 timesq_popup = Popup(timesq_m,"Times Square",fill="white")
 
 m = Map(512,boundaries=bounds,projection=Projections.EPSG_3857,zoom_to=2)
@@ -29,8 +29,8 @@ wms.setInfo("Map")
 
 gp = Geoplot(multipoints=[Multipoint([timesq],label="Times Square",popup=timesq_popup)])
 
-m.addLayer(wms)
-m.addLayer(gp)
+m.add(wms)
+m.add(gp)
 d.add(Space(100))
 d.add(m)
 

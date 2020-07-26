@@ -26,7 +26,7 @@ data = [jitter(cx,cy,cr) for (cx,cy,cr) in cluster_centers for x in range(0,20)]
 m1 = Map(512,bounds,zoom_to=4)
 # alg = KMeansAlgorithm(cluster_count_min=3,cluster_count_max=8)
 alg = AgglomerativeAlgorithm(max_distance=10000)
-m1.addLayer(Cluster(data,algorithm=alg))
+m1.add(Cluster(data,algorithm=alg))
 d.add(Box(m1))
 
 html = d.draw(format="html")

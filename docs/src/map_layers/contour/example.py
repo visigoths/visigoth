@@ -26,7 +26,7 @@ for y in range(resolution):
 
 m = Map(512,boundaries=((20.0,20.0),(21.0,21.0)),projection=Projections.EPSG_3857)
 c = Contour(data,10,stroke_width=0.5)
-m.addLayer(c)
+m.add(c)
 d.add(Box(m))
 
 html = d.draw(format="html")

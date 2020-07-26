@@ -63,7 +63,7 @@ d = Diagram(fill="white")
 m = Map(768,bounds,projection=Projections.EPSG_3857,zoom_to=2)
 wms = WMS("osm")
 wms.setInfo("Map")
-m.addLayer(wms)
+m.add(wms)
 
 # define a palette for the heatmap ranging from white to blue to red
 palette = ContinuousPalette(colourMap=[(1,1,1),(0,0,1),(1,0,0)])
@@ -71,7 +71,7 @@ palette = ContinuousPalette(colourMap=[(1,1,1),(0,0,1),(1,0,0)])
 # define the heatmap
 heatmap = KDE([(lon,lat) for (lon,lat,_) in data],bandwidth=300,nr_samples_across=100,palette=palette,label_fn=None)
 heatmap.setOpacity(0.5)
-m.addLayer(heatmap)
+m.add(heatmap)
 
 # define a layer plotting a point at the location of each accident
 mp1 = Multipoint([(lon,lat) for (lon,lat,cat) in data if cat == "fatal"],fill="red",marker=False,radius=8)
@@ -79,7 +79,7 @@ mp2 = Multipoint([(lon,lat) for (lon,lat,cat) in data if cat == "serious"],fill=
 gp = Geoplot(multipoints=[mp1,mp2])
 gp.setInfo("UK Department for Transport","","UK Department for Transport","http://data.dft.gov.uk/road-accidents-safety-data/dftRoadSafetyData_Accidents_2018.csv")
 gp.setVisible(False) # hide this layer by default
-m.addLayer(gp)
+m.add(gp)
 
 # add area chart showing the distribution of all accidents
 area_palette = DiscretePalette()

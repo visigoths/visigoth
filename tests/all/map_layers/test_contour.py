@@ -3,18 +3,20 @@
 #    Visigoth: A lightweight Python3 library for rendering data visualizations in SVG
 #    Copyright (C) 2020  Niall McCarroll
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#   Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+#   and associated documentation files (the "Software"), to deal in the Software without
+#   restriction, including without limitation the rights to use, copy, modify, merge, publish,
+#   distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
+#   Software is furnished to do so, subject to the following conditions:
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
+#   The above copyright notice and this permission notice shall be included in all copies or
+#   substantial portions of the Software.
 #
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+#   BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+#   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+#   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import unittest
 import math
@@ -46,7 +48,7 @@ class TestContour(unittest.TestCase):
 
         m0 = Map(512, projection=Projections.IDENTITY)
         c0 = Contour(data0, 5, stroke_width=0.5)
-        m0.addLayer(c0)
+        m0.add(c0)
         d.add(Box(m0))
 
         peaks1 = [(0.3, 0.3, 100), (0.1, 0.9, 150), (0.6, 0.7, 120)]
@@ -56,7 +58,7 @@ class TestContour(unittest.TestCase):
 
         m1 = Map(512, projection=Projections.IDENTITY)
         c1 = Contour(data1, 10, stroke_width=0.5)
-        m1.addLayer(c1)
+        m1.add(c1)
         d.add(Box(m1))
 
         peaks2 = [(x/10,y/10,10) for x in [2,6] for y in [3,9]]
@@ -67,31 +69,27 @@ class TestContour(unittest.TestCase):
 
         m2 = Map(512, projection=Projections.IDENTITY)
         c2 = Contour(data2, 1, stroke_width=2, stroke="blue")
-        m2.addLayer(c2)
+        m2.add(c2)
         d.add(Box(m2))
 
-
-
-        svg = d.draw()
-        TestUtils.output(svg,"test_contour.svg")
+        TestUtils.draw_output(d,"test_contour")
 
     def test_edge(self):
         d = Diagram(fill="white")
 
         m1 = Map(512, boundaries=((0, 0), (1, 1)), projection=Projections.IDENTITY)
         c1 = Contour() # empty contour plot?
-        m1.addLayer(c1)
+        m1.add(c1)
         d.add(Box(m1))
 
         data2 = [[1, 0, 0, 0, 1], [0, 0, 1, 0, 0], [0, 1, 2.5, 1, 0], [0, 0, 1, 0, 0], [1, 0, 0, 0, 1]]
 
         m2 = Map(512, boundaries=((0, 0), (1, 1)), projection=Projections.IDENTITY)
         c2 = Contour(data2, 1, stroke_width=0.5)
-        m2.addLayer(c2)
+        m2.add(c2)
         d.add(Box(m2))
 
-        svg = d.draw()
-        TestUtils.output(svg, "test_contour_edge.svg")
+        TestUtils.draw_output(d, "test_contour_edge")
 
     def test_negative(self):
         try:

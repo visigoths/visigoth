@@ -3,18 +3,20 @@
 #    Visigoth: A lightweight Python3 library for rendering data visualizations in SVG
 #    Copyright (C) 2020  Niall McCarroll
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#   Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+#   and associated documentation files (the "Software"), to deal in the Software without 
+#   restriction, including without limitation the rights to use, copy, modify, merge, publish,
+#   distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
+#   Software is furnished to do so, subject to the following conditions:
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
+#   The above copyright notice and this permission notice shall be included in all copies or 
+#   substantial portions of the Software.
 #
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+#   BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+#   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+#   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 import os.path
@@ -29,12 +31,12 @@ class Chloropleth(Geoimport):
     Create a Choloropleth plot from a geojson file
 
     Arguments:
-        path : file path to a geojson file
+        path(str) : file path to a geojson file
         valueNameOrFn(str|function) : the name of the property (or function of the properties dict) to provide the value to visualize
-        labelNameOrFn(str|function) : the name of the property (or function of the properties dict) to provide the label
-        palette(list) : a DiscretePalette|ContinuousPalette object for mapping values to colours
 
     Keyword Arguments:
+        labelNameOrFn(str|function) : the name of the property (or function of the properties dict) to provide the label
+        palette(DiscretePalette|ContinuousPalette) : a DiscretePalette|ContinuousPalette object for mapping values to colours
         stroke (str): stroke color
         stroke_width (int): stroke width
 
@@ -42,7 +44,7 @@ class Chloropleth(Geoimport):
 
     """
 
-    def __init__(self, path, valueNameOrFn, labelNameOrFn, palette, stroke="black",stroke_width=2):
+    def __init__(self, path, valueNameOrFn, labelNameOrFn=None, palette=None, stroke="black",stroke_width=2):
         super().__init__(path,polygon_style=lambda props:self.getPolygonStyle(props))
         self.path = path
         self.valueNameOrFn = valueNameOrFn
@@ -53,7 +55,7 @@ class Chloropleth(Geoimport):
         self.setPalette(palette)
         self.stroke_width = stroke_width
         for props in self.getPolygonProperties():
-            self.getPalette().getColour(self.valueNameOrFn(props))
+            col = self.getPalette().getColour(self.valueNameOrFn(props))
 
     def getFill(self,geojson_props):
         if isinstance(self.valueNameOrFn,str):

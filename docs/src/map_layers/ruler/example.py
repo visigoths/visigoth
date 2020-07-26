@@ -10,8 +10,8 @@ d = Diagram(fill="white")
 bounds = ((166.509144322, -46.641235447),(178.517093541, -34.4506617165))
 
 m = Map(512,bounds,zoom_to=2)
-m.addLayer(WMS())
-m.addLayer(Ruler())
+m.add(WMS())
+m.add(Ruler())
 d.add(Box(m))
 
 html = d.draw(format="html")

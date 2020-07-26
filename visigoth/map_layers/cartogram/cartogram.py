@@ -3,18 +3,20 @@
 #    Visigoth: A lightweight Python3 library for rendering data visualizations in SVG
 #    Copyright (C) 2020  Niall McCarroll
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#   Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+#   and associated documentation files (the "Software"), to deal in the Software without 
+#   restriction, including without limitation the rights to use, copy, modify, merge, publish,
+#   distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
+#   Software is furnished to do so, subject to the following conditions:
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
+#   The above copyright notice and this permission notice shall be included in all copies or 
+#   substantial portions of the Software.
 #
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+#   BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+#   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+#   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 from math import sqrt
@@ -105,9 +107,6 @@ class Cartogram(MapLayer):
         self.categories = {}
         self.links = {}
 
-    def getBoundaries(self):
-        return self.boundaries
-
     def getWidth(self):
         return self.width
 
@@ -126,7 +125,7 @@ class Cartogram(MapLayer):
             return None
         return d
 
-    def build(self):
+    def build(self,fmt):
         if self.built:
             return
 
@@ -147,8 +146,14 @@ class Cartogram(MapLayer):
         rng = random.Random(0)
 
         progress = Progress("cartogram")
+        progress.report("building", 0)
 
         for iter in range(self.iterations):
+
+            # gradually increase the force attracting each point to its original position...
+            # ... whilst reducing the force repelling overlapping points
+            f1 = self.f1/2 + ((self.f1/2) * ((iter+1)/self.iterations))
+            f2 = self.f2*2 - (self.f2 * ((iter+1))/self.iterations)
 
             overlaps = 0
             error = 0
@@ -160,13 +165,18 @@ class Cartogram(MapLayer):
                 nr = plot["r"]
 
                 d = distance(nx,ny,ox,oy)
+
+                # compute the forces on this point, fx and fy
                 fx = 0
                 fy = 0
+
+                # first, attract the point to its original position
                 if d > 0.0:
-                    fx = (ox-nx)*self.f1
-                    fy = (oy-ny)*self.f1
+                    fx = (ox-nx)*f1
+                    fy = (oy-ny)*f1
                     error += d
 
+                # next, repel the point from any overlapping points
                 for otherplot in self.plots:
                     if plot["id"] != otherplot["id"]:
                         opx = otherplot["x"]
@@ -184,7 +194,7 @@ class Cartogram(MapLayer):
                             ny += nudge*rng.random()-nudge*0.5
                         d = self.distance_lteq(nx,ny,opx,opy,overlap_radius)
                         if d != None:
-                            fac = -1*self.f2*(d-overlap_radius)/overlap_radius
+                            fac = -1*f2*(d-overlap_radius)/overlap_radius
                             fx += (nx-opx)*fac
                             fy += (ny-opy)*fac
                             overlaps += 1
@@ -192,7 +202,7 @@ class Cartogram(MapLayer):
                 plot["fx"] = fx
                 plot["fy"] = fy
 
-            if overlaps < 3 and (best_error == None or error < best_error):
+            if best_error == None or error < best_error:
                 best_error = error
                 best_plots = copy.deepcopy(self.plots)
 
@@ -203,7 +213,8 @@ class Cartogram(MapLayer):
 
                 x = x + plot["fx"]
                 y = y + plot["fy"]
-                # ensure the plot is completely visible
+                # ensure the point is completely visible
+                # ...stop the point from going out of the plot boundaries
                 if x - d < self.x0:
                     x = self.x0+d
                 if x + d > self.x1:

@@ -3,18 +3,20 @@
 #    Visigoth: A lightweight Python3 library for rendering data visualizations in SVG
 #    Copyright (C) 2020  Niall McCarroll
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#   Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+#   and associated documentation files (the "Software"), to deal in the Software without 
+#   restriction, including without limitation the rights to use, copy, modify, merge, publish,
+#   distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
+#   Software is furnished to do so, subject to the following conditions:
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
+#   The above copyright notice and this permission notice shall be included in all copies or 
+#   substantial portions of the Software.
 #
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+#   BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+#   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+#   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
 import os.path
@@ -37,12 +39,17 @@ class Alternative(DiagramElement):
     def getHeight(self):
         return self.height
 
-    def build(self):
-        for element in self.elements:
-            element.build()
+    def build(self,fmt):
+        if fmt == "html":
+            for element in self.elements:
+                element.build(fmt)
 
-        self.width = max([element.getWidth() for element in self.elements])
-        self.height = max([element.getHeight() for element in self.elements])
+            self.width = max([element.getWidth() for element in self.elements])
+            self.height = max([element.getHeight() for element in self.elements])
+        else:
+            self.elements[0].build(fmt)
+            self.width = self.elements[0].width
+            self.height = self.elements[0].height
 
     def add(self,element):
         """
@@ -59,17 +66,19 @@ class Alternative(DiagramElement):
         self.elements.remove(element)
 
     def draw(self,doc,cx,cy):
-        group_ids = []
-        for e in self.elements:
-            doc.openGroup(group_id=e.getId())
-            e.draw(doc, cx, cy)
-            group_ids.append(e.getId())
-            doc.closeGroup()
+        if doc.getFormat() == "html":
+            group_ids = []
+            for e in self.elements:
+                doc.openGroup(group_id=e.getId())
+                e.draw(doc, cx, cy)
+                group_ids.append(e.getId())
+                doc.closeGroup()
 
-        with open(os.path.join(os.path.split(__file__)[0],"alternative.js"),"r") as jsfile:
-            jscode = jsfile.read()
+            with open(os.path.join(os.path.split(__file__)[0],"alternative.js"),"r") as jsfile:
+                jscode = jsfile.read()
 
-        config = { "group_ids": group_ids }
+            config = { "group_ids": group_ids }
 
-        Js.registerJs(doc,self,jscode,"alternative",cx,cy,config)
-
+            Js.registerJs(doc,self,jscode,"alternative",cx,cy,config)
+        else:
+            self.elements[0].draw(doc,cx,cy)

@@ -66,8 +66,8 @@ wms.setInfo("Map")
 # create a layer with a marker for "HelloWorld"
 gps = Geoplot(multipoints=[Multipoint([center],label="Hello World",tooltip="Hello World")])
 
-m.addLayer(wms)
-m.addLayer(gps)
+m.add(wms)
+m.add(gps)
 
 # compose the diagram
 d.add(Text("Where does \"Hello World\" Geolocate to?",font_height=18))

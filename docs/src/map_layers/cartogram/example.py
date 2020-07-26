@@ -35,7 +35,7 @@ data = [gen(cx,cy,0.1) for (cx,cy) in cluster_centers for x in range(0,10)]
 bounds  = ((0.0,0.0),(1.0,1.0))
 m = Map(512,bounds,projection=Projections.IDENTITY)
 c = Cartogram(data, palette=palette, marker_manager=mm, lon=0, lat=1, colour=2, label=3, size=4)
-m.addLayer(c)
+m.add(c)
 legend = Legend(palette, width=500, legend_columns=3)
 d.add(Box(m))
 d.add(legend)

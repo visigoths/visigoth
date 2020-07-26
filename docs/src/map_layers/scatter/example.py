@@ -15,7 +15,7 @@ m1 = Map(512,bounds)
 scatter = Scatter(data,lon=0,lat=1)
 scatter.getMarkerManager().setMarkerType("pin").setDefaultRadius(10)
 scatter.getPalette().setDefaultColour("blue")
-m1.addLayer(scatter)
+m1.add(scatter)
 d.add(Box(m1))
 
 html = d.draw(format="html")

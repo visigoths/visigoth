@@ -3,18 +3,20 @@
 #    Visigoth: A lightweight Python3 library for rendering data visualizations in SVG
 #    Copyright (C) 2020  Niall McCarroll
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#   Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+#   and associated documentation files (the "Software"), to deal in the Software without
+#   restriction, including without limitation the rights to use, copy, modify, merge, publish,
+#   distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
+#   Software is furnished to do so, subject to the following conditions:
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
+#   The above copyright notice and this permission notice shall be included in all copies or
+#   substantial portions of the Software.
 #
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+#   BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+#   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+#   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 import os
@@ -96,8 +98,8 @@ class Geoplot(MapLayer):
         self.multipolys = []
         self.multilines = []
 
-    def configureLayer(self,ownermap,width,height,boundaries,projection,zoom_to):
-        super().configureLayer(ownermap,width,height,boundaries,projection,zoom_to)
+    def configureLayer(self,ownermap,width,height,boundaries,projection,zoom_to,fmt):
+        super().configureLayer(ownermap,width,height,boundaries,projection,zoom_to,fmt)
         (self.min_lon,self.min_lat) = boundaries[0]
         (self.max_lon,self.max_lat) = boundaries[1]
 
@@ -205,7 +207,8 @@ class Geoplot(MapLayer):
             length += math.sqrt((x1-x2)**2 + (y1-y2)**2)
         return length
 
-    def build(self):
+    def build(self,fmt):
+        super().build(fmt)
         if self.boundaries:
             (self.x_axis_min,self.y_axis_min) = self.projection.fromLonLat(self.boundaries[0])
             (self.x_axis_max,self.y_axis_max) = self.projection.fromLonLat(self.boundaries[1])
@@ -218,7 +221,7 @@ class Geoplot(MapLayer):
         for (title,trigger_ids,popup,x,y) in self.popups:
             for trigger_id in trigger_ids:
                 self.popup_map[trigger_id] = popup.getId()
-            popup.build()
+            popup.build(doc.getFormat())
             oy = y
             y -= 20+popup.getHeight()/2
             doc.getDiagram().connect(self,"toggle",popup,"toggle")
@@ -302,23 +305,30 @@ class Geoplot(MapLayer):
             longest_len = 0
             longest_tps = None
             lids = []
+
             for lidx in range(len(lines)):
                 line = lines[lidx]
-                tps = [self.transform(point,ox,oy) for point in line]
-                if longest_tps == None or longest_len < self.getLineLength(tps):
-                    longest_tps = tps
-                ls = mp.draw(doc,tps)
-                if label:
-                    self.addLineLabel(tps,label,doc)
-                for (l,sw) in ls:
-                    lid = l.getId()
-                    self.lines[lid] = { "sw":sw }
-                    if mpid:
-                        self.lines[lid]["id"] = mpid
-                    if category:
-                        self.lines[lid]["category"] = category
-                
-                    lids.append(lid)
+                include = False
+                for point in line:
+                    if self.inarea(point):
+                        include = True
+
+                if include:
+                    tps = [self.transform(point,ox,oy) for point in line]
+                    if longest_tps == None or longest_len < self.getLineLength(tps):
+                        longest_tps = tps
+                    ls = mp.draw(doc,tps)
+                    if label:
+                        self.addLineLabel(tps,label,doc)
+                    for (l,sw) in ls:
+                        lid = l.getId()
+                        self.lines[lid] = { "sw":sw }
+                        if mpid:
+                            self.lines[lid]["id"] = mpid
+                        if category:
+                            self.lines[lid]["category"] = category
+
+                        lids.append(lid)
             group_id = doc.closeGroup().getId()
             if popup:
                 (x,y,_) = self.getLineCenter(longest_tps)
@@ -357,21 +367,29 @@ class Geoplot(MapLayer):
             largest_area = 0
             largest_poly = None
             pids = []
+
             for pidx in range(len(polys)):
+                include = False
+
                 poly = polys[pidx]
-                plotrings = [self.simplify([self.transform(point,ox,oy) for point in ring]) for ring in poly]
-                p = mp.draw(doc,plotrings)
-                if largest_poly == None or self.bbox_area(plotrings[0]) > largest_area:
-                    largest_poly = plotrings[0]
-                if label:
-                    self.addPolygonLabel(plotrings,label,doc)
-                pid = p.getId()
-                self.polygons[pid] = { "sw":mp.getStrokeWidth() }
-                if mpid:
-                    self.polygons[pid]["id"] = mpid
-                if category:
-                    self.polygons[pid]["category"] = category
-                pids.append(pid)
+                for ring in poly:
+                    for point in ring:
+                        if self.inarea(point):
+                            include = True
+                if include:
+                    plotrings = [self.simplify([self.transform(point,ox,oy) for point in ring]) for ring in poly]
+                    p = mp.draw(doc,plotrings)
+                    if largest_poly == None or self.bbox_area(plotrings[0]) > largest_area:
+                        largest_poly = plotrings[0]
+                    if label:
+                        self.addPolygonLabel(plotrings,label,doc)
+                    pid = p.getId()
+                    self.polygons[pid] = { "sw":mp.getStrokeWidth() }
+                    if mpid:
+                        self.polygons[pid]["id"] = mpid
+                    if category:
+                        self.polygons[pid]["category"] = category
+                    pids.append(pid)
 
             group_id = doc.closeGroup().getId()
             if popup:

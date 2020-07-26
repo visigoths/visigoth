@@ -3,18 +3,20 @@
 #    Visigoth: A lightweight Python3 library for rendering data visualizations in SVG
 #    Copyright (C) 2020  Niall McCarroll
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#   Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+#   and associated documentation files (the "Software"), to deal in the Software without 
+#   restriction, including without limitation the rights to use, copy, modify, merge, publish,
+#   distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
+#   Software is furnished to do so, subject to the following conditions:
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
+#   The above copyright notice and this permission notice shall be included in all copies or 
+#   substantial portions of the Software.
 #
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+#   BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+#   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+#   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import unittest
 import random
@@ -45,7 +47,7 @@ class TestGeoplot(unittest.TestCase):
                    Multipoint(data3, label="data3", radius=10,fill="blue"),
                    Multipoint(data4, label="data4", radius=10, fill="purple")]
 
-        m1.addLayer(Geoplot(multipoints=multipoints1))
+        m1.add(Geoplot(multipoints=multipoints1))
         d.add(Box(m1))
 
         lines1 = [[(rng.random(), rng.random()),(rng.random(), rng.random())] for x in range(0,10)]
@@ -58,7 +60,7 @@ class TestGeoplot(unittest.TestCase):
                       Multiline(lines3, label="lines3", fill="blue"),
                       Multiline(lines4, label="lines4", fill="purple")]
         m2 = Map(512, boundaries=((0, 0), (1, 1)))
-        m2.addLayer(Geoplot(multilines=multilines1))
+        m2.add(Geoplot(multilines=multilines1))
         d.add(Box(m2))
 
         squares1 = [[[(x+0.2,y+0.2),(x+0.2,y),(x,y),(x,y+0.2)]] for (x,y) in [(rng.random(), rng.random()) for r in range(0, 10)]]
@@ -67,7 +69,7 @@ class TestGeoplot(unittest.TestCase):
         multipolys1 = [Multipolygon(squares1,label="squares1",fill="green"),
                       Multipolygon(squares2,label="squares2",fill="red")]
         m3 = Map(512, boundaries=((0, 0), (1, 1)))
-        m3.addLayer(Geoplot(multipolys=multipolys1))
+        m3.add(Geoplot(multipolys=multipolys1))
         d.add(Box(m3))
 
         square = [(0.1,0.9),(0.1,0.1),(0.9,0.1),(0.9,0.9)]
@@ -76,11 +78,10 @@ class TestGeoplot(unittest.TestCase):
 
         multipolys2 = [Multipolygon([[square]+holes], label="squares_with_holes", fill="red")]
         m4 = Map(512, boundaries=((0, 0), (1, 1)))
-        m4.addLayer(Geoplot(multipolys=multipolys2))
+        m4.add(Geoplot(multipolys=multipolys2))
         d.add(Box(m4))
 
-        svg = d.draw()
-        TestUtils.output(svg,"test_geoplot.svg")
+        TestUtils.draw_output(d,"test_geoplot")
 
     def test_geoplot_world(self):
         d = Diagram(fill="white")
@@ -103,13 +104,12 @@ class TestGeoplot(unittest.TestCase):
 
         poly = Multipolygon([[vb1],[ne],[nw],[se],[sw]], stroke_width=0, fill="#FF000080")
 
-        wm.addLayer(WMS())
+        wm.add(WMS())
         geoplot = Geoplot(multipolys=[poly])
-        wm.addLayer(geoplot)
+        wm.add(geoplot)
         d.add(wm)
 
-        svg = d.draw()
-        TestUtils.output(svg, "test_geoplot_world.svg")
+        TestUtils.draw_output(d, "test_geoplot_world")
 
 
 if __name__ == "__main__":

@@ -3,18 +3,20 @@
 #    Visigoth: A lightweight Python3 library for rendering data visualizations in SVG
 #    Copyright (C) 2020  Niall McCarroll
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#   Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+#   and associated documentation files (the "Software"), to deal in the Software without
+#   restriction, including without limitation the rights to use, copy, modify, merge, publish,
+#   distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
+#   Software is furnished to do so, subject to the following conditions:
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
+#   The above copyright notice and this permission notice shall be included in all copies or
+#   substantial portions of the Software.
 #
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+#   BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+#   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+#   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import json
 import os
@@ -90,7 +92,7 @@ class Map(DiagramElement):
             lon_delta = lon_range * frac * 0.5
             self.boundaries = ((min_lon-lon_delta,min_lat-lat_delta),(max_lon+lon_delta,max_lat+lat_delta))
 
-    def build(self):
+    def build(self,fmt):
         if self.built:
             return
         self.built = True
@@ -145,8 +147,8 @@ class Map(DiagramElement):
             self.elements.append((layer_element,layer_element.getId()))
 
         for idx in range(len(self.elements)):
-            self.elements[idx][0].configureLayer(self,self.content_width,self.content_height,self.boundaries,self.projection,self.zoom_to)
-            self.elements[idx][0].build()
+            self.elements[idx][0].configureLayer(self,self.content_width,self.content_height,self.boundaries,self.projection,self.zoom_to,fmt)
+            self.elements[idx][0].build(fmt)
 
         self.attributions = []
         self.displayed = set()
@@ -160,17 +162,17 @@ class Map(DiagramElement):
                     if displaytext not in self.displayed:
                         self.displayed.add(displaytext)
                         t = Text(displaytext,max_width=self.content_width,font_height=self.font_height,text_attributes=self.text_attributes)
-                        t.build()
+                        t.build(fmt)
                         self.attributions.append(t)
                         self.height += t.getHeight()
                         url = md.getUrl()
                         if url:
                             t = Text(url,max_width=self.content_width,font_height=self.font_height,url=url,text_attributes=self.text_attributes)
-                            t.build()
+                            t.build(fmt)
                             self.attributions.append(t)
                             self.height += t.getHeight()
 
-    def addLayer(self,layer_element):
+    def add(self,layer_element):
         """
         Add a layer to the map
 
@@ -253,7 +255,7 @@ class Map(DiagramElement):
         doc.setPopGroups(doc.getPopGroups()+cached_pop_groups)
         
         for attribution_text in self.attributions:
-            attribution_text.build()
+            attribution_text.build(doc.getFormat())
             ah = attribution_text.getHeight()
             attribution_text.draw(doc,cx,oy+ah/2)
             oy += ah
@@ -262,7 +264,7 @@ class Map(DiagramElement):
             px = cx - self.width/2 + self.panzoom_radius + 10
             py = cy - self.height/2 + self.panzoom_radius + 10
             pz = PanZoom(self.zoom_to,initial_zoom=0,radius=self.panzoom_radius)
-            pz.build()
+            pz.build(doc.getFormat())
             pz.draw(doc,px,py)
             doc.getDiagram().connect(pz,"pan",self,"pan")
             doc.getDiagram().connect(pz,"zoom",self,"zoom")

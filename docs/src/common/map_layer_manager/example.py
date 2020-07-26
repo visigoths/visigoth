@@ -27,8 +27,8 @@ mlm = MapLayerManager([{"layer":wms1,"label":"Satellite"},{"layer":wms2,"label":
                       title="Controls",height=150)
 d.add(mlm)
 
-m.addLayer(wms1)
-m.addLayer(wms2)
+m.add(wms1)
+m.add(wms2)
 d.add(Text("Berlin Stadtmitte"))
 d.add(Box(m))
 d.connect(mlm,"manage_layers",m,"manage_layers")

@@ -3,18 +3,20 @@
 #    Visigoth: A lightweight Python3 library for rendering data visualizations in SVG
 #    Copyright (C) 2020  Niall McCarroll
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#   Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+#   and associated documentation files (the "Software"), to deal in the Software without 
+#   restriction, including without limitation the rights to use, copy, modify, merge, publish,
+#   distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
+#   Software is furnished to do so, subject to the following conditions:
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
+#   The above copyright notice and this permission notice shall be included in all copies or 
+#   substantial portions of the Software.
 #
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+#   BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+#   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+#   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import math
 import os
@@ -24,6 +26,7 @@ from visigoth.utils.colour import ContinuousPalette
 from visigoth.map_layers import MapLayer
 from visigoth.svg import hexagon
 from visigoth.utils.js import Js
+from visigoth.utils.term.progress import Progress
 
 from visigoth.utils.data import Dataset
 
@@ -35,15 +38,17 @@ class Hexbin(MapLayer):
     Keyword Arguments:
         lat (str or int): Identify the column to provide the latitude value for each point
         lon (str or int): Identify the column to provide the longitude value for each point
-        nr_bins_across: number of bins to arrange across the plot
+        colour (float or int): Attach a magnitude value to each point (if None, all points are assigned a magnitude of 1)
+        nr_bins_across: number of hexagonal bins to arrange across the plot
         palette(ContinuousPalette) : define the colours used in the plot
         stroke(str) : the colour to use for bin lines
         stroke_width(float) : the width (in pixels) to use for bin lines
+        draw_empty_bins(bool) : whether to draw hexagonal bins with zero value
     """
-    def __init__(self,data,lon=0,lat=1,nr_bins_across=10,palette=None,stroke="grey",stroke_width=1):
+    def __init__(self,data,lon=0,lat=1,colour=None,nr_bins_across=10,palette=None,stroke="grey",stroke_width=1, draw_empty_bins=False):
         super(Hexbin, self).__init__()
         dataset = Dataset(data)
-        self.data = dataset.query([lon,lat])
+        self.data = dataset.query([lon,lat,colour if colour is not None else 1])
         if palette == None:
             palette = ContinuousPalette()
         self.setPalette(palette)
@@ -55,6 +60,7 @@ class Hexbin(MapLayer):
         self.stroke_width = stroke_width
         self.bins = []
         self.boundaries = None
+        self.draw_empty_bins = draw_empty_bins
 
     def getBoundaries(self):
         if self.boundaries:
@@ -65,7 +71,7 @@ class Hexbin(MapLayer):
         max_lat = max(map(lambda p:p[1],self.data))
         return ((min_lon,min_lat),(max_lon,max_lat))
 
-    def configureLayer(self,ownermap,width,height,boundaries,projection,zoom_to):
+    def configureLayer(self,ownermap,width,height,boundaries,projection,zoom_to,fmt):
         self.width = width
         self.height = height
         self.ownermap = ownermap
@@ -86,7 +92,7 @@ class Hexbin(MapLayer):
         self.centers = {}
         self.freqs = {}
         self.points = []
-        self.buildLayer()
+        self.buildLayer(fmt)
 
     def getHeight(self):
         return self.height
@@ -115,26 +121,31 @@ class Hexbin(MapLayer):
         y = abs(py - hy)
         return x < 3**0.5 * min(s - y, s / 2)
 
-    def buildLayer(self):
+    def buildLayer(self,fmt):
         for row in range(0,self.nr_bins_down):
             for col in range(0,self.nr_bins_across):
                 self.centers[(col,row)] = self.hexacenter(col,row)
                 self.freqs[(col,row)] = 0
 
+        progress = Progress("hexbin")
         maxfreq = 0
-        for point in self.data:
-            (px,py) = self.transform(point)
+        count = 0
+        total = len(self.data)
+        for (lon,lat,value) in self.data:
+            (px,py) = self.transform((lon,lat))
             py = self.height - py
             self.points.append((px,py))
             for row in range(0,self.nr_bins_down):
                 for col in range(0,self.nr_bins_across):
                     (hx,hy) = self.centers[(col,row)]
                     if self.inHexagon(px,py,hx,hy):
-                        freq = self.freqs[(col,row)]+1
+                        freq = self.freqs[(col,row)]+value
                         self.freqs[(col,row)] = freq
                         if freq > maxfreq:
                             maxfreq = freq
-
+            count += 1
+            progress.report("building",(count+1)/total)
+        progress.complete("complete")
         self.getPalette().getColour(0)
         self.getPalette().getColour(maxfreq)
         self.getPalette().build()
@@ -146,9 +157,10 @@ class Hexbin(MapLayer):
             for col in range(0,self.nr_bins_across):
                 (hx,hy) = self.centers[(col,row)]
                 freq = self.freqs[(col,row)]
-                col = self.getPalette().getColour(freq)
-                h = hexagon(ox+hx,oy+hy,self.dlength,col,self.stroke,self.stroke_width)
-                doc.add(h)
+                if freq>0 or self.draw_empty_bins:
+                    col = self.getPalette().getColour(freq)
+                    h = hexagon(ox+hx,oy+hy,self.dlength,col,self.stroke,self.stroke_width)
+                    doc.add(h)
 
         with open(os.path.join(os.path.split(__file__)[0],"hexbin.js"),"r") as jsfile:
             jscode = jsfile.read()

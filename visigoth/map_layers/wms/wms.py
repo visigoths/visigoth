@@ -3,25 +3,27 @@
 #    Visigoth: A lightweight Python3 library for rendering data visualizations in SVG
 #    Copyright (C) 2020  Niall McCarroll
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#   Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+#   and associated documentation files (the "Software"), to deal in the Software without 
+#   restriction, including without limitation the rights to use, copy, modify, merge, publish,
+#   distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
+#   Software is furnished to do so, subject to the following conditions:
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
+#   The above copyright notice and this permission notice shall be included in all copies or 
+#   substantial portions of the Software.
 #
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+#   BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+#   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+#   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os
 import urllib
 from xml.dom.minidom import parseString
 
 from visigoth.common.image import Image
-from visigoth.utils.httpcache import HttpCache, HTTP
+from visigoth.utils.httpcache import HttpCache
 from visigoth.map_layers import MapLayer
 from visigoth.utils.js import Js
 from visigoth.utils.mapping import Projections
@@ -81,7 +83,7 @@ class WMS(MapLayer):
         self.image = image
         self.content = {}
 
-    def configureLayer(self,ownermap,width,height,boundaries,projection,zoom_to):
+    def configureLayer(self,ownermap,width,height,boundaries,projection,zoom_to,fmt):
         self.ownermap = ownermap
         self.width = width
         self.height = int(height)
@@ -103,6 +105,45 @@ class WMS(MapLayer):
 
         params["SERVICE"] = "WMS"
         params["REQUEST"] = "GetCapabilities"
+        query_string = urllib.parse.urlencode(params, doseq=True)
+        return urllib.parse.urlunsplit((scheme, netloc, path, query_string, fragment))
+
+    @staticmethod
+    def getFeatureInfoUrl(parameters, x, y, type = "satellite",projection = Projections.EPSG_3857,layer_name="", url = ""):
+        projname = projection.getName()
+        details = WMS.layer_lookup.get((type,projname), None)
+        if not url:
+            url = details[0]
+        if not layer_name:
+            layer_name = details[1]
+        scheme, netloc, path, query_string, fragment = urllib.parse.urlsplit(url)
+        params = urllib.parse.parse_qs(query_string)
+        keys = list(params.keys())
+        for key in keys:
+            if key != "SERVICE" and key != "VERSION":
+                del params[key]
+
+        if "VERSION" not in params:
+            params["VERSION"] = "1.1.1"
+
+        params["SRS"] = projname
+        params["TRANSPARENT"] = "true"
+        params["FORMAT"] = "image/%(image_type)s" % (parameters)
+        params["QUERY_LAYERS"] = layer_name
+        params["LAYERS"] = layer_name
+
+        params["HEIGHT"] = "%(height)d" % (parameters)
+        params["WIDTH"] = "%(width)d" % (parameters)
+        params["BBOX"] = "%(e_min)f,%(n_min)f,%(e_max)f,%(n_max)f" % (parameters)
+        params["X"] = x
+        params["Y"] = y
+        params["INFO_FORMAT"] = "text/xml"
+
+        if "date" in parameters:
+            params["TIME"] = parameters["date"].strftime("%Y-%m-%d")
+
+        params["SERVICE"] = "WMS"
+        params["REQUEST"] = "GetFeatureInfo"
         query_string = urllib.parse.urlencode(params, doseq=True)
         return urllib.parse.urlunsplit((scheme, netloc, path, query_string, fragment))
 
@@ -139,11 +180,10 @@ class WMS(MapLayer):
             details = WMS.layer_lookup.get((type,projname), None)
             url = details[0]
 
-
         capabilities_url = WMS.getCapabilitiesUrl(url)
 
         # fire off the GetCapabilities request
-        capabilities = HTTP.fetch(capabilities_url)
+        capabilities = HttpCache.fetch(capabilities_url)
 
         s = capabilities.decode("utf-8")
 
@@ -166,13 +206,19 @@ class WMS(MapLayer):
 
         return layer_names
 
+    @staticmethod
+    def getFeatureInfo(parameters, x, y, type="satellite", projection=Projections.EPSG_3857,url=""):
+        info_url = WMS.getFeatureInfoUrl(parameters,x,y,type,projection,url=url)
+        info = HttpCache.fetch(info_url)
+        print(info.decode("utf-8"))
+
     def getHeight(self):
         return self.height
 
     def getWidth(self):
         return self.width
 
-    def build(self):
+    def build(self,fmt):
         url = self.url
         projname = self.projection.getName()
         attribution = self.attribution
@@ -215,7 +261,6 @@ class WMS(MapLayer):
                     if self.date != None:
                         parameters["date"] = self.date
                     resolved_url = WMS.getMapUrl(url,parameters)
-                    print(resolved_url)
                     self.content[zoom][(zx,zy)] = HttpCache.fetch(resolved_url)
             zoom *= 2
 
@@ -248,8 +293,3 @@ class WMS(MapLayer):
             jscode = jsfile.read()
         config = { "zoom_groups":zoom_groups }
         Js.registerJs(doc,self,jscode,"wms",cx,cy,config)
-
-if __name__ == '__main__':
-    # capabilities_endpoint = "https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?SERVICE=WMS&REQUEST=GetCapabilities&VERSION=1.3.0"
-    names = WMS.getLayerNames(type="osm")
-    print(names)

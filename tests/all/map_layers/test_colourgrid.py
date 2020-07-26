@@ -3,18 +3,20 @@
 #    Visigoth: A lightweight Python3 library for rendering data visualizations in SVG
 #    Copyright (C) 2020  Niall McCarroll
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#   Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+#   and associated documentation files (the "Software"), to deal in the Software without 
+#   restriction, including without limitation the rights to use, copy, modify, merge, publish,
+#   distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
+#   Software is furnished to do so, subject to the following conditions:
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
+#   The above copyright notice and this permission notice shall be included in all copies or 
+#   substantial portions of the Software.
 #
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+#   BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+#   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+#   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import unittest
 import math
@@ -47,7 +49,7 @@ class TestColourGrid(unittest.TestCase):
 
         m0 = Map(512, projection=Projections.IDENTITY, boundaries=((0.0,0.0),(1.0,1.0)))
         c0 = ColourGrid(data0, boundaries=((0.0,0.0),(1.0,1.0)),palette=ContinuousPalette(withIntervals=True))
-        m0.addLayer(c0)
+        m0.add(c0)
 
         d.add(Box(m0))
         d.add(Legend(width=512, palette=c0.getPalette()))
@@ -59,7 +61,7 @@ class TestColourGrid(unittest.TestCase):
 
         m1 = Map(512, projection=Projections.IDENTITY,boundaries=((0.0,0.0),(1.0,1.0)))
         c1 = ColourGrid(data1,boundaries=((0,0),(1,1)))
-        m1.addLayer(c1)
+        m1.add(c1)
         d.add(Box(m1))
         d.add(Legend(width=512, palette=c1.getPalette()))
 
@@ -71,12 +73,11 @@ class TestColourGrid(unittest.TestCase):
 
         m2 = Map(512, projection=Projections.IDENTITY,boundaries=((0.0,0.0),(1.0,1.0)))
         c2 = ColourGrid(data2, boundaries=((0,0),(1,1)))
-        m2.addLayer(c2)
+        m2.add(c2)
         d.add(Box(m2))
         d.add(Legend(width=512, palette=c2.getPalette()))
 
-        svg = d.draw()
-        TestUtils.output(svg,"test_colourgrid.svg")
+        TestUtils.draw_output(d,"test_colourgrid.svg")
 
 
 if __name__ == "__main__":

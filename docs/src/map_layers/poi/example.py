@@ -18,8 +18,8 @@ d = Diagram(margin_left=200,margin_right=200)
 poi = POI(data,lon="lon",lat="lat",tweet="id")
 
 m1 = Map(512,width_to_height=1)
-m1.addLayer(WMS(type="osm"))
-m1.addLayer(poi)
+m1.add(WMS(type="osm"))
+m1.add(poi)
 d.add(Space(100))
 d.add(Box(m1))
 

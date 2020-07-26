@@ -67,12 +67,11 @@ class TestSearchManager(unittest.TestCase):
         sm = SearchManager(height=150)
         d.add(sm)
 
-        m.addLayer(gp)
+        m.add(gp)
         d.add(Box(m))
         d.connect(sm,"search",m,"search")
 
-        svg = d.draw()
-        TestUtils.output(svg,"test_search_manager.svg")
+        TestUtils.draw_output(d,"test_search_manager")
 
 if __name__ == "__main__":
     unittest.main()

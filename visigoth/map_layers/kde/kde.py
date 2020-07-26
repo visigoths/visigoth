@@ -3,18 +3,20 @@
 #    Visigoth: A lightweight Python3 library for rendering data visualizations in SVG
 #    Copyright (C) 2020  Niall McCarroll
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#   Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+#   and associated documentation files (the "Software"), to deal in the Software without 
+#   restriction, including without limitation the rights to use, copy, modify, merge, publish,
+#   distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
+#   Software is furnished to do so, subject to the following conditions:
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
+#   The above copyright notice and this permission notice shall be included in all copies or 
+#   substantial portions of the Software.
 #
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+#   BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+#   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+#   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import math
 import os
@@ -26,6 +28,7 @@ from visigoth.map_layers.contour import Contour
 from visigoth.utils.colour import ContinuousPalette
 from visigoth.utils.js import Js
 from visigoth.utils.data import Dataset
+from visigoth.utils.term.progress import Progress
 
 class KDE(MapLayer):
     """
@@ -35,16 +38,17 @@ class KDE(MapLayer):
     Keyword Arguments:
         lat (str or int): Identify the column to provide the latitude value for each point
         lon (str or int): Identify the column to provide the longitude value for each point
+        colour (float or int): Attach a magnitude value to each point (if None, all points are assigned a magnitude of 1)
         kernel: a kernel function mapping from distance in meters to a probability value
         bandwidth(int): defines the radius of the area of influence of each data point
         nr_samples_across(int): number of points to sample for contours across the plot
-        contour_interval(float): height difference between contours
+        contour_bands(int): the number of contour bands to create
         palette(ContinuousPalette) : define the colours used in the plot
     """
-    def __init__(self,data,lon=0,lat=1,kernel=None,bandwidth=1000,nr_samples_across=20,contour_interval=0.1,palette=None,label_fn=lambda x:"%.2f"%(x),font_height=8,text_attributes={}):
+    def __init__(self,data,lon=0,lat=1,colour=None,kernel=None,bandwidth=1000,nr_samples_across=20,contour_bands=10,palette=None,label_fn=lambda x:"%.2f"%(x),font_height=8,text_attributes={}):
         super(KDE, self).__init__()
         dataset = Dataset(data)
-        self.data = dataset.query([lon,lat])
+        self.data = dataset.query([lon,lat,colour if colour is not None else 1])
         self.kernel = kernel
         self.bandwidth = bandwidth
         if not palette:
@@ -56,16 +60,16 @@ class KDE(MapLayer):
         self.width = None
         self.height = None
         self.projection = None
-        self.contour_interval = contour_interval
+        self.contour_bands = contour_bands
         self.label_fn = label_fn
         self.boundaries = None
 
     def getBoundaries(self):
         if not self.boundaries:
-            self.boundaries = Mapping.getBoundingBox(self.data,0.05)
+            self.boundaries = Mapping.getBoundingBox([(lon,lat) for (lon,lat,_) in self.data],0.05)
         return self.boundaries
 
-    def configureLayer(self,ownermap,width,height,boundaries,projection,zoom_to):
+    def configureLayer(self,ownermap,width,height,boundaries,projection,zoom_to,fmt):
         self.ownermap = ownermap
         self.width = width
         self.height = height
@@ -78,7 +82,7 @@ class KDE(MapLayer):
         self.scale_y = self.height/(y1-y0)
         self.nr_samples_down = int(self.nr_samples_across * (self.height/self.width))
         self.zoom_to = zoom_to
-        self.buildLayer()
+        self.buildLayer(fmt)
 
     def getHeight(self):
         return self.height
@@ -86,7 +90,9 @@ class KDE(MapLayer):
     def getWidth(self):
         return self.width
 
-    def buildLayer(self):
+    def buildLayer(self,fmt):
+
+        progress = Progress("kde")
         tdata = []
         sw = self.boundaries[0]
         ne = self.boundaries[1]
@@ -101,25 +107,27 @@ class KDE(MapLayer):
                 lat = ne[1] + yfrac * (sw[1]-ne[1])
                 (sx,sy) = self.projection.fromLonLat((lon,lat))
                 val = 0
-                for (loc_lon,loc_lat) in self.data:
+                for (loc_lon,loc_lat,value) in self.data:
                     (lx,ly) = self.projection.fromLonLat((loc_lon,loc_lat))
                     dist = math.sqrt((lx-sx)**2+(ly-sy)**2)
-                    val += self.kernel(dist/self.bandwidth)
+                    val += value*self.kernel(dist/self.bandwidth)
                 val = val/(len(self.data)*self.bandwidth)
                 if val > maxval:
                     maxval = val
                 tdata_row.append(val)
             tdata.append(tdata_row)
+            progress.report("building", (row + 1) / self.nr_samples_down)
+        progress.complete("complete")
         self.palette.getColour(0)
         self.palette.getColour(maxval)
-        self.contour = Contour(tdata,maxval*0.1,label_fn=self.label_fn,stroke_width=0)
+        contour_interval = maxval / self.contour_bands
+        self.contour = Contour(tdata,contour_interval=contour_interval,label_fn=self.label_fn,stroke_width=0)
         self.contour.setPalette(self.getPalette())
-        self.contour.configureLayer(self.ownermap,self.width,self.height,self.boundaries,self.projection,self.zoom_to)
+        self.contour.configureLayer(self.ownermap,self.width,self.height,self.boundaries,self.projection,self.zoom_to,fmt)
+        self.contour.build(fmt)
 
-
-    def build(self):
-        super().build()
-        self.contour.build()
+    def build(self,fmt):
+        super().build(fmt)
 
     def draw(self,doc,cx,cy):
         self.contour.draw(doc,cx,cy)

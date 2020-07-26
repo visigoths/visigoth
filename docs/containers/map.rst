@@ -7,7 +7,7 @@ Map
 
 .. autoclass:: visigoth.containers.map.Map
 
-  .. automethod:: addLayer
+  .. automethod:: add
 
 -------
 Example

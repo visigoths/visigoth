@@ -13,11 +13,11 @@ rng = random.Random()
 bounds = ((0,0),(1,1))
 data = [(rng.random(),rng.random()) for x in range(0,100)]
 
-palette = None # ContinuousPalette()
+palette = ContinuousPalette(colourMap=["orange","purple"])
 
 m1 = Map(512,bounds)
-m1.addLayer(Hexbin(data,palette=palette,stroke=None))
-m1.addLayer(Scatter(data))
+m1.add(Hexbin(data,palette=palette,stroke=None))
+m1.add(Scatter(data))
 d.add(Box(m1,padding=0))
 
 html = d.draw(format="html")

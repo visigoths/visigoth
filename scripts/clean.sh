@@ -40,6 +40,7 @@ do
 done
 
 (cd $rootdir; find . -type f -name "test_*.svg" -delete)
+(cd $rootdir; find . -type f -name "test_*.html" -delete)
 
 if [ -d "$rootdir/docs/_static/src" ]; then
   rm -Rf $rootdir/docs/_static/src

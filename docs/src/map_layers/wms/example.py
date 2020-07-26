@@ -11,12 +11,12 @@ bounds = ((166.509144322, -46.641235447),(178.517093541, -34.4506617165))
 
 d.add(Text("openstreetmap layer"))
 m1 = Map(512,bounds,zoom_to=4)
-m1.addLayer(WMS("osm"))
+m1.add(WMS("osm"))
 d.add(Box(m1))
 
 d.add(Text("sentinel2 cloudless layer"))
 m2 = Map(512,bounds,zoom_to=4)
-m2.addLayer(WMS("satellite"))
+m2.add(WMS("satellite"))
 d.add(Box(m2))
 
 html = d.draw(format="html")

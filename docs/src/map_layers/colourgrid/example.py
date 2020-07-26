@@ -36,7 +36,7 @@ m = Map(fill="#E0E0E0",width=512,projection=CustomProjection("ESRI:54009"),bound
 
 # add a colourgird layer to the map using the SST data
 cg = ColourGrid(sst,boundaries=((-180,-90),(180,90)))
-m.addLayer(cg)
+m.add(cg)
 
 # add the map, some descriptive text and the legend to the diagram
 d.add(m)

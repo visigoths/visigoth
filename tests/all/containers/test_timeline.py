@@ -59,9 +59,8 @@ class TestSequence(unittest.TestCase):
         d.add(timeline1).add(timeline2)
         legend = Legend(palette=palette,legend_columns=4,width=768)
         d.add(legend)
-        svg = d.draw()
 
-        TestUtils.output(svg, "test_timeline.svg")
+        TestUtils.draw_output(d, "test_timeline")
 
 if __name__ == "__main__":
     unittest.main()

@@ -63,9 +63,9 @@ label = "poly_%d"%i
 multipolys.append(Multipolygon([[lps,hole]],id=label,label=label,popup=popup,properties={"type":"poly"},stroke="red",fill="#0000FF30"))
 
 m = Map(512,boundaries=bb,projection=Projections.EPSG_3857,zoom_to=2)
-m.addLayer(WMS())
+m.add(WMS())
 gp = Geoplot(multipoints=multipoints,multilines=multilines,multipolys=multipolys)
-m.addLayer(gp)
+m.add(gp)
 
 gj = Box(m)
 d.add(gj)

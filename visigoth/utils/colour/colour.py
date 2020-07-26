@@ -3,18 +3,20 @@
 #    visigoth: A lightweight Python3 library for rendering data visualizations in SVG
 #    Copyright (C) 2020  Niall McCarroll
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#   Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+#   and associated documentation files (the "Software"), to deal in the Software without
+#   restriction, including without limitation the rights to use, copy, modify, merge, publish,
+#   distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
+#   Software is furnished to do so, subject to the following conditions:
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
+#   The above copyright notice and this permission notice shall be included in all copies or
+#   substantial portions of the Software.
 #
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+#   BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+#   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+#   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import random
 from visigoth.svg import rectangle, linear_gradient
@@ -64,22 +66,24 @@ class Colour(object):
         if col and (len(col) != 7 or col[0] != "#"):
             if col.lower() in Colour.webColours:
                 col = Colour.webColours[col.lower()]
-        if not col or col[0] != "#" or len(col) != 7:
+        if not col or col[0] != "#" or (len(col) != 7 and len(col) != 9):
             raise Exception("Unable to parse colour (%s)"%(col))
         r = self.parseHex(col[1:3])
         g = self.parseHex(col[3:5])
         b = self.parseHex(col[5:7])
-        return (r,g,b)
+        a = 255 if len(col) == 7 else self.parseHex(col[7:9])
+        return (r,g,b,a)
 
     def computeColour(self,col1,col2,frac):
         r = col1[0]+int(frac*(col2[0]-col1[0]))
         g = col1[1]+int(frac*(col2[1]-col1[1]))
         b = col1[2]+int(frac*(col2[2]-col1[2]))
-        return self.rgb2colour((r,g,b))
+        a = col1[3] + int(frac * (col2[3] - col1[3]))
+        return self.rgb2colour((r,g,b,a))
 
     def rgb2colour(self,rgb):
-        (r,g,b) = rgb
-        return "#%02X%02X%02X" % (r, g, b)
+        (r,g,b,a) = rgb
+        return "#%02X%02X%02X%02X" % (r, g, b, a)
 
 
     @staticmethod
@@ -100,7 +104,7 @@ class Colour(object):
     def applyOpacity(self,colour):
         opacity = self.getOpacity()
         if opacity < 1.0:
-            (r,g,b) = self.parseColour(colour)
+            (r,g,b,a) = self.parseColour(colour)
             return "#%02X%02X%02X%02X"%(r,g,b,round(opacity*255))
         else:
             return colour

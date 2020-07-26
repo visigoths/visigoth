@@ -3,18 +3,20 @@
 #    Visigoth: A lightweight Python3 library for rendering data visualizations in SVG
 #    Copyright (C) 2020  Niall McCarroll
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#   Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+#   and associated documentation files (the "Software"), to deal in the Software without 
+#   restriction, including without limitation the rights to use, copy, modify, merge, publish,
+#   distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
+#   Software is furnished to do so, subject to the following conditions:
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
+#   The above copyright notice and this permission notice shall be included in all copies or 
+#   substantial portions of the Software.
 #
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+#   BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+#   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+#   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import json
 
@@ -49,7 +51,7 @@ class Text(DiagramElement):
         self.width = 0
         self.height = 0
         
-    def build(self):
+    def build(self,fmt):
         if self.built:
             return
 
@@ -70,7 +72,7 @@ class Text(DiagramElement):
                     self.tspans.append(item)
 
         for ts in self.tspans:
-            ts.build()
+            ts.build(fmt)
         
         tspans = self.tspans[:]
         outline = []
@@ -90,7 +92,7 @@ class Text(DiagramElement):
                     linew = bw + outspan.getWidth()+sum([ts.getWidth() for ts in outline])
                     if not self.max_width or linew <= self.max_width:
                         outspan.appendText(buffer)
-                        outspan.build()
+                        outspan.build(fmt)
                         buffer = ""
                     else:
                         if not outline and not outspan.getText():
@@ -104,18 +106,18 @@ class Text(DiagramElement):
                                     break
                                 j += 1
                             outspan.setText(textstr[:j+1])
-                        outspan.build()
+                        outspan.build(fmt)
                         outline.append(outspan)
                         self.lines.append(outline)
                         outspan = Span("",text_attributes=tspan.text_attributes,font_height=tspan.font_height,url=tspan.url)
                         outline = []
                         newspan = Span(buffer+textstr[j+1:],text_attributes=tspan.text_attributes,font_height=tspan.font_height,url=tspan.url)
-                        newspan.build()
+                        newspan.build(fmt)
                         tspans.insert(i+1,newspan)
                         break
                 j += 1        
             if outspan.getText():
-                outspan.build()
+                outspan.build(fmt)
                 outline.append(outspan)    
             i += 1
             
@@ -130,7 +132,7 @@ class Text(DiagramElement):
             tspans[-1].rstrip()
             tspans = [ts for ts in tspans if ts.getText()]
             for t in tspans:
-                t.build()
+                t.build(fmt)
             h = max([t.getHeight() for t in tspans])
             w = sum([t.getWidth() for t in tspans])
 
@@ -211,7 +213,7 @@ class Span(object):
     def rstrip(self):
         self.textstr = self.textstr.rstrip()
         
-    def build(self):
+    def build(self,fmt):
         self.width = FontManager.getTextLength(self.text_attributes,self.textstr,self.font_height)
         
     def getHeight(self):

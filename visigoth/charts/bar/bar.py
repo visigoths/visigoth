@@ -3,18 +3,20 @@
 #    Visigoth: A lightweight Python3 library for rendering data visualizations in SVG
 #    Copyright (C) 2020  Niall McCarroll
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#   Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+#   and associated documentation files (the "Software"), to deal in the Software without
+#   restriction, including without limitation the rights to use, copy, modify, merge, publish,
+#   distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
+#   Software is furnished to do so, subject to the following conditions:
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
+#   The above copyright notice and this permission notice shall be included in all copies or
+#   substantial portions of the Software.
 #
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+#   BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+#   NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+#   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from visigoth.charts import ChartElement
 from visigoth.svg import rectangle,text,line
@@ -33,6 +35,7 @@ class Bar(ChartElement):
         x (str or int): Identify the column to yield discrete values
         y (str or int): Identify the column to measure on the y-axis (use count if not specified)
         colour (str or int): Identify the column to define the bar colour (use palette default colour if not specified)
+        stacked (bool): When colour is defined, choose wether to stack coloured bars or display them side by side
         width (int): the width of the plot in pixels
         height (int): the height of the plot in pixels
         palette(list) : a DiscretePalette|ContinuousPalette object
@@ -43,7 +46,7 @@ class Bar(ChartElement):
         text_attributes (dict): SVG attribute name value pairs to apply to labels
         labelfn (lambda): function to compute a label string, given a category and numeric value
     """
-    def __init__(self,data,x=0,y=1,colour=None,width=512,height=512,palette=None,stroke="black",stroke_width=2,font_height=12,spacing_fraction=0.1,text_attributes={},labelfn=lambda k,v:"%0.2f"%v):
+    def __init__(self,data,x=0,y=1,colour=None,stacked=True,width=512,height=512,palette=None,stroke="black",stroke_width=2,font_height=12,spacing_fraction=0.1,text_attributes={},labelfn=None):
         super(Bar, self).__init__()
         self.dataset = Dataset(data)
         self.setDrawGrid(True)
@@ -52,7 +55,7 @@ class Bar(ChartElement):
         self.colour = colour
         self.width = width
         self.height = height
-
+        self.stacked = stacked
         self.font_height = font_height
         self.spacing_fraction = spacing_fraction
         self.text_attributes = text_attributes
@@ -77,15 +80,21 @@ class Bar(ChartElement):
             querycols.append(self.colour)
 
         self.data = self.dataset.query(querycols)
+        self.colourvals = []
         if self.colour is not None:
             for v in self.dataset.query([self.colour],unique=True,flatten=True):
                 self.getPalette().getColour(v)
+                self.colourvals.append(v)
+        self.colourvals = sorted(self.colourvals)
 
         self.setMargins(10,self.font_height*1.5)
 
         agg_fns = []
         if self.y:
-            agg_fns.append(Dataset.sum(self.y))
+            if self.stacked:
+                agg_fns.append(Dataset.sum(self.y))
+            else:
+                agg_fns.append(Dataset.max(self.y))
         else:
             agg_fns.append(Dataset.count())
 
@@ -143,23 +152,45 @@ class Bar(ChartElement):
             s = sum([v for (k,v) in segments])
             total = s
             lastvalue = 0
-            for (cat,value) in segments:
-                if self.colour is not None:
+
+            if self.stacked or not self.colour:
+                # stacked bars
+                for (cat,value) in segments:
+                    if self.colour is not None:
+                        colour = self.palette.getColour(cat)
+                    else:
+                        colour = self.palette.getDefaultColour()
+                    y1 = self.computeY(value)
+                    y0 = self.computeY(lastvalue)
+
+                    bh = abs(y1-y0)
+                    bt = min(y0,y1)
+
+                    r = rectangle(bx-(1-self.spacing_fraction)*barwidth*0.5,bt,barwidth*(1-self.spacing_fraction),bh,colour,stroke=self.stroke,stroke_width=self.stroke_width,tooltip=self.getTooltip(cat,value))
+
+                    categories[cat] = [r.getId()]
+                    doc.add(r)
+                    lastvalue = value
+            else:
+                # display thin bars, side by side
+                segment_vals = {}
+                bw = (1 - self.spacing_fraction) * barwidth / len(self.colourvals)
+                x = bx-(1-self.spacing_fraction)*barwidth*0.5
+                for (cat, value) in segments:
+                    segment_vals[cat] = value
+                for cat in self.colourvals:
+                    value = segment_vals.get(cat,0)
                     colour = self.palette.getColour(cat)
-                else:
-                    colour = self.palette.getDefaultColour()
-                y1 = self.computeY(value)
-                y0 = self.computeY(lastvalue)
+                    y0 = self.computeY(0)
+                    y1 = self.computeY(value)
+                    bh = abs(y1 - y0)
+                    bt = min(y0, y1)
 
-                bh = abs(y1-y0)
-                bt = min(y0,y1)
-                bb = max(y0,y1)
-
-                r = rectangle(bx-(1-self.spacing_fraction)*barwidth*0.5,bt,barwidth*(1-self.spacing_fraction),bh,colour,stroke=self.stroke,stroke_width=self.stroke_width,tooltip=self.getTooltip(cat,value))
-
-                categories[cat] = [r.getId()]
-                doc.add(r)
-                lastvalue = value
+                    r = rectangle(x, bt, bw, bh, colour, stroke=self.stroke,
+                            stroke_width=self.stroke_width, tooltip=self.getTooltip(cat, value))
+                    x += bw
+                    categories[cat] = [r.getId()]
+                    doc.add(r)
 
             if self.labelfn:
                 # display the label above the bar
