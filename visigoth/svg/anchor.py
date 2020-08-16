@@ -23,7 +23,7 @@ from visigoth.svg.svgstyled import svgstyled
 class anchor(svgstyled):
 
     def __init__(self,ox,oy,name):
-        super(anchor, self).__init__("a")
+        super().__init__("a")
         self.addAttr("id",name)
         self.addAttr("x",ox)
         self.addAttr("y",oy)

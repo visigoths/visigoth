@@ -26,10 +26,11 @@ class CircleMarker(Marker):
     def __init__(self,radius,stroke,stroke_width):
         super().__init__(radius,stroke,stroke_width)
 
-    def plot(self,doc,x,y,tooltip,colour):
+    def plot(self,doc,x,y,tooltip,colour,visible=True):
         circ = circle(x,y,self.getRadius(),colour,tooltip=tooltip)
         circ.addAttr("stroke",self.getStroke())
         circ.addAttr("stroke-width",self.getStrokeWidth())
+        circ.addAttr("visibility", "visible" if visible else "hidden")
         doc.add(circ)
         return circ.getId()
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#    Visigoth: A lightweight Python3 library for rendering data visualizations in SVG
+#    visigoth: A lightweight Python3 library for rendering data visualizations in SVG
 #    Copyright (C) 2020  Niall McCarroll
 #
 #   Permission is hereby granted, free of charge, to any person obtaining a copy of this software
@@ -18,20 +18,25 @@
 #   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from .diagram_element import DiagramElement
-from .button import Button
-from .buttongrid import ButtonGrid
-from .embedded_html import EmbeddedHtml
-from .embedded_svg import EmbeddedSvg
-from .embedded_data import EmbeddedData
-from .event_handler import EventHandler
-from .image import Image
-from .legend import Legend
-from .map_layer_manager import MapLayerManager
-from .search_manager import SearchManager
-from .slice_controller import SliceController
-from .panzoom import PanZoom
-from .space import Space
-from .text import Text, Span
-from .axis import Axis
-from .ruler import Ruler
+import unittest
+
+from visigoth import Diagram
+from visigoth.utils.test_utils import TestUtils
+from visigoth.containers.box import Box
+from visigoth.charts import Bar
+from visigoth.common import EmbeddedData
+
+data = [{"category":"A","value":10},{"category":"B","value":15},{"category":"C","value":12}]
+
+class TestEmbeddedData(unittest.TestCase):
+
+    def test_basic(self):
+        d = Diagram(fill="white")
+        b = Bar(data,width=384,height=384,x="category",y="value")
+        d.add(b)
+        d.add(Box(EmbeddedData(data,text="Download Data (Zipped)",filename="data.zip",zip=True),min_width=384))
+        d.add(Box(EmbeddedData(data,text="Download Data", filename="data.csv", zip=False),min_width=384))
+        TestUtils.draw_output(d,"test_embedded_data")
+
+if __name__ == "__main__":
+    unittest.main()

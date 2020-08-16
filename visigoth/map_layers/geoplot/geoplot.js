@@ -216,7 +216,6 @@ class geoplot {
             this.showAll();
         }
         if (channel == "search") {
-            alert(obj["searchstring"]+":"+obj["mode"]);
             var search_string = obj["searchstring"].toLowerCase();
             var search_mode = obj["mode"];
             for(var group_id in this.config.group_properties) {

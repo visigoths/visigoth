@@ -18,14 +18,17 @@
 #   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+import math
 from visigoth.utils.marker.circle_marker import CircleMarker
 from visigoth.utils.marker.pin_marker import PinMarker
 
 class MarkerManager(object):
 
-    def __init__(self,min_radius=1,max_radius=10,default_radius=3,stroke="black",stroke_width=1):
+    def __init__(self,min_radius=0,max_radius=40,default_radius=3,stroke="black",stroke_width=1):
         self.min_radius = min_radius
+        self.min_area = math.pi * math.pow(self.min_radius, 2)
         self.max_radius = max_radius
+        self.max_area = math.pi*math.pow(self.max_radius,2)
         self.size_min = None
         self.size_max = None
         self.default_radius = default_radius
@@ -60,7 +63,13 @@ class MarkerManager(object):
         if size is None or self.size_max is None:
             return self.default_radius
         else:
-            return self.min_radius + (self.max_radius - self.min_radius) * (size / self.size_max)
+            # area = pi*r*r
+            size_fraction = (size - self.size_min) / (self.size_max - self.size_min)
+            if size_fraction < 0 or size_fraction > 1:
+                raise Exception("Internal error: Size %f out of range %f to %f"%(size,self.size_min,self.size_max))
+            area = self.min_area + size_fraction*(self.max_area - self.min_area)
+            radius = math.sqrt(area/math.pi)
+            return radius
 
     def getMarker(self,size=None):
         r = self.getRadius(size)

@@ -40,8 +40,6 @@ class DiagramElement(object):
         self.ljustify = False
         self.rjustify = False
         self.editable = False
-        self.container = None
-        self.form = None
 
     def getLeftJustified(self):
         return self.ljustify
@@ -64,15 +62,6 @@ class DiagramElement(object):
 
     def getEditable(self):
         return self.editable
-
-    def setContainer(self,container):
-        self.container = container
-
-    def getContainer(self):
-        return self.container
-
-    def remove(self,element):
-        raise Execption("Remove element not supported")
 
     def getId(self):
         return self.id
@@ -131,8 +120,8 @@ class DiagramElement(object):
     def closeClip(self, doc):
         doc.closeGroup()
 
-    def search(self,element_id):
-        if self.id == element_id:
-            return self
-        else:
-            return None
+    def handleConnectTo(self,channel_out,dest_element):
+        pass
+
+    def handleConnectFrom(self,channel_in,source_element):
+        pass

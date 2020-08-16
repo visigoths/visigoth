@@ -180,7 +180,6 @@ class Map(DiagramElement):
             element(DiagramElement): the element to place into the overlay
         """
         self.layers.append(layer_element)
-        layer_element.setContainer(self)
 
     def drawLayer(self,doc,element,identifier,ox,oy,metadata):
         g = doc.openGroup(identifier)

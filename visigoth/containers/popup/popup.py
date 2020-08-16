@@ -50,7 +50,6 @@ class Popup(DiagramElement):
     def __init__(self,element,title="",stroke_width=2,stroke="grey",fill="white",popup_group_id=None,opacity=1.0,corner_radius=4,font_height=18,text_attributes={},opened=False):
         DiagramElement.__init__(self)
         self.element = element
-        self.element.setContainer(self)
         self.title = title if title is not None else ""
         self.stroke_width = stroke_width
         self.stroke = stroke
@@ -134,11 +133,4 @@ class Popup(DiagramElement):
 
         doc.getDiagram().connect(self.close_btn,"click",self,"click")
         return pg
-
-    def search(self,element_id):
-        e = self.element.search(element_id)
-        if e:
-            return e
-        
-        return super(Popup,self).search(element_id)
 

@@ -48,7 +48,7 @@ class Hexbin(MapLayer):
     def __init__(self,data,lon=0,lat=1,colour=None,nr_bins_across=10,palette=None,stroke="grey",stroke_width=1, draw_empty_bins=False):
         super(Hexbin, self).__init__()
         dataset = Dataset(data)
-        self.data = dataset.query([lon,lat,colour if colour is not None else 1])
+        self.data = dataset.query([lon,lat,colour if colour is not None else Dataset.constant(1)])
         if palette == None:
             palette = ContinuousPalette()
         self.setPalette(palette)

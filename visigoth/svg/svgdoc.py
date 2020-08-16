@@ -187,14 +187,16 @@ class svgdoc(object):
             o.render(self,self.root)
 
         if self.embed_fonts:
-            for (name,weight,style) in self.fonts:
-                if FontManager.containsFont(name,weight,style):
-                    o = css_snippet(FontManager.getCssFontFace(name,weight,style))
+            for font in self.fonts:
+                (fname, weight, style) = font
+                if FontManager.containsFont(fname,weight,style):
+                    o = css_snippet(FontManager.getCssFontFace(fname,weight,style))
                     o.render(self)
         else:
             font_names = set()
-            for (name,_,_) in self.fonts:
-                font_names.add(name)
+            for font in self.fonts:
+                (fname, _, _) = font
+                font_names.add(fname)
             for name in font_names:
                 o = css_snippet(FontManager.getCssFontImport(name))
                 o.render(self)

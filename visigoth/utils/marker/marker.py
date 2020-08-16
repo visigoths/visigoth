@@ -37,7 +37,7 @@ class Marker(object):
     def getStrokeWidth(self):
         return self.stroke_width
 
-    def plot(self, doc, x, y, tooltip, colour):
+    def plot(self, doc, x, y, tooltip, colour, visible=True):
         raise NotImplementedError("plot")
 
 

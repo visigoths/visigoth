@@ -29,11 +29,17 @@ class chart_element {
         if (this.config["categories"]) {
             this.brushing_handler = new brushing_delegate(sendfn,this.config["categories"]);
         }
+        if (this.config["slices"]) {
+            this.slicing_handler = new slicing_delegate(sendfn,this.config["start_slice"],this.config["slices"]);
+        }
     }
 
     recieve(obj,channel) {
-        if (this.brushing_handler) {
+        if (channel=="colour" && this.brushing_handler) {
             this.brushing_handler.recieve(obj,channel);
+        }
+        if (channel == "slice" && this.slicing_handler)  {
+            this.slicing_handler.recieve(obj);
         }
     }
 }

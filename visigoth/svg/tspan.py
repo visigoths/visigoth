@@ -64,4 +64,4 @@ class tspan(svgstyled):
             p.setAttribute("target","_new")
             parent = p
 
-        return super(tspan, self).render(svgdoc, parent)
+        return super().render(svgdoc, parent)

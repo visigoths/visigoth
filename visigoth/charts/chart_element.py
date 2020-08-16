@@ -148,6 +148,10 @@ class ChartElement(DiagramElement):
                 l = line(x,y1,x,y2,self.grid_stroke,self.grid_stroke_width)
                 doc.add(l)
 
+    def getSlices(self):
+        # Override in charts which support slices
+        return None
+
     def draw(self,doc,cx,cy):
         # self.openClip(doc,cx,cy)
         ox = cx - self.getWidth()/2

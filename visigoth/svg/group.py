@@ -23,14 +23,14 @@ from visigoth.svg.svgstyled import svgstyled
 class group(svgstyled):
 
     def __init__(self):
-        super(group, self).__init__("g")
+        super().__init__("g")
         self.child_elements = []
 
     def add(self,child):
         self.child_elements.append(child)
 
     def render(self,svgdoc,parent):
-        g = super(group,self).render(svgdoc,parent)
+        g = super().render(svgdoc,parent)
         for t in self.child_elements:
             t.render(svgdoc,g)
         parent.appendChild(g)

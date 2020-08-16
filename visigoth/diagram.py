@@ -114,13 +114,6 @@ class Diagram:
              Span(" source code", url=visigoth.repo_url),
              Span(" ) ")],font_height=14)
 
-    def search(self,element_id):
-        return self.content.search(element_id)
-
-    def removeElement(self,element_id):
-        ele = self.search(element_id)
-        container = ele.getContainer()
-        container.remove(ele)
 
     def addStyle(self,style):
         """
@@ -169,6 +162,8 @@ class Diagram:
         """
         if (source,source_channel,dest,dest_channel,adapter_function) not in self.connections:
             self.connections.append((source,source_channel,dest,dest_channel,adapter_function))
+            source.handleConnectTo(source_channel,dest)
+            dest.handleConnectFrom(dest_channel,source)
         return self
         
     def addJavascript(self,snippet):

@@ -152,7 +152,6 @@ class map {
 
     recieve(obj,channel) {
         if (channel == "search") {
-            alert(JSON.stringify(obj));
             this.sendfn(obj,"search");
         }
         if (channel == "pan") {

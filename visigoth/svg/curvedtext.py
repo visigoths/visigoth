@@ -42,7 +42,7 @@ class curvedtext(svgstyled):
         self.addAttr("text-anchor","middle")
 
     def render(self,svgdoc,parent):
-        t = super(curvedtext,self).render(svgdoc,parent)
+        t = super().render(svgdoc,parent)
         doc = svgdoc.doc
         p = doc.createElement("path")
         p.setAttribute("id",self.id)

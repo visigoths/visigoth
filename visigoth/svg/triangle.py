@@ -31,4 +31,4 @@ class triangle(polygon):
             x = cx+radius*math.sin(a)
             y = cy+radius*math.cos(a)
             points.append((x,y))
-        super(triangle,self).__init__(points,fill,stroke,stroke_width)
+        super().__init__(points,fill,stroke,stroke_width)

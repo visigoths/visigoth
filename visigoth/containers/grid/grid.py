@@ -61,7 +61,6 @@ class Grid(DiagramElement):
             element(DiagramElement) : the element to add
         """
         self.cells[(row,col)] = element
-        element.setContainer(self)
 
     def getCellWidth(self,cell):
         return cell.getWidth()+2*self.padding+2*self.stroke_width/2
@@ -142,13 +141,6 @@ class Grid(DiagramElement):
         gridline = line(rx,oy,rx,oy+self.height,self.stroke,self.stroke_width)
         d.add(gridline)
 
-    def search(self,element_id):
-        for key in self.cells:
-            e = self.cells[key].search(element_id)
-            if e:
-                return e
-        
-        return super(Grid,self).search(element_id)
 
 
 

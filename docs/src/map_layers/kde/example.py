@@ -16,7 +16,7 @@ data = [(rng.random(),rng.random()) for x in range(0,100)]
 palette = ContinuousPalette(colourMap=["yellow","red"])
 
 m1 = Map(512,bounds)
-m1.add(KDE(data,bandwidth=4000,nr_samples_across=100,palette=palette,label_fn=None))
+m1.add(KDE(data,bandwidth=4000,contour_bands=20,nr_samples_across=100,palette=palette,label_fn=None))
 m1.add(Scatter(data))
 d.add(Box(m1))
 

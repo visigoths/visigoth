@@ -59,7 +59,6 @@ class Alternative(DiagramElement):
             element(DiagramElement): the element to append to the sequence
         """
         self.elements.append(element)
-        element.setContainer(self)
         return self
 
     def remove(self,element):

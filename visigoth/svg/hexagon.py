@@ -34,7 +34,7 @@ class hexagon(polygon):
             r += math.pi/3
 
         self.hexpoints = points
-        super(hexagon,self).__init__(points,fill,stroke,stroke_width)
+        super().__init__(points,fill,stroke,stroke_width)
 
     def getHexagonPoints(self):
         return self.hexpoints

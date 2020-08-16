@@ -73,7 +73,6 @@ class Sequence(DiagramElement):
             element(DiagramElement): the element to append to the sequence
         """
         self.elements.append(element)
-        element.setContainer(self)
         return self
 
     def remove(self,element):
@@ -97,10 +96,3 @@ class Sequence(DiagramElement):
                 e.draw(doc, off_x+e.getWidth()/2, cy)
                 off_x += self.spacing + e.getWidth()
 
-    def search(self,element_id):
-        for e in self.elements:
-            se = e.search(element_id)
-            if se:
-                return se
-        
-        return super(Sequence,self).search(element_id)

@@ -21,32 +21,21 @@ import html
 from visigoth.svg import foreign_object
 from visigoth.common import DiagramElement, EmbeddedHtml
 
-
-template = """
+html_template = """
     <fieldset id="%(id)s"><legend>%(title)s</legend>
     <p>
-        <input id="%(control_id)s" type="text"></input>
-        <label for="%(control_id)s">Search String</label>
+        <input id="%(control_id)s" size="50" type="text"></input>
         <button id="%(control_id)s_search">Search</button>
-        <input type="radio" id="%(control_id)s_filter" name="%(control_id)s_search_type" value="filter" checked="checked"></input>
-        <label for="%(control_id)s_filter">Filter</label>
-        <input type="radio" id="%(control_id)s_highlight" name="%(control_id)s_search_type" value="highlight"></input>
-        <label for="%(control_id)s_highlight">Highlight</label>
     </p>
     </fieldset>
-    <script>
-    <![CDATA[
-          document.getElementById("%(control_id)s_search").onclick = function(evt) {
-              var value = document.getElementById("%(control_id)s").value;
-              var mode = "filter";
-              if (document.getElementById("%(control_id)s_highlight").checked) {
-                mode = "highlight";
-              }
-              var payload = {"searchstring":value,"mode":mode};
-              pubsubs_publish("%(id)s",payload,"search");
-          };
-    ]]>
-    </script>
+"""
+
+js_template = """
+document.getElementById("%(control_id)s_search").onclick = function(evt) {
+    var value = document.getElementById("%(control_id)s").value;
+    var payload = {"searchstring":value,"mode":"highlight"};
+    pubsubs_publish("%(id)s",payload,"search");
+};
 """
 
 css = """
@@ -65,8 +54,10 @@ class SearchManager(EmbeddedHtml):
         height(int): height of the embedded HTML
     """
 
-    def __init__(self,title="Search Controls",width=600,height=150):
+    def __init__(self,title="Search Controls",width=600,height=250):
         EmbeddedHtml.__init__(self,"%(content)s",css,width,height)
         control_id = DiagramElement.getNextId()
-        html_content = template%({"id":self.getId(),"control_id":control_id,"title":title})
-        self.substituteHtml({"content":html_content})
+        html_content = html_template%({"id":self.getId(),"control_id":control_id,"title":title})
+        js_content = js_template%({"id":self.getId(),"control_id":control_id,"title":title})
+        self.setHtml(html_content)
+        self.setJs(js_content)

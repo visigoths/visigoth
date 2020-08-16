@@ -29,7 +29,7 @@ class PinMarker(Marker):
     def __init__(self, radius, stroke, stroke_width):
         super().__init__(radius,stroke,stroke_width)
 
-    def plot(self, doc, x, y, tooltip, colour):
+    def plot(self, doc, x, y, tooltip, colour, visible=True):
         r = self.getRadius()
         off_y = 32 * (2 * r / 512)
         i = embedded_svg(2 * r, 2 * r, x - r, y - 2 * r + off_y, PinMarker.svg)
@@ -38,6 +38,7 @@ class PinMarker(Marker):
         i.addAttr("stroke-width", self.getStrokeWidth())
         if tooltip:
             i.setTooltip(tooltip)
+        i.addAttr("visibility", "visible" if visible else "hidden")
         doc.add(i)
         return i.getId()
 

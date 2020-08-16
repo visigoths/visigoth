@@ -44,7 +44,7 @@ m = Map(768,boundaries=bounds,projection=Projections.EPSG_3857)
 wms = WMS("osm")
 wms.setInfo("Map")
 
-sm = SearchManager(height=150)
+sm = SearchManager()
 d.add(sm)
 
 m.add(wms)

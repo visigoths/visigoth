@@ -27,14 +27,14 @@ def gen(px,py,maxdist):
     return (px+dx,py+dy,cat,label,size)
 
 palette = DiscretePalette()
-mm = MarkerManager(min_radius=40)
+mm = MarkerManager(max_radius=20)
 
 cluster_centers = [(0.05+0.9*rng.random(),0.05+0.9*rng.random()) for x in range(0,cluster_count)]
 data = [gen(cx,cy,0.1) for (cx,cy) in cluster_centers for x in range(0,10)]
 
 bounds  = ((0.0,0.0),(1.0,1.0))
 m = Map(512,bounds,projection=Projections.IDENTITY)
-c = Cartogram(data, palette=palette, marker_manager=mm, lon=0, lat=1, colour=2, label=3, size=4)
+c = Cartogram(data, palette=palette, marker_manager=mm, lon=0, lat=1, colour=2, label=3, size=4, iterations=300)
 m.add(c)
 legend = Legend(palette, width=500, legend_columns=3)
 d.add(Box(m))

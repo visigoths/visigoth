@@ -48,7 +48,7 @@ class KDE(MapLayer):
     def __init__(self,data,lon=0,lat=1,colour=None,kernel=None,bandwidth=1000,nr_samples_across=20,contour_bands=10,palette=None,label_fn=lambda x:"%.2f"%(x),font_height=8,text_attributes={}):
         super(KDE, self).__init__()
         dataset = Dataset(data)
-        self.data = dataset.query([lon,lat,colour if colour is not None else 1])
+        self.data = dataset.query([lon,lat,colour if colour is not None else Dataset.constant(1)])
         self.kernel = kernel
         self.bandwidth = bandwidth
         if not palette:

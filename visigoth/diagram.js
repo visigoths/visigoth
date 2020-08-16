@@ -37,6 +37,35 @@ class super_delegate {
     }
 }
 
+
+class slicing_delegate {
+
+    constructor(sendfn,start_slice,slices) {
+        this.current_slice = start_slice;
+        this.sendfn = sendfn;
+        this.slices = slices;
+    }
+
+    setVisibility(slice,visibility) {
+        slice = ""+slice;
+        if (this.slices[slice]) {
+            var ids = this.slices[slice];
+            for(var idx=0; idx<ids.length;idx++) {
+                var ele = document.getElementById(ids[idx]);
+                ele.setAttribute("visibility",visibility);
+            }
+        } else {
+            console.log("Unable to find slice: "+slice);
+        }
+    }
+
+    recieve(slice) {
+        this.setVisibility(this.current_slice,"hidden");
+        this.setVisibility(slice,"visible");
+        this.current_slice = slice;
+    }
+}
+
 class brushing_delegate {
 
     constructor(sendfn,categories) {

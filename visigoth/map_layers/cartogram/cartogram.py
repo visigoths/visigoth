@@ -152,9 +152,11 @@ class Cartogram(MapLayer):
 
             # gradually increase the force attracting each point to its original position...
             # ... whilst reducing the force repelling overlapping points
-            f1 = self.f1/2 + ((self.f1/2) * ((iter+1)/self.iterations))
-            f2 = self.f2*2 - (self.f2 * ((iter+1))/self.iterations)
-
+            # f1 = self.f1/2 + ((self.f1/2) * ((iter+1)/self.iterations))
+            # f2 = self.f2*2 - (self.f2 * ((iter+1))/self.iterations)
+            f1 = self.f1
+            f2 = self.f2
+            # print(f1,f2)
             overlaps = 0
             error = 0
             for plot in self.plots:
@@ -202,7 +204,7 @@ class Cartogram(MapLayer):
                 plot["fx"] = fx
                 plot["fy"] = fy
 
-            if best_error == None or error < best_error:
+            if overlaps < 3 and (best_error == None or error < best_error):
                 best_error = error
                 best_plots = copy.deepcopy(self.plots)
 

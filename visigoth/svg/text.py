@@ -36,6 +36,7 @@ class text(svgstyled):
         self.txt = txt
         self.addAttr("x",x).addAttr("y",y).setContent(txt)
         self.url = ""
+        self.download = ""
         self.addAttr("text-anchor", "middle")
         self.rotation = None
         self.font_height = font_height
@@ -45,8 +46,9 @@ class text(svgstyled):
         self.horizontal_center = True
         self.label_margin = 5
 
-    def setUrl(self,url):
+    def setUrl(self,url,download=""):
         self.url = url
+        self.download = download
         self.addAttr("text-decoration","underline")
         self.addAttr("stroke", "blue")
         return self
@@ -94,9 +96,12 @@ class text(svgstyled):
             parent.appendChild(p)
 
             p.setAttribute("href",self.url)
-            p.setAttribute("target","_new")
-            parent = p
 
+            p.setAttribute("target","_new")
+            if self.download:
+                p.setAttribute("download",self.download)
+
+            parent = p
 
         if self.fill:            
             l = FontManager.getTextLength(self.text_attributes,self.txt,self.font_height)
@@ -113,6 +118,6 @@ class text(svgstyled):
 
             r.render(svgdoc,parent)
 
-        return super(text, self).render(svgdoc, parent)
+        return super().render(svgdoc, parent)
         
     

@@ -153,7 +153,7 @@ class Dataset(object):
     def getColumns(self):
         columns = []
         for row in self.data:
-            if isinstance(row,list):
+            if isinstance(row,tuple) or isinstance(row,list):
                 if len(columns) < len(row):
                     columns = list(range(0,len(row)))
             elif isinstance(row,dict):

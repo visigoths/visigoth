@@ -41,13 +41,14 @@ class Scatter(ChartElement):
         colour (str or int): Identify the column to define the point colour (use palette default colour if not specified)
         label (str or int): Identify the column to define the label
         size (str or int): Identify the column to determine the size of each marker
+        slice (str or int): Identify the column to determine the slice to which each marker belongs
         palette(object) : a ContinuousPalette or DiscretePalette instance to control chart colour
         marker_manager(object) : a MarkerManager instance to control marker appearance
         font_height (int): the height of the font for text labels
         text_attributes (dict): SVG attribute name value pairs to apply to labels
     """
 
-    def __init__(self, data, x=0, y=1, width=768, height=768, colour=None, label=None, size=None, palette=None, marker_manager=None, font_height=24, text_attributes={}):
+    def __init__(self, data, x=0, y=1, width=768, height=768, colour=None, label=None, size=None, slice=None, palette=None, marker_manager=None, font_height=24, text_attributes={}):
         super(Scatter, self).__init__()
         self.setTooltipFunction(lambda cat,val: "%s %s: (%.02f,%.02f)"%(cat[0],cat[1],val[0],val[1]))
         self.dataset = Dataset(data)
@@ -57,7 +58,7 @@ class Scatter(ChartElement):
         self.colour = colour
         self.size = size
         self.label = label
-
+        self.slice = slice
         self.width = width
         self.height = height
         
@@ -98,6 +99,13 @@ class Scatter(ChartElement):
         if self.size:
             for v in self.dataset.query([self.size],unique=True,flatten=True):
                 self.getMarkerManager().noteSize(v)
+        if self.slice is not None:
+            self.slices = sorted(self.dataset.query([self.slice],unique=True,flatten=True))
+        else:
+            self.slices = None
+
+    def getSlices(self):
+        return self.slices
 
     def getWidth(self):
         return self.width
@@ -106,9 +114,8 @@ class Scatter(ChartElement):
         return self.height
 
     def drawChart(self,doc,chart_cx,chart_cy,chart_width,chart_height):        
-        
-        categories = {}
-        def plot(doc,x,y,v,label,sz):
+
+        def plot(doc,x,y,v,label,sz, visible=True):
             if v != None:
                 col = self.palette.getColour(v)
             else:
@@ -118,13 +125,33 @@ class Scatter(ChartElement):
             cy = self.computeY(y)
 
             marker = self.getMarkerManager().getMarker(sz)
-            return marker.plot(doc,cx,cy,self.getTooltip((label,v),(x,y)),col)
+            return marker.plot(doc,cx,cy,self.getTooltip((label,v),(x,y)),col,visible=visible)
 
-        for (x,y,label,v,sz) in self.dataset.query([self.x,self.y,self.label,self.colour,self.size]):
-            cid = plot(doc,x,y,v,label,sz)
+        slicemap = {}
+        categories = {}
+        config = {}
+        if self.slices is None:
+            self.plotSlice(None,doc,categories,plot,True)
+        else:
+            for slice in self.slices:
+                slicemap[slice] = self.plotSlice(slice, doc, categories,plot,slice==self.slices[0])
+            config["slices"] = slicemap
+            config["start_slice"] = self.slices[0]
+        config["categories"] = categories
+        return config
+
+    def plotSlice(self,slice,doc,categories,plotfn,visible):
+        idlist = []
+        if slice == None:
+            query = self.dataset.query([self.x, self.y, self.label, self.colour, self.size])
+        else:
+            query = self.dataset.query([self.x, self.y, self.label, self.colour, self.size],
+                                       filters=[Dataset.filter(self.slice,"=",slice)])
+        for (x, y, label, v, sz) in query:
+            cid = plotfn(doc, x, y, v, label, sz, visible)
+            idlist.append(cid)
             if v:
-                ids = categories.get(v,[])
+                ids = categories.get(v, [])
                 ids.append(cid)
                 categories[v] = ids
-
-        return {"categories":categories}
+        return idlist
