@@ -25,6 +25,9 @@ from visigoth.common.image import Image
 from visigoth.utils.httpcache import HttpCache
 from visigoth.utils.js import Js
 from visigoth.map_layers import MapLayer
+from visigoth.svg import rectangle
+
+TRANSPARENT_1PIXEL = bytes([137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,1,0,0,0,1,8,6,0,0,0,31,21,196,137,0,0,0,13,73,68,65,84,24,87,99,248,255,255,255,127,0,9,251,3,253,5,67,69,202,0,0,0,0,73,69,78,68,174,66,96,130])
 
 class WMTS(MapLayer):
 
@@ -43,7 +46,7 @@ class WMTS(MapLayer):
             
     Note:  this WMTS layer can only currently work with the default Web Mercator (EPSG:3857) projection
     """
-    def __init__(self,url=default_url,image_type=None,attribution=default_attribution, default_attribution_link=default_attribution_link):
+    def __init__(self,url=default_url,image_type=None,attribution=default_attribution, default_attribution_link=default_attribution_link,embed_images=True):
         super(WMTS, self).__init__()
         if url == WMTS.default_url:
             self.setInfo(name="WMTS",attribution=attribution,url=default_attribution_link)
@@ -62,6 +65,7 @@ class WMTS(MapLayer):
         self.projection = None
         self.content = {}
         self.zoom = 0
+        self.embed_images = embed_images
     
     def configureLayer(self,ownermap,width,height,boundaries,projection,zoom_to,fmt):
         self.ownermap = ownermap
@@ -120,19 +124,20 @@ class WMTS(MapLayer):
         self.zoom = zoom
 
         zoom_level = 1
+        wmts_zoom = self.zoom
         while zoom_level <= self.zoom_to:
             self.content[zoom_level] = {}
 
-            zoom = self.zoom + zoom_level - 1
+            print("wmts zoom=",wmts_zoom)
             width = self.width*zoom_level
 
-            (txmin,tymax,_,_) = self.getTileXY(latmin,lonmin,zoom)
-            (txmax,tymin,_,_) = self.getTileXY(latmax,lonmax,zoom)
-            (tx,ty,xoff,yoff) = self.getTileXY(latmid,lonmid,zoom)
+            (txmin,tymax,_,_) = self.getTileXY(latmin,lonmin,wmts_zoom)
+            (txmax,tymin,_,_) = self.getTileXY(latmax,lonmax,wmts_zoom)
+            (tx,ty,xoff,yoff) = self.getTileXY(latmid,lonmid,wmts_zoom)
 
             # get xmin/max of NW tile
-            (nwxmin,_) = self.getTileLocationNW(txmin,tymin,zoom)
-            (nwxmax,_) = self.getTileLocationNW(txmin+1,tymin+1,zoom)
+            (nwxmin,_) = self.getTileLocationNW(txmin,tymin,wmts_zoom)
+            (nwxmax,_) = self.getTileLocationNW(txmin+1,tymin+1,wmts_zoom)
 
             tiles_m_per_pixel = (nwxmax-nwxmin)/256.0
             target_m_per_pixel = (xmax-xmin)/float(width)
@@ -144,10 +149,17 @@ class WMTS(MapLayer):
 
             for tilex in range(txmin,txmax+1):
                 for tiley in range(tymin,tymax+1):
-                    url =  self.wmts_url.replace("{z}",str(zoom)).replace("{x}",str(tilex)).replace("{y}",str(tiley))
-                    self.content[zoom_level]["tiles"][(tilex,tiley)] = HttpCache.fetch(url)
-
+                    url =  self.wmts_url.replace("{z}",str(wmts_zoom)).replace("{x}",str(tilex)).replace("{y}",str(tiley))
+                    if self.embed_images:
+                        try:
+                            self.content[zoom_level]["tiles"][(tilex,tiley)] = HttpCache.fetch(url)
+                        except Exception as ex:
+                            print("Unable to download WMS image from %s: %s" % (url,str(ex)))
+                            self.content[zoom_level]["tiles"][(tilex, tiley)] = b""
+                    else:
+                        self.content[zoom_level]["tiles"][(tilex, tiley)] = url
             zoom_level *= 2
+            wmts_zoom += 1
 
     def getBoundaries(self):
         return self.bounds
@@ -155,8 +167,11 @@ class WMTS(MapLayer):
     def draw(self,doc,cx,cy):
     
         zoom_groups = []
+        zoom_levels = {}
         zoom = 1
+        image_urls_by_zoom = {} # zoom => { image-id => url }
         while zoom <= self.zoom_to:
+            image_urls = {}
             ox = cx - self.width/2
             oy = cy - self.height/2
         
@@ -164,6 +179,7 @@ class WMTS(MapLayer):
             scale = self.content[zoom]["scale"]
             offset_x = self.content[zoom]["offset_x"]
             offset_y = self.content[zoom]["offset_y"]
+
             
             g = doc.openGroup()
             if zoom != 1:
@@ -172,8 +188,22 @@ class WMTS(MapLayer):
             ytilemin = min([ytile for (_,ytile) in tiles])
             tilesz = 256.0/zoom
             for (xtile,ytile) in tiles:
-                i = Image("image/%s"%(self.image),content_bytes=tiles[(xtile,ytile)],width=tilesz,height=tilesz)
-                i.draw(doc,ox+tilesz/2+tilesz*(xtile-xtilemin),oy+tilesz/2+tilesz*(ytile-ytilemin))
+                i = None
+                if self.embed_images:
+                    image_content = tiles[(xtile,ytile)]
+                    if image_content:
+                        i = Image("image/%s"%(self.image),content_bytes=image_content,width=tilesz,height=tilesz)
+                else:
+                    url = tiles[(xtile, ytile)]
+                    if zoom == 1:
+                        i = Image("image/%s" % (self.image), path_or_url=url, width=tilesz,height=tilesz, embed_image=False)
+                    else:
+                        i = Image("image/%s" % (self.image), content_bytes=TRANSPARENT_1PIXEL, width=tilesz, height=tilesz)
+
+                iid = i.draw(doc,ox+tilesz/2+tilesz*(xtile-xtilemin),oy+tilesz/2+tilesz*(ytile-ytilemin))
+                if not self.embed_images:
+                    image_urls[iid] = url
+                    print(zoom,iid,url)
 
             dx = self.width/2-offset_x
             dy = self.height/2-offset_y
@@ -181,18 +211,25 @@ class WMTS(MapLayer):
             tx = -1*(cx-dx)*(scale-1)
             ty = -1*(cy-dy)*(scale-1)
 
-            transform0 = "translate("+str(dx)+","+str(dy)+")"
-            transform0 += " translate("+str(tx)+","+str(ty)+")"
+            transform0 = "translate("+str(dx+tx)+","+str(dy+ty)+")"
+            # transform0 += " translate("+str(tx)+","+str(ty)+")"
             transform0 += " scale("+str(scale)+")"
+
+            zoom_levels[str(zoom)] = {"scale": scale, "offset_x": dx+tx, "offset_y":dy+ty}
 
             g.addAttr("transform",transform0)
             zoom_groups.append(g.getId())
             doc.closeGroup()
-
+            image_urls_by_zoom[str(zoom)] = image_urls
             zoom *= 2
 
+        guide = rectangle(cx,cy,0,0,stroke="red",stroke_width=1)
+        guide_id = guide.getId()
+        doc.add(guide)
         with open(os.path.join(os.path.split(__file__)[0],"wmts.js"),"r") as jsfile:
             jscode = jsfile.read()
-        config = { "zoom_groups":zoom_groups }
+        config = { "zoom_groups":zoom_groups, "zoom_levels":zoom_levels, "guide_id":guide_id }
+        if not self.embed_images:
+            config["image_urls_by_zoom"] = image_urls_by_zoom
         Js.registerJs(doc,self,jscode,"wmts",cx,cy,config)
         

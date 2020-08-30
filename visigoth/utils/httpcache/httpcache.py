@@ -30,7 +30,10 @@ import hashlib
 import ssl
 
 ctx = ssl.create_default_context()
-ctx.set_ciphers("DEFAULT:@SECLEVEL=1")
+try:
+    ctx.set_ciphers("DEFAULT:@SECLEVEL=1")
+except:
+    pass
 
 from visigoth.utils.term.progress import Progress
 

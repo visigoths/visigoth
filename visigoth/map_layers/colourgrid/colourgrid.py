@@ -27,7 +27,7 @@ from visigoth.svg import image
 from visigoth.map_layers import MapLayer
 from visigoth.utils.js import Js
 from visigoth.utils.image.png_canvas import PngCanvas
-from visigoth.utils.colour import ContinuousPalette
+from visigoth.utils.colour import ContinuousPalette, Colour
 from visigoth.utils.mapping import Projections
 
 class ColourGrid(MapLayer):
@@ -46,7 +46,7 @@ class ColourGrid(MapLayer):
         super().__init__()
         self.data = data
         self.region_boundaries = boundaries
-        self.boundaries = None
+        self.boundaries = boundaries
         self.width = None
         self.height = None
         self.rows = len(self.data)
@@ -107,31 +107,56 @@ class ColourGrid(MapLayer):
 
         c = None
         thresholds = []
-        colours = [(255, 255, 255, 0)]
-        intervals = self.getPalette().getIntervals()
-        for (val, _, col) in intervals:
+        colours = [Colour.parseColour(self.getPalette().getDefaultColour())]
+        palette = self.getPalette()
+        if palette.isDiscrete():
+            colourlist = palette.getCategories()
+        else:
+            intervals = self.getPalette().getIntervals()
+            if not intervals:
+                low = palette.getMinValue()
+                high = palette.getMaxValue()
+                colourlist = []
+                for idx in range(255):
+                    val0 = low + (idx/255)*(high-low)
+                    val1 = val0 + (1 / 255) * (high - low)
+                    col = palette.getColour((val0+val1)/2)
+                    colourlist.append((val0,val1,col))
+            else:
+                colourlist = [(val0,val1,col) for (val0, val1, col) in intervals]
+
+        for (val0, val1, col) in colourlist:
             if col != c:
                 r = int(col[1:3], 16)
                 g = int(col[3:5], 16)
                 b = int(col[5:7], 16)
-                o = 255
-                thresholds.append((val, len(thresholds)))
+                o = 255 if len(col) == 7 else int(col[7:9], 16)
+                thresholds.append((val0, val1, len(colours)))
                 colours.append((r, g, b, o))
             c = col
+
+        if len(colours) > 256:
+            raise Exception("Colour Grid cannot display more than 256 colours: %d colours requested"%(len(colours)))
 
         def getColourIndex(val):
             if val is None:
                 return 0
-            for (threshold, index) in thresholds:
-                if val < threshold:
-                    return index
-            return len(colours) - 1
-
+            if self.getPalette().isDiscrete():
+                for (value, index) in thresholds:
+                    if val == value:
+                        return index
+                return 0
+            else:
+                for idx in range(len(thresholds)):
+                    (threshold0, threshold1, index) = thresholds[idx]
+                    if val >= threshold0 and ((val < threshold1) or ((idx == len(thresholds)-1) and (val <= threshold1))):
+                        return index
+                return 0
 
         ((min_e, min_n), (max_e, max_n)) = Projections.getENBoundaries(self.projection, self.boundaries)
 
-        height_px = int(self.height)
-        width_px = int(self.width)
+        height_px = self.rows
+        width_px = self.columns
         x_step = (max_e - min_e)/width_px
         y_step = (max_n - min_n)/height_px
         c = PngCanvas(height_px, width_px, colours)
@@ -152,6 +177,7 @@ class ColourGrid(MapLayer):
         uri = "data:image/png;charset=US-ASCII;base64," + str(base64.b64encode(file.read()), "utf-8")
 
         i = image(ox,oy,self.width,self.height,uri)
+        i.addAttr("preserveAspectRatio","none")
         doc.add(i)
 
         with open(os.path.join(os.path.split(__file__)[0], "colourgrid.js"), "r") as jsfile:

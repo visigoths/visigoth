@@ -210,11 +210,9 @@ class PngCanvas(object):
         self.writelong(self.crc)
 
 if __name__ == '__main__':
-    cnv = PngCanvas(100, 100, [(255,0,0,128),(0,255,0,128),(0,0,255,128)])
-    for x in range(0,100):
-        for y in range(0,100):
-            col = 0
-            if y > 50:
-                col = 1
-            cnv.addpixel(x,y,col)
-    cnv.write(open("/tmp/test.png","wb"))
+    cnv = PngCanvas(1, 1, [(255,255,255,0)])
+    cnv.addpixel(0,0,0)
+    from io import BytesIO
+    bio = BytesIO()
+    cnv.write(bio)
+    print(bio.getvalue())

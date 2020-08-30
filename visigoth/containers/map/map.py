@@ -196,13 +196,7 @@ class Map(DiagramElement):
         oy = cy - self.height/2
         ox = cx - self.width/2
 
-        overlayId = ""
-        if self.zoom_to > 1:
-            # add a transparent rectangle to receive touch events, underneath the other layers
-            overlay = rectangle(ox,cy-self.height/2,self.width,self.height,fill="none")
-            overlay.addAttr("pointer-events","visible")
-            overlayId = overlay.getId()
-            doc.add(overlay)
+
 
         with open(os.path.join(os.path.split(__file__)[0],"map.js"),"r") as jsfile:
             jscode = jsfile.read()
@@ -225,6 +219,13 @@ class Map(DiagramElement):
             r.addAttr("pointer-events","none") # don't block events so they reach the overlay layer (if present)
             doc.add(r)
 
+        overlayId = ""
+        if self.zoom_to > 1:
+            # add a transparent rectangle to receive touch events, underneath the other layers
+            overlay = rectangle(ox, cy - self.height / 2, self.width, self.height, fill="#FFFFFF01")
+            # overlay.addAttr("pointer-events","visible")
+            overlayId = overlay.getId()
+            doc.add(overlay)
 
         # add non-foreground layers
         for (element,identifier) in self.elements:
@@ -258,6 +259,8 @@ class Map(DiagramElement):
             ah = attribution_text.getHeight()
             attribution_text.draw(doc,cx,oy+ah/2)
             oy += ah
+
+
 
         if self.zoom_to > 1:
             px = cx - self.width/2 + self.panzoom_radius + 10

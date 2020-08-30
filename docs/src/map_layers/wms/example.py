@@ -14,7 +14,7 @@ m1 = Map(512,bounds,zoom_to=4)
 m1.add(WMS("osm"))
 d.add(Box(m1))
 
-d.add(Text("sentinel2 cloudless layer"))
+d.add(Text("satellite layer"))
 m2 = Map(512,bounds,zoom_to=4)
 m2.add(WMS("satellite"))
 d.add(Box(m2))

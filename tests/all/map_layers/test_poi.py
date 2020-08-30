@@ -27,6 +27,7 @@ from visigoth.containers import Box
 from visigoth.common import Space
 from visigoth.map_layers import WMS, POI
 from visigoth.utils.mapping import Geocoder, Mapping
+from visigoth.utils.colour.palette import DiscretePalette
 
 class TestPOI(unittest.TestCase):
 
@@ -36,19 +37,20 @@ class TestPOI(unittest.TestCase):
         gc = Geocoder()
         center = gc.fetchCenter("Rio de Janeiro")
         bounds = Mapping.computeBoundaries(center,2000000)
-        m = Map(512,boundaries=bounds)
+        m = Map(512,boundaries=bounds,zoom_to=4)
 
-        p1 = {"url":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Rio_Collage.png/280px-Rio_Collage.png","lon":-43.196389,"lat":-22.908333,"label":"Rio de Janeiro","scale":0.75}
-        p2 = {"url":"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Bras%C3%ADlia_Collage.png/280px-Bras%C3%ADlia_Collage.png","lon":-47.882778,"lat":-15.793889,"label":"Brasília","scale":0.75}
-        p3 = {"url":"https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Montagem_SP.png/280px-Montagem_SP.png","lon":-46.633333,"lat":-23.55,"label":"São Paulo","scale":0.5}
+        p1 = {"url":"https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Rio_Collage.png/280px-Rio_Collage.png","lon":-43.196389,"lat":-22.908333,"label":"Rio de Janeiro","scale":0.75,"colour":"red"}
+        p2 = {"url":"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Bras%C3%ADlia_Collage.png/280px-Bras%C3%ADlia_Collage.png","lon":-47.882778,"lat":-15.793889,"label":"Brasília","scale":0.75,"colour":"blue"}
+        p3 = {"url":"https://upload.wikimedia.org/wikipedia/commons/thumb/4/49/Montagem_SP.png/280px-Montagem_SP.png","lon":-46.633333,"lat":-23.55,"label":"São Paulo","scale":0.5,"colour":"green"}
 
-        poi = POI([p1,p2,p3],lat="lat",lon="lon",label="label",image="url",image_scale="scale")
+        poi = POI([p1,p2,p3],lat="lat",lon="lon",label="label",image="url",image_scale="scale",colour="colour")
+        poi.getPalette().setDefaultColour("red")
         m.add(WMS())
         m.add(poi)
         d.add(Space(200))
         d.add(Box(m))
 
-        TestUtils.draw_output(d,"test_media")
+        TestUtils.draw_output(d,"test_poi")
 
 if __name__ == "__main__":
     unittest.main()

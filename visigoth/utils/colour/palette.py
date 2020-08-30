@@ -18,10 +18,9 @@
 #   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from visigoth.utils.colour import Colour
+from visigoth.utils.colour.colour import Colour, ColourException
 from visigoth.common.axis import AxisUtils
 from visigoth.utils.colour.colourmaps import ColourMaps, DiscreteColourMaps
-
 
 class Palette(object):
 
@@ -32,12 +31,12 @@ class Palette(object):
         return self.defaultColour
 
     def setDefaultColour(self,defaultColour):
-        self.defaultColour = defaultColour
+        self.defaultColour = Colour.toHEX(defaultColour)
 
 
 class DiscretePalette(Palette):
 
-    def __init__(self,colourMap="pastel",defaultColour="blue"):
+    def __init__(self,colourMap="pastel",defaultColour="white"):
         super(DiscretePalette,self).__init__(defaultColour)
         self.colour = None
         self.categories = []
@@ -69,7 +68,13 @@ class DiscretePalette(Palette):
             self.colour.setOpacity(self.opacity)
         if value is None:
             return self.getDefaultColour()
-        col = self.colour.getColour(value)
+        try:
+            # if the value already represents a valid colour, use that colour
+            Colour.parseColour(value)
+            col = value
+        except ColourException:
+            # assign a new colour from the colour map, if necessary
+            col = self.colour.getColour(value)
         if value not in self.categoryset:
             self.categoryset.add(value)
             self.categories.append((value,col))
@@ -85,7 +90,7 @@ class DiscretePalette(Palette):
 
 class ContinuousPalette(Palette):
 
-    def __init__(self, withIntervals=True, colourMap="viridis", defaultColour="blue",min_val=None,max_val=None):
+    def __init__(self, withIntervals=True, colourMap="viridis", defaultColour="white",min_val=None,max_val=None):
         super(ContinuousPalette,self).__init__(defaultColour)
         self.colour = None
         self.range = []

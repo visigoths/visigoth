@@ -86,4 +86,60 @@ f.close()
 ```
 
 
+### Credits/Acknowledgements/Citations
 
+This project uses matrix inversion code from Andrew Ippoliti's Blog.  See http://blog.acipo.com/matrix-inversion-in-javascript/
+
+This project re-uses sequences of RGB colour codes from the following color maps:
+
+* Continuous Color Maps (Viridis, Magma, Plasma and Inferno):
+
+```
+License regarding the Viridis, Magma, Plasma and Inferno colormaps:
+New matplotlib colormaps by Nathaniel J. Smith, Stefan van der Walt,
+and (in the case of viridis) Eric Firing.
+
+The Viridis, Magma, Plasma, and Inferno colormaps are released under the
+CC0 license / public domain dedication. We would appreciate credit if you
+use or redistribute these colormaps, but do not impose any legal
+restrictions.
+
+To the extent possible under law, the persons who associated CC0 with
+mpl-colormaps have waived all copyright and related or neighboring rights
+to mpl-colormaps.
+
+You should have received a copy of the CC0 legalcode along with this
+work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+```
+
+* Discrete Colour Maps (deep, deep6, muted=, muted6, pastel, pastel6, bright, bright6, dark, dark6, colorblind, colorblind6):
+
+```
+Copyright (c) 2012-2020, Michael L. Waskom
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of the project nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+```

@@ -40,8 +40,8 @@ class WMS(MapLayer):
     mundialis_attribution = ("Contains modified SRTM data (2014)/NASA, processed by mundialis (www.mundialis.de) and vector data by OpenStreetMap contributors (2020), www.openstreetmap.org","https://www.mundialis.de/en/ows-mundialis/")
 
     layer_lookup = {
-        ("satellite","EPSG:3857"):(gibs_3857_url,"MODIS_Terra_CorrectedReflectance_TrueColor",gibs_attribution),
-        ("satellite", "EPSG:4326"):(gibs_4326_url, "MODIS_Terra_CorrectedReflectance_TrueColor",gibs_attribution),
+        ("satellite","EPSG:3857"):(gibs_3857_url,"Landsat_WELD_CorrectedReflectance_TrueColor_Global_Annual",gibs_attribution),
+        ("satellite", "EPSG:4326"):(gibs_4326_url, "Landsat_WELD_CorrectedReflectance_TrueColor_Global_Annual",gibs_attribution),
         ("osm","EPSG:3857"):(mundialis_url,"OSM-WMS",mundialis_attribution),
         ("osm","EPSG:4326"):(mundialis_url,"OSM-WMS",mundialis_attribution),
     }
@@ -57,6 +57,7 @@ class WMS(MapLayer):
         date(datetime): date for which imagery is requested
         attribution(str): a citation or acknowledgement for the data provider
         attribution_url(str): a URL for the data provider
+        embed_images(bool): whether to download and embed images into the document or link to them
         
         Note: specify either (type AND image) OR (url)
         Note: WMS layer can only currently work with the default Web Mercator (EPSG:3857) or Platte-Carrerre (EPSG:4326) projection
@@ -68,7 +69,8 @@ class WMS(MapLayer):
         url="",
         date=None,
         attribution="",
-        attribution_url=""
+        attribution_url="",
+        embed_images=True
         ):
         super(WMS, self).__init__()
         self.bounds = None
@@ -82,6 +84,7 @@ class WMS(MapLayer):
         self.type = type
         self.image = image
         self.content = {}
+        self.embed_images = embed_images
 
     def configureLayer(self,ownermap,width,height,boundaries,projection,zoom_to,fmt):
         self.ownermap = ownermap
@@ -261,7 +264,14 @@ class WMS(MapLayer):
                     if self.date != None:
                         parameters["date"] = self.date
                     resolved_url = WMS.getMapUrl(url,parameters)
-                    self.content[zoom][(zx,zy)] = HttpCache.fetch(resolved_url)
+                    if self.embed_images:
+                        try:
+                            self.content[zoom][(zx,zy)] = HttpCache.fetch(resolved_url)
+                        except:
+                            print("Unable to download WMS image from %s"%(resolved_url))
+                            self.content[zoom][(zx, zy)] = b""
+                    else:
+                        self.content[zoom][(zx, zy)] = resolved_url
             zoom *= 2
 
 
@@ -282,9 +292,16 @@ class WMS(MapLayer):
             th = self.height/zoom
             for zx in range(zoom):
                 for zy in range(zoom):
-                    i = Image("image/%s"%(self.image),content_bytes=self.content[zoom][(zx,zy)],width=tw,height=th)
-                    i.draw(doc,ox+(zx+0.5)*tw,oy+self.height-(zy+0.5)*th)
-
+                    i = None
+                    if self.embed_images:
+                        bytes = self.content[zoom][(zx,zy)]
+                        if bytes:
+                            i = Image("image/%s"%(self.image),content_bytes=bytes,width=tw,height=th)
+                    else:
+                        url = self.content[zoom][(zx, zy)]
+                        i = Image("image/%s" % (self.image), path_or_url=url, width=tw, height=th, embed_image=False)
+                    if i:
+                        i.draw(doc, ox + (zx + 0.5) * tw, oy + self.height - (zy + 0.5) * th)
             zoom_groups.append(g.getId())
             doc.closeGroup()
             zoom *= 2

@@ -31,12 +31,12 @@ from visigoth.map_layers.wms import WMS
 class TestGeoimport(unittest.TestCase):
 
     def test_basic(self):
-        d = Diagram(fill="white")
+        d = Diagram(fill="white",margin_left=0,margin_right=0,margin_top=0,margin_bottom=0)
 
-        m1 = Map(512)
+        m1 = Map(512,zoom_to=4)
 
         path = os.path.join(os.path.split(__file__)[0],"Berlin_gemeinden_simplify0.geojson")
-        m1.add(WMS())
+        m1.add(WMS(type="osm"))
         m1.add(Geoimport(path=path,polygon_style={"fill":"#FFFFFF30"}))
         d.add(Box(m1))
 

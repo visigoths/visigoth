@@ -55,22 +55,21 @@ class Legend(DiagramElement):
         self.label = label
         self.stroke = stroke
         self.stroke_width = stroke_width
+        self.font_height = font_height
 
         # Discrete
         self.legend_gap = 20
         self.legend_columns = legend_columns
-        self.legend_font_height = font_height
+
         self.discrete_marker_style = "square"
 
         # Continuous
         self.orientation = orientation
 
-        self.bar_width = 40  # width of legend bar
-        self.bar_spacing = 10  # space between axis and legend bar
-
         if isinstance(self.palette,ContinuousPalette):
+            self.configureForContinuousPalette()
             self.axis = Axis(self.width, self.orientation, self.palette.getMinValue(), self.palette.getMaxValue(),
-                         label=self.label, font_height=self.legend_font_height, text_attributes=self.text_attributes,
+                         label=self.label, font_height=self.font_height, axis_font_height=self.font_height, text_attributes=self.text_attributes,
                          stroke=self.stroke, stroke_width=self.stroke_width)
 
     def getHeight(self):
@@ -85,14 +84,28 @@ class Legend(DiagramElement):
     def setDiscreteMarkerStyle(self,style):
         self.discrete_marker_style = style
 
+    def configureForContinuousPalette(self,bar_thickness=40,bar_spacing=10):
+        """
+        Configure the legend for displaying a continuous palette
+
+        Arguments:
+            bar_thickness(integer): the thickness of the bar in pixels
+            bar_spacing(integer): the spacing between the bar and the labels
+        Returns:
+            self
+        """
+        self.bar_width = bar_thickness
+        self.bar_spacing = bar_spacing
+        return self
+
     def build(self,fmt):
         self.palette.build()
         if self.palette.isDiscrete():
             if not self.legend_columns:
-                max_text_width = max(map(lambda x:FontManager.getTextLength(self.text_attributes,x[0],self.legend_font_height),self.palette.getCategories()))
-                column_content_width = max_text_width + self.legend_font_height*3
+                max_text_width = max(map(lambda x:FontManager.getTextLength(self.text_attributes,x[0],self.font_height),self.palette.getCategories()))
+                column_content_width = max_text_width + self.font_height*3
                 self.legend_columns = max(1,self.width // column_content_width)
-            self.height = (self.legend_font_height*len(self.palette.getCategories())*2) // self.legend_columns
+            self.height = (self.font_height*len(self.palette.getCategories())*2) // self.legend_columns
         else:
             self.axis.setMinValue(self.palette.getMinValue())
             self.axis.setMaxValue(self.palette.getMaxValue())
@@ -118,8 +131,8 @@ class Legend(DiagramElement):
         oy = cy - self.height/2
         ox = cx
         legend_column_width = self.width / self.legend_columns
-        max_text_width = max(map(lambda x:FontManager.getTextLength(self.text_attributes,x[0],self.legend_font_height),self.palette.getCategories()))
-        column_content_width = max_text_width + self.legend_font_height*1.5
+        max_text_width = max(map(lambda x:FontManager.getTextLength(self.text_attributes,x[0],self.font_height),self.palette.getCategories()))
+        column_content_width = max_text_width + self.font_height*1.5
         column_offset = 0
         if column_content_width < legend_column_width:
             column_offset = (legend_column_width-column_content_width)/2
@@ -128,7 +141,7 @@ class Legend(DiagramElement):
         col = 0
         config = { "categories": {} }
         for (category, colour) in self.palette.getCategories():
-            g = self.legend_font_height
+            g = self.font_height
             if self.discrete_marker_style == "square":
                 points = [(legend_x, legend_y), (legend_x + g, legend_y), (legend_x + g, legend_y + g),
                       (legend_x, legend_y + g)]
@@ -140,7 +153,7 @@ class Legend(DiagramElement):
             config["categories"][category] = [p.getId()];
             d.add(p)
             t = text(legend_x+1.5*g, legend_y+g/2, category)
-            t.addAttr("font-size", self.legend_font_height)
+            t.addAttr("font-size", self.font_height)
             t.addAttr("text-anchor", "start")
             t.setVerticalCenter()
             t.addAttrs(self.text_attributes)

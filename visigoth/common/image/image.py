@@ -37,11 +37,12 @@ class Image(DiagramElement):
         height(int) : the height of the image in bytes
         scale(float) : used to scale the image
         tooltip(str) : a tooltip to display when hovering over the image
+        embed_image(bool): whether to embed the image content as a data URL or simply link to the image url provided in path_or_url
     Notes:
         Caller must provide EITHER path_or_url OR (content_bytes AND mimeType)
         If width and height are not provided they will be extracted from the image
     """
-    def __init__(self,mime_type="",content_bytes=[],path_or_url="",width=0,height=0,scale=1.0,tooltip=""):
+    def __init__(self,mime_type="",content_bytes=[],path_or_url="",width=0,height=0,scale=1.0,tooltip="",embed_image=True):
         DiagramElement.__init__(self)
         self.mimeType=mime_type
         self.contentBytes=content_bytes
@@ -53,11 +54,14 @@ class Image(DiagramElement):
         self.scale = scale
         if not self.path_or_url and not (self.contentBytes and self.mimeType):
             raise Exception("Caller must provide path_or_url or contentBytes+mimeType")
-            
+        self.embed_image = embed_image
+        if not self.embed_image and not self.path_or_url:
+            raise Exception("Caller must provide a URL in path_or_url if embed_image is False")
+
     def build(self,fmt):
         if self.mimeType == "":
             self.extractMimeType()
-        if not self.contentBytes:
+        if not self.contentBytes and self.embed_image or (self.width <= 0 or self.height <= 0):
             self.loadContent()
         if self.width <= 0 or self.height <= 0:
             self.extractDimensions()
@@ -125,10 +129,14 @@ class Image(DiagramElement):
         if cx != None:
             ox = cx - self.width/2
 
-        if self.mimeType=="image/svg+xml":
-            es = embedded_svg(self.width,self.height,ox,oy,str(self.contentBytes,"utf-8"))
-            d.add(es)
+        if not self.embed_image:
+            i = image(ox, oy, self.width, self.height, self.path_or_url, tooltip=self.tooltip)
+        elif self.mimeType=="image/svg+xml":
+            i = embedded_svg(self.width,self.height,ox,oy,str(self.contentBytes,"utf-8"))
         else:
             uri="data:"+self.mimeType+";charset=US-ASCII;base64,"+str(base64.b64encode(self.contentBytes),"utf-8")
             i = image(ox,oy,self.width,self.height,uri,tooltip=self.tooltip)
-            d.add(i)
+        image_id = i.getId()
+        d.add(i)
+        return image_id
+

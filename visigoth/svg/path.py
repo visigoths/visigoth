@@ -28,15 +28,16 @@ from visigoth.svg import circle
 # represent a path as an SVG object
 class path(svgstyled):
 
-    def __init__(self,points,stroke,stroke_width,tooltip="",smoothing=None,fill=None,closed=False):
+    def __init__(self,points=[],stroke="black",stroke_width=1,tooltip="",smoothing=None,fill=None,closed=False):
         svgstyled.__init__(self,"path",tooltip)
         self.smoothing = smoothing
         self.closed = closed
-        if self.smoothing:
-            s = self.computeSmoothedPath(points)
-        else:
-            s = self.computeStandardPath(points)
-        self.addAttr("d",s)
+        if len(points) > 0:
+            if self.smoothing:
+                s = self.computeSmoothedPath(points)
+            else:
+                s = self.computeStandardPath(points)
+            self.addAttr("d",s)
 
         if fill == None:
             self.addAttr("fill","none")
@@ -44,6 +45,26 @@ class path(svgstyled):
             self.addAttr("fill",fill)
         if stroke and stroke_width:
             self.addAttr("stroke-width",stroke_width).addAttr("stroke",stroke)
+
+    @staticmethod
+    def scale_segment(segment,dx,dy,s):
+        (cmd0,points,cmd1) = segment
+        points = [(x * s, y * s) for (x, y) in points]
+        if cmd0 == cmd0.upper():
+            points = [(x+dx,y+dy) for (x,y) in points]
+        return points
+
+    def setRawPath(self,raw_path,off_x,off_y,scale):
+        # raw path is a list of (cmd0,segment_coords,cmd1) describing each segment that makes up the path
+        scaled_path = [
+            (cmd0, [(xc, yc) for (xc, yc) in path.scale_segment((cmd0, points, cmd1), off_x, off_y, scale)], cmd1)
+            for (cmd0, points, cmd1) in raw_path]
+
+        d = " ".join([cmd0 + " " + ",".join([str(x) + " " + str(y) for (x, y) in coordlist]) + " " + cmd1 + " " for
+                      (cmd0, coordlist, cmd1) in scaled_path])
+        if self.closed:
+            d += "z"
+        self.addAttr("d", d)
 
     def close(self,points):
         path = self.getAttr("d")

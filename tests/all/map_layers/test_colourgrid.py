@@ -53,31 +53,31 @@ class TestColourGrid(unittest.TestCase):
 
         d.add(Box(m0))
         d.add(Legend(width=512, palette=c0.getPalette()))
+        #
+        # peaks1 = [(0.3, 0.3, 100), (0.1, 0.9, 150), (0.6, 0.7, 120)]
+        #
+        # resolution1 = 400
+        # data1 = [[self.computeHeight(peaks1, x/resolution1, y/resolution1) for x in range(resolution1)] for y in range(resolution1)]
+        #
+        # m1 = Map(512, projection=Projections.IDENTITY,boundaries=((0.0,0.0),(1.0,1.0)))
+        # c1 = ColourGrid(data1,boundaries=((0,0),(1,1)))
+        # m1.add(c1)
+        # d.add(Box(m1))
+        # d.add(Legend(width=512, palette=c1.getPalette()))
+        #
+        # peaks2 = [(x/10,y/10,10) for x in [2,6] for y in [3,9]]
+        #
+        # resolution2 = 500
+        # data2 = [[self.computeHeight(peaks2, x / resolution2, y / resolution2) for x in range(resolution2*2)] for y in
+        #          range(resolution2)]
+        #
+        # m2 = Map(512, projection=Projections.IDENTITY,boundaries=((0.0,0.0),(1.0,1.0)))
+        # c2 = ColourGrid(data2, boundaries=((0,0),(1,1)))
+        # m2.add(c2)
+        # d.add(Box(m2))
+        # d.add(Legend(width=512, palette=c2.getPalette()))
 
-        peaks1 = [(0.3, 0.3, 100), (0.1, 0.9, 150), (0.6, 0.7, 120)]
-
-        resolution1 = 400
-        data1 = [[self.computeHeight(peaks1, x/resolution1, y/resolution1) for x in range(resolution1)] for y in range(resolution1)]
-
-        m1 = Map(512, projection=Projections.IDENTITY,boundaries=((0.0,0.0),(1.0,1.0)))
-        c1 = ColourGrid(data1,boundaries=((0,0),(1,1)))
-        m1.add(c1)
-        d.add(Box(m1))
-        d.add(Legend(width=512, palette=c1.getPalette()))
-
-        peaks2 = [(x/10,y/10,10) for x in [2,6] for y in [3,9]]
-
-        resolution2 = 500
-        data2 = [[self.computeHeight(peaks2, x / resolution2, y / resolution2) for x in range(resolution2*2)] for y in
-                 range(resolution2)]
-
-        m2 = Map(512, projection=Projections.IDENTITY,boundaries=((0.0,0.0),(1.0,1.0)))
-        c2 = ColourGrid(data2, boundaries=((0,0),(1,1)))
-        m2.add(c2)
-        d.add(Box(m2))
-        d.add(Legend(width=512, palette=c2.getPalette()))
-
-        TestUtils.draw_output(d,"test_colourgrid.svg")
+        TestUtils.draw_output(d,"test_colourgrid")
 
 
 if __name__ == "__main__":

@@ -15,9 +15,67 @@
 //   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+// Returns the inverse of matrix `M`.  See http://blog.acipo.com/matrix-inversion-in-javascript/ for full version
+function matrix_invert(M){
+    if(M.length !== M[0].length){return;}
+    var i=0, ii=0, j=0, dim=M.length, e=0, t=0;
+    var I = [], C = [];
+    for(i=0; i<dim; i+=1){
+
+        I[I.length]=[];
+        C[C.length]=[];
+        for(j=0; j<dim; j+=1){
+            if(i==j){ I[i][j] = 1; }
+            else{ I[i][j] = 0; }
+            C[i][j] = M[i][j];
+        }
+    }
+
+    for(i=0; i<dim; i+=1){
+        e = C[i][i];
+        if(e==0){
+            for(ii=i+1; ii<dim; ii+=1){
+                if(C[ii][i] != 0){
+                    for(j=0; j<dim; j++){
+                        e = C[i][j];
+                        C[i][j] = C[ii][j];
+                        C[ii][j] = e;
+                        e = I[i][j];
+                        I[i][j] = I[ii][j];
+                        I[ii][j] = e;
+                    }
+                    break;
+                }
+            }
+            e = C[i][i];
+            if(e==0){return}
+        }
+
+        for(j=0; j<dim; j++){
+            C[i][j] = C[i][j]/e;
+            I[i][j] = I[i][j]/e;
+        }
+
+        for(ii=0; ii<dim; ii++){
+            if(ii==i){continue;}
+
+            e = C[ii][i];
+
+
+            for(j=0; j<dim; j++){
+                C[ii][j] -= e*C[i][j];
+                I[ii][j] -= e*I[i][j];
+            }
+        }
+    }
+
+    return I;
+}
+
 class map {
 
     constructor(id,width,height,cx,cy,sendfn,config) {
+        this.matrix = [1,0,0,1,0,0];
         this.id = id;
         this.width = width;
         this.height = height;
@@ -34,12 +92,12 @@ class map {
         var that = this;
         if (this.overlay) {
             this.overlay.addEventListener("mousedown", function(event) {
-                event.preventDefault();
+                // event.preventDefault();
                 that.dragStart(event);
             });
 
             this.overlay.addEventListener("mouseup", function(event) {
-                event.preventDefault();
+                // event.preventDefault();
                 that.dragEnd(event);
             });
 
@@ -87,31 +145,44 @@ class map {
     }
 
     sendVisibleWindowUpdate() {
-        var cx = this.cx+this.offset_x/this.zoom_level;
-        var cy = this.cy+this.offset_y/this.zoom_level;
+
         var width = this.width/this.zoom_level;
         var height = this.height/this.zoom_level;
+
+        var m = [[this.matrix[0],this.matrix[2],this.matrix[4]],[this.matrix[1],this.matrix[3],this.matrix[5]],[0,0,1]];
+        var im = matrix_invert(m);
+
+        var cx = (im[0][0] * this.cx) + (im[0][1] * this.cy) + im[0][2];
+        var cy = (im[1][0] * this.cx) + (im[1][1] * this.cy) + im[1][2];
+
         this.sendfn({"cx":cx, "cy":cy, "width":width, "height":height},"visible_window");
     }
 
     move(dx,dy) {
-        this.offset_x -= (dx / (this.zoom_level-1));
-        this.offset_y -= (dy / (this.zoom_level-1));
+        this.matrix[4] += dx;
+        this.matrix[5] += dy;
 
         this.updateTransform();
         this.sendVisibleWindowUpdate();
     }
 
     zoom(newzoom) {
-        if (newzoom >= 1 && newzoom <= this.config.max_zoom) {
-            this.offset_x *= this.zoom_level/newzoom;
-            this.offset_y *= this.zoom_level/newzoom;
-            this.zoom_level = newzoom;    
-            this.updateTransform();
-            this.sendfn(this.zoom_level,"zoom");
-            this.sendVisibleWindowUpdate();
+        var scale = newzoom / this.zoom_level;
+        for(var i=0; i<6; i++) {
+            this.matrix[i] *= scale;
         }
+        console.log("center cx="+this.cx+"cy="+this.cy);
+
+        this.matrix[4] += (1 - scale) * this.cx;
+        this.matrix[5] += (1 - scale) * this.cy;
+        this.zoom_level = newzoom;
+
+        this.updateTransform();
+        this.sendfn(this.zoom_level,"zoom");
+        this.sendVisibleWindowUpdate();
     }
+
+
 
     updateTransform() {
         if (this.zoom_level == 1) {
@@ -141,11 +212,8 @@ class map {
             this.offset_y = maxy;
         }
 
-        // console.log("width:"+this.width+",zoom:"+this.zoom_level+",offsets:"+this.offset_x+","+this.offset_y);
+        var transform = "matrix(" +  this.matrix.join(' ') + ")";
 
-        var tx = -1*(this.cx+this.offset_x)*(this.zoom_level-1);
-        var ty = -1*(this.cy+this.offset_y)*(this.zoom_level-1);
-        var transform = "translate("+tx+","+ty+") scale("+this.zoom_level+")";
         this.layerGroup.setAttribute("transform",transform);
         this.popGroup.setAttribute("transform",transform);
     }

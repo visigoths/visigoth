@@ -30,7 +30,7 @@ for i in range(20):
     col = rng.choice(["red","purple","orange","green"])
     lon = lon_min+rng.random()*lon_range
     lat = lat_min+rng.random()*lat_range
-    multipoints.append(Multipoint([(lon,lat)],id=label,label=label,popup=popup,properties={"type":"point"},fill=col))
+    multipoints.append(Multipoint([(lon,lat)],id=label,label=label,popup=popup,marker=True,properties={"type":"point"},fill=col))
 
 multilines=[]
 popup = Popup(Text("Popup! %d"%(i)),"popup")
@@ -62,7 +62,7 @@ popup = Popup(Text("Popup! %d"%(i)),"popup")
 label = "poly_%d"%i
 multipolys.append(Multipolygon([[lps,hole]],id=label,label=label,popup=popup,properties={"type":"poly"},stroke="red",fill="#0000FF30"))
 
-m = Map(512,boundaries=bb,projection=Projections.EPSG_3857,zoom_to=2)
+m = Map(512,boundaries=bb,projection=Projections.EPSG_3857,zoom_to=4)
 m.add(WMS())
 gp = Geoplot(multipoints=multipoints,multilines=multilines,multipolys=multipolys)
 m.add(gp)

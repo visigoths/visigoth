@@ -23,23 +23,40 @@ import html
 from visigoth.svg import foreign_object
 from visigoth.common import DiagramElement, EmbeddedHtml
 
-start = """<fieldset id="%(id)s"><legend>%(title)s</legend>"""
+start = """<fieldset id="%(id)s"><legend>%(title)s</legend><table>"""
 
 control_template = """
-    <p>
-        <input id="%(control_id)s" type="checkbox"></input>
-        <label for="%(control_id)s">%(control_label)s</label>
-    </p>
+    <tr>
+        <td>
+            <input id="%(control_id)s" type="checkbox"></input>
+            <label for="%(control_id)s">%(control_label)s</label>
+        </td>
+        <td>
+            <input id="%(control_id)s_range" type="range" min="0.0" max="1.0" value="1.0" step="0.05"></input>
+        </td>
+    </tr>
 """
 
 js_template = """
 document.getElementById("%(control_id)s").checked = %(visible)s;
-document.getElementById("%(control_id)s").onclick = function(evt) {
-    pubsubs_publish("%(id)s",{"layer":"%(layer_id)s","value":evt.target.checked},"manage_layers");
+var cb = function(evt) {
+    var control_id = "%(control_id)s";
+    var control_ele = document.getElementById(control_id);
+    var range_ele = document.getElementById(control_id+"_range");
+    var opacity = Number.parseFloat(range_ele.value);
+    if (!control_ele.checked) {
+        var payload = {"layer":"%(layer_id)s","value":false};
+    } else {
+        var payload = {"layer":"%(layer_id)s","value":opacity};
+    }
+    pubsubs_publish("%(id)s",payload,"manage_layers");
 };
+document.getElementById("%(control_id)s").onclick = cb;
+document.getElementById("%(control_id)s_range").onchange = cb;
+document.getElementById("%(control_id)s_range").oninput = cb;
 """
 
-end = """</fieldset>"""
+end = """</table></fieldset>"""
 
 css = """
 fieldset {
