@@ -25,10 +25,10 @@ from visigoth.utils.js import Js
 from visigoth.utils.colour import ContinuousPalette
 
 
-class Chloropleth(Geoimport):
+class Choropleth(Geoimport):
 
     """
-    Create a Choloropleth plot from a geojson file
+    Create a Choropleth plot from a geojson file
 
     Arguments:
         path(str) : file path to a geojson file
@@ -83,6 +83,6 @@ class Chloropleth(Geoimport):
 
     def draw(self,doc,cx,cy):
         config = super().draw(doc,cx,cy,False)
-        with open(os.path.join(os.path.split(__file__)[0],"chloropleth.js"),"r") as jsfile:
+        with open(os.path.join(os.path.split(__file__)[0],"choropleth.js"),"r") as jsfile:
             jscode = jsfile.read()
-        Js.registerJs(doc,self,jscode,"chloropleth",cx,cy,config)
+        Js.registerJs(doc,self,jscode,"choropleth",cx,cy,config)

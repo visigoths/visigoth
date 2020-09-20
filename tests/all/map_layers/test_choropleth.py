@@ -25,7 +25,7 @@ import os
 
 from visigoth import Diagram
 from visigoth.utils.test_utils import TestUtils
-from visigoth.map_layers.chloropleth import Chloropleth
+from visigoth.map_layers.choropleth import Choropleth
 from visigoth.map_layers.wms import WMS
 from visigoth.containers.map import Map
 
@@ -36,7 +36,7 @@ from visigoth.common.text import Text
 from visigoth.common.space import Space
 from visigoth.utils.colour import ContinuousPalette
 
-class TestChloropleth(unittest.TestCase):
+class TestChoropleth(unittest.TestCase):
 
     def test_basic(self):
         
@@ -47,7 +47,7 @@ class TestChloropleth(unittest.TestCase):
 
         path = os.path.join(os.path.split(__file__)[0],"arrondissements.geojson")
 
-        c = Chloropleth(path,lambda props:rng.random()*10,"name",palette)
+        c = Choropleth(path, lambda props: rng.random() * 10, "name", palette)
         c.setOpacity(0.5)
         # bounds = ((2.0, 48.7),(2.5, 49.1))
         m = Map(512)
@@ -59,7 +59,7 @@ class TestChloropleth(unittest.TestCase):
         d.add(Legend(palette,width=500,legend_columns=3))
         d.add(Text("Attribution: https://www.data.gouv.fr/en/datasets/arrondissements-1/",url="https://www.data.gouv.fr/en/datasets/arrondissements-1/",font_height=18))
 
-        TestUtils.draw_output(d,"test_chloropleth")
+        TestUtils.draw_output(d,"test_choropleth")
 
 if __name__ == "__main__":
     unittest.main()

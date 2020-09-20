@@ -5,7 +5,7 @@ Map Layers
    :maxdepth: 1
    :caption: Map Layers:
 
-   map_layers/chloropleth
+   map_layers/choropleth
    map_layers/cartogram
    map_layers/colourgrid
    map_layers/cluster

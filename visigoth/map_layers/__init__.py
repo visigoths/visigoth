@@ -21,7 +21,7 @@
 from .map_layer import MapLayer
 
 from .cartogram import Cartogram
-from .chloropleth import Chloropleth
+from .choropleth import Choropleth
 from .colourgrid import ColourGrid
 from .cluster import Cluster
 from .compass import Compass
