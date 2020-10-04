@@ -33,7 +33,7 @@ python3 -m unittest discover ../tests
 ### Quick Simple Map Example:
 
 
-![Basic Map with OSM/WMS](http://visigoth.org/_static/src/example.svg)
+![Basic Map with OSM/WMS](https://visigoth.org/_static/src/example.png)
 
 ```
 # -*- coding: utf-8 -*-
