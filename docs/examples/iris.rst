@@ -13,7 +13,7 @@ Example
 
 `(Link to open example in new tab) <../_static/examples/iris/example.html>`_:
 
-Source Code `(Link to Github) <https://github.com/visigoths/visigoth/blob/master/examples/iris/example.py>`_:
+Source Code `(Link to Github) <https://github.com/visualtopology/visigoth/blob/master/examples/iris/example.py>`_:
 
 .. literalinclude:: ../_static/examples/iris/example.py
     :language: python

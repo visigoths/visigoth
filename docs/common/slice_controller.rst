@@ -17,7 +17,7 @@ Example
 
 `(Link to open example in new tab) <../_static/src/common/slice_controller/example.html>`_:
 
-Source Code `(Link to Github) <https://github.com/visigoths/visigoth/blob/master/docs/src/common/slice_controller/example.py>`_:
+Source Code `(Link to Github) <https://github.com/visualtopology/visigoth/blob/master/docs/src/common/slice_controller/example.py>`_:
 
 .. literalinclude:: ../_static/src/common/slice_controller/example.py
     :language: python

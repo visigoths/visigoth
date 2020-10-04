@@ -17,7 +17,7 @@ Example
 
 `(Link to open example in new tab) <../_static/src/charts/scatter/example.html>`_:
 
-Source Code `(Link to Github) <https://github.com/visigoths/visigoth/blob/master/docs/src/charts/scatter/example.py>`_:
+Source Code `(Link to Github) <https://github.com/visualtopology/visigoth/blob/master/docs/src/charts/scatter/example.py>`_:
 
 .. literalinclude:: ../_static/src/charts/scatter/example.py
     :language: python

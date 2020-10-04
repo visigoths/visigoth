@@ -44,25 +44,25 @@ class Image(DiagramElement):
     """
     def __init__(self,mime_type="",content_bytes=[],path_or_url="",width=0,height=0,scale=1.0,tooltip="",embed_image=True):
         DiagramElement.__init__(self)
-        self.mimeType=mime_type
-        self.contentBytes=content_bytes
+        self.mime_type=mime_type
+        self.content_bytes=content_bytes
         self.path_or_url=path_or_url
         self.width=width
         self.height=height
      
         self.tooltip=tooltip
         self.scale = scale
-        if not self.path_or_url and not (self.contentBytes and self.mimeType):
-            raise Exception("Caller must provide path_or_url or contentBytes+mimeType")
+        if not self.path_or_url and not (self.content_bytes and self.mime_type):
+            raise Exception("Caller must provide path_or_url or content_bytes+mime_type")
         self.embed_image = embed_image
         if not self.embed_image and not self.path_or_url:
             raise Exception("Caller must provide a URL in path_or_url if embed_image is False")
 
     def build(self,fmt):
-        if self.mimeType == "":
+        if self.mime_type == "":
             self.extractMimeType()
-        if not self.contentBytes and self.embed_image or (self.width <= 0 or self.height <= 0):
-            self.loadContent()
+        if self.path_or_url and (self.embed_image or (self.width <= 0 or self.height <= 0)):
+            self.loadContent() # need to load the image into content_bytes
         if self.width <= 0 or self.height <= 0:
             self.extractDimensions()
         self.width *= self.scale
@@ -70,49 +70,48 @@ class Image(DiagramElement):
 
     def extractMimeType(self):
         if self.path_or_url.endswith("gif"):
-            self.mimeType = "image/gif"
+            self.mime_type = "image/gif"
         elif self.path_or_url.endswith("png"):
-            self.mimeType = "image/png"
+            self.mime_type = "image/png"
         elif self.path_or_url.endswith("jpeg") or self.path_or_url.endswith("jpg"):
-            self.mimeType = "image/jpeg"
+            self.mime_type = "image/jpeg"
         else:
             raise Exception("Unable to recognise image type as gif,png or jpeg for image path/url: "+self.path_or_url)
     
     def loadContent(self):
         if self.path_or_url.startswith("http"):
-            self.contentBytes = HttpCache.fetch(self.path_or_url)
+            self.content_bytes = HttpCache.fetch(self.path_or_url)
         else:
-            self.contentBytes = open(self.path_or_url,"rb").read()
+            self.content_bytes = open(self.path_or_url,"rb").read()
         
     def extractDimensions(self):
         # based on https://gist.github.com/EdgeCaseBerg/8240859
-        if self.mimeType == "image/gif":
-            w, h = struct.unpack("<HH", self.contentBytes[6:10])
+        if self.mime_type == "image/gif":
+            w, h = struct.unpack("<HH", self.content_bytes[6:10])
             self.width = int(w)
             self.height = int(h)
-        elif self.mimeType == "image/png":
-            w, h = struct.unpack(">LL", self.contentBytes[16:24])
+        elif self.mime_type == "image/png":
+            w, h = struct.unpack(">LL", self.content_bytes[16:24])
             self.width = int(w)
             self.height = int(h)
-        elif self.mimeType == "image/jpeg":
-            b = self.contentBytes[2]
+        elif self.mime_type == "image/jpeg":
+            b = self.content_bytes[2]
             ctr = 3
-            
             while (b and b != 0xDA):
                 while (b != 0xFF): 
-                    b = self.contentBytes[ctr]
+                    b = self.content_bytes[ctr]
                     ctr += 1
                 while (b == 0xFF): 
-                    b = self.contentBytes[ctr]
+                    b = self.content_bytes[ctr]
                     ctr += 1
                 if (b >= 0xC0 and b <= 0xC3):
                     ctr += 3
-                    h, w = struct.unpack(">HH", self.contentBytes[ctr:ctr+4])
+                    h, w = struct.unpack(">HH", self.content_bytes[ctr:ctr+4])
                     ctr += 4
                     break
                 else:
-                    ctr += int(struct.unpack(">H", self.contentBytes[ctr:ctr+2])[0])
-                b = self.contentBytes[ctr]
+                    ctr += int(struct.unpack(">H", self.content_bytes[ctr:ctr+2])[0])
+                b = self.content_bytes[ctr]
                 ctr += 1
             self.width = int(w)
             self.height = int(h)
@@ -131,10 +130,10 @@ class Image(DiagramElement):
 
         if not self.embed_image:
             i = image(ox, oy, self.width, self.height, self.path_or_url, tooltip=self.tooltip)
-        elif self.mimeType=="image/svg+xml":
-            i = embedded_svg(self.width,self.height,ox,oy,str(self.contentBytes,"utf-8"))
+        elif self.mime_type=="image/svg+xml":
+            i = embedded_svg(self.width,self.height,ox,oy,str(self.content_bytes,"utf-8"))
         else:
-            uri="data:"+self.mimeType+";charset=US-ASCII;base64,"+str(base64.b64encode(self.contentBytes),"utf-8")
+            uri="data:"+self.mime_type+";charset=US-ASCII;base64,"+str(base64.b64encode(self.content_bytes),"utf-8")
             i = image(ox,oy,self.width,self.height,uri,tooltip=self.tooltip)
         image_id = i.getId()
         d.add(i)

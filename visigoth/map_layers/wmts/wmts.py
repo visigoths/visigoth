@@ -128,7 +128,6 @@ class WMTS(MapLayer):
         while zoom_level <= self.zoom_to:
             self.content[zoom_level] = {}
 
-            print("wmts zoom=",wmts_zoom)
             width = self.width*zoom_level
 
             (txmin,tymax,_,_) = self.getTileXY(latmin,lonmin,wmts_zoom)
@@ -154,7 +153,6 @@ class WMTS(MapLayer):
                         try:
                             self.content[zoom_level]["tiles"][(tilex,tiley)] = HttpCache.fetch(url)
                         except Exception as ex:
-                            print("Unable to download WMS image from %s: %s" % (url,str(ex)))
                             self.content[zoom_level]["tiles"][(tilex, tiley)] = b""
                     else:
                         self.content[zoom_level]["tiles"][(tilex, tiley)] = url
@@ -203,7 +201,6 @@ class WMTS(MapLayer):
                 iid = i.draw(doc,ox+tilesz/2+tilesz*(xtile-xtilemin),oy+tilesz/2+tilesz*(ytile-ytilemin))
                 if not self.embed_images:
                     image_urls[iid] = url
-                    print(zoom,iid,url)
 
             dx = self.width/2-offset_x
             dy = self.height/2-offset_y

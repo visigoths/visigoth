@@ -19,7 +19,7 @@ Example
 
 `(Link to open example in new tab) <../_static/src/common/buttongrid/example.html>`_:
 
-Source Code `(Link to Github) <https://github.com/visigoths/visigoth/blob/master/docs/src/common/buttongrid/example.py>`_:
+Source Code `(Link to Github) <https://github.com/visualtopology/visigoth/blob/master/docs/src/common/buttongrid/example.py>`_:
 
 .. literalinclude:: ../_static/src/common/buttongrid/example.py
     :language: python

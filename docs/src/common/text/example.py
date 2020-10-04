@@ -8,13 +8,13 @@ d = Diagram(fill="white",title="visigoth Text example",description="some descrip
 d.setFontEmbedding(True)
 
 d.add(Box(Text("Some Small Text",font_height=10)))
-d.add(Box(Text("Link to repo",url="https://github.com/visigoths/visigoth")))
+d.add(Box(Text("Link to repo",url="https://github.com/visualtopology/visigoth")))
 d.add(Box(Text("Some Fancy Text",font_height=32,text_attributes={"stroke":"darkblue", "fill":"red"})))
 d.add(Box(Text("Some Big Text",font_height=48)))
 d.add(Box(Text("Different",text_attributes={"font-family":"Raleway"})))
 d.add(Box(Text(
     [Span("Text can be combined with"),
-     Span(" a url",url="https://github.com/visigoths/visigoth"),
+     Span(" a url",url="https://github.com/visualtopology/visigoth"),
      Span(" different styles",text_attributes={"font-style":"normal"}),
      Span(" different fonts", text_attributes={"font-family":"Roboto"}),
      Span(" different sizes ",font_height=32),

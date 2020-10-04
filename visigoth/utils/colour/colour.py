@@ -62,8 +62,6 @@ class Colour(object):
         self.minValue = minValue
         self.maxValue = maxValue
 
-        print(self.palette_lookup)
-
     def getOpacity(self):
         return self.opacity
 
@@ -134,14 +132,12 @@ class Colour(object):
                 if extendedColour:
                     return extendedColour
         else:
-            print(str(val))
             if self.gradients:
                 for idx in range(len(self.palette_lookup)):
                     lookup = self.palette_lookup[idx]
                     (lwb,upb,lwc,upc) = lookup
                     if val >= lwb and (val < upb or (idx==len(self.palette_lookup)-1 and val <= upb)):
                         col = self.computeColour(lwc,upc,(val-lwb)/(upb-lwb))
-                        print(col)
                         return col
             else:
                 for (val0,val1,col) in self.palette_lookup:
@@ -149,8 +145,6 @@ class Colour(object):
                         return self.rgb2colour(col)
                 if val == self.palette_lookup[-1][1]:
                     return self.rgb2colour(self.palette_lookup[-1][2])
-
-            print("default for:"+str(val))
 
         return self.defaultColour
 

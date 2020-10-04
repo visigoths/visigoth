@@ -58,7 +58,9 @@ class TestLine(unittest.TestCase):
         d.add(Text("Custom Axes"))
 
         data2 = [{"x":2.1,"y":3.4},{"x":2.3,"y":4.5},{"x":2.5,"y":9.0},{"x":2.7,"y":19.3}]
-        line2 = Line(data2,x="x",y="y",width=600,height=600,smoothing=0.0)
+        palette2 = DiscretePalette()
+        palette2.setDefaultColour("green")
+        line2 = Line(data2,x="x",y="y",palette=palette2,width=600,height=600,smoothing=0.0)
 
         (ax,ay) = line2.getAxes()
         ax.setMinValue(2)

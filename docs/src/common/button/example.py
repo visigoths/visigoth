@@ -11,9 +11,9 @@ d = Diagram()
 d.setDefaultTextAttributes({"font-weight":"bold"})
 
 folder = os.path.split(sys.argv[0])[0]
-
+content_bytes=open(os.path.join(folder,"..","image","MtCleveland.jpg"),"rb").read()
 i = Image(mime_type="image/jpeg",
-          content_bytes=open(os.path.join(folder,"..","image","MtCleveland.jpg"),"rb").read(),
+          content_bytes=content_bytes,
           tooltip="MtCleveland Volcano Eruption")
 d.add(Button(text="Link",image=i,fill="orange",stroke="blue",padding=10))
 html = d.draw(format="html")

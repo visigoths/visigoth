@@ -17,7 +17,7 @@ Example
 
 `(Link to open example in new tab) <../_static/src/map_layers/geoimport/example.html>`_:
 
-Source Code `(Link to Github) <https://github.com/visigoths/visigoth/blob/master/docs/src/map_layers/geoimport/example.py>`_:
+Source Code `(Link to Github) <https://github.com/visualtopology/visigoth/blob/master/docs/src/map_layers/geoimport/example.py>`_:
 
 .. literalinclude:: ../_static/src/map_layers/geoimport/example.py
     :language: python

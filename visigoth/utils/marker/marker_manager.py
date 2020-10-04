@@ -25,16 +25,28 @@ from visigoth.utils.marker.pin_marker import PinMarker
 class MarkerManager(object):
 
     def __init__(self,min_radius=0,max_radius=40,default_radius=3,stroke="black",stroke_width=1):
-        self.min_radius = min_radius
-        self.min_area = math.pi * math.pow(self.min_radius, 2)
-        self.max_radius = max_radius
-        self.max_area = math.pi*math.pow(self.max_radius,2)
         self.size_min = None
         self.size_max = None
         self.default_radius = default_radius
         self.stroke = stroke
         self.stroke_width = stroke_width
         self.marker_type = "circle"
+        self.setMinRadius(min_radius)
+        self.setMaxRadius(max_radius)
+
+    def setMaxRadius(self,max_radius):
+        self.max_radius = max_radius
+        self.max_area = math.pi * math.pow(self.max_radius, 2)
+
+    def getMaxRadius(self):
+        return self.max_radius
+
+    def setMinRadius(self, min_radius):
+        self.min_radius = min_radius
+        self.min_area = math.pi * math.pow(self.min_radius, 2)
+
+    def getMinRadius(self):
+        return self.min_radius
 
     def setDefaultRadius(self,default_radius):
         self.default_radius = default_radius
@@ -63,6 +75,7 @@ class MarkerManager(object):
         if size is None or self.size_max is None:
             return self.default_radius
         else:
+            # use area based scaling
             # area = pi*r*r
             size_fraction = (size - self.size_min) / (self.size_max - self.size_min)
             if size_fraction < 0 or size_fraction > 1:

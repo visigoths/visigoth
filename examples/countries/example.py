@@ -4,7 +4,6 @@ from visigoth import Diagram
 from visigoth.common import SliceController, Legend, Text
 from visigoth.charts import Scatter
 
-
 import csv
 rdr = csv.reader(open("data.csv"))
 
@@ -30,17 +29,16 @@ for row in rdr:
         datapoints.append(data)
 d = Diagram()
 
-s = Scatter(datapoints,x="lifeExp",y="gdpPercap",slice="year",size="pop",colour="country",label="country")
+d.add(Text("GDP vs Life Expectancy, Selected Countries, 1952 - 2007"))
+s = Scatter(datapoints,x="lifeExp",y="gdpPercap",slice="year",size="pop",colour="country",label="country",width=800)
 (ax,ay) = s.getAxes()
 ay.setMaxValue(60000)
 ay.setMinValue(0)
-leg = Legend(s.getPalette(),512)
-sm = SliceController(title="Year")
+sm = SliceController(title="Year",width=800)
 d.add(s)
 d.add(sm)
-d.add(leg)
 d.connect(sm,"slice",s,"slice")
-d.connect(leg,"colour",s,"colour")
+d.add(Text("Data source: https://www.gapminder.org/",font_height=12))
 
 html = d.draw(format="html")
 

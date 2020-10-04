@@ -21,7 +21,7 @@ Layer                              Thumbnail
 ===============================    ===========================================================
 :doc:`map_layers/kde`              .. image:: src/map_layers/kde/thumbnail.png
 :doc:`map_layers/hexbin`           .. image:: src/map_layers/hexbin/thumbnail.png
-:doc:`map_layers/choropleth`      .. image:: src/map_layers/choropleth/thumbnail.png
+:doc:`map_layers/choropleth`       .. image:: src/map_layers/choropleth/thumbnail.png
 :doc:`map_layers/colourgrid`       .. image:: src/map_layers/colourgrid/thumbnail.png
 :doc:`map_layers/voronoi`          .. image:: src/map_layers/voronoi/thumbnail.png
 :doc:`map_layers/scatter`          .. image:: src/map_layers/scatter/thumbnail.png

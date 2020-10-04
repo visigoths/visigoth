@@ -29,7 +29,7 @@ class EventHandler(DiagramElement):
     Create an event handler based on a javascript function
 
     Arguments:
-        js(str) : javascript function of the form function(channel,event,config,sendfn) { /* body */ }
+        js(str) : javascript function of the form function(channel,event,config,sendfn) { ... body ... }
         config(dict) : configuration passed into each invocation (must be JSON serialisable)
 
     Notes:

@@ -36,7 +36,7 @@ class Palette(object):
 
 class DiscretePalette(Palette):
 
-    def __init__(self,colourMap="pastel",defaultColour="white"):
+    def __init__(self,colourMap="pastel",defaultColour="gray"):
         super(DiscretePalette,self).__init__(defaultColour)
         self.colour = None
         self.categories = []
@@ -90,7 +90,7 @@ class DiscretePalette(Palette):
 
 class ContinuousPalette(Palette):
 
-    def __init__(self, withIntervals=True, colourMap="viridis", defaultColour="white",min_val=None,max_val=None):
+    def __init__(self, withIntervals=True, colourMap="viridis", defaultColour="gray",min_val=None,max_val=None):
         super(ContinuousPalette,self).__init__(defaultColour)
         self.colour = None
         self.range = []

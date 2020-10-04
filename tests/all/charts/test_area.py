@@ -74,6 +74,7 @@ class TestArea(unittest.TestCase):
 
         d.add(Text("Stacked areas"))
         area1 = Area(data, x=0, y=1, size=1, colour=2, height=600, palette=dp, width=600)
+        area1.getMarkerManager().setMaxRadius(10)
         d.add(area1)
 
         legend1 = Legend(dp,400,legend_columns=2)

@@ -17,7 +17,7 @@ Example
 
 `(Link to open example in new tab) <../_static/src/common/button/example.html>`_:
 
-Source Code `(Link to Github) <https://github.com/visigoths/visigoth/blob/master/docs/src/common/button/example.py>`_:
+Source Code `(Link to Github) <https://github.com/visualtopology/visigoth/blob/master/docs/src/common/button/example.py>`_:
 
 .. literalinclude:: ../_static/src/common/button/example.py
     :language: python

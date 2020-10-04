@@ -28,7 +28,7 @@ import os
 
 class Table(DiagramElement):
     """
-    Create a "grid" holding multiple buttons, parameters define defaults for buttons
+    Create a "grid" holding multiple text elements
 
     Arguments:
         data (list): A relational data set (for example, list of dicts/lists/tuples describing each row)

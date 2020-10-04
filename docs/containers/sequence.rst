@@ -19,7 +19,7 @@ Example
 
 `(Link to open example in new tab) <../_static/src/containers/sequence/example.html>`_:
 
-Source Code `(Link to Github) <https://github.com/visigoths/visigoth/blob/master/docs/src/containers/sequence/example.py>`_:
+Source Code `(Link to Github) <https://github.com/visualtopology/visigoth/blob/master/docs/src/containers/sequence/example.py>`_:
 
 .. literalinclude:: ../_static/src/containers/sequence/example.py
     :language: python

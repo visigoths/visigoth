@@ -125,9 +125,10 @@ class Line(ChartElement):
             marker = self.getMarkerManager().getMarker(sz)
             cid = marker.plot(doc,cx,cy,self.getTooltip(cat,(x,y)),col)
 
-            ids = categories.get(cat,[])
-            ids.append(cid)
-            categories[cat] = ids
+            if cat is not None:
+                ids = categories.get(cat,[])
+                ids.append(cid)
+                categories[cat] = ids
             
         def plotline(linepoints,linecat):
             if not linepoints:
@@ -135,7 +136,7 @@ class Line(ChartElement):
             linepoints = sorted(linepoints,key=lambda p:p[0])
             coords = [(self.computeX(x),self.computeY(y)) for (x,y,_) in linepoints]
 
-            if self.palette:
+            if linecat is not None:
                 col = self.palette.getColour(linecat)
             else:
                 col = self.palette.getDefaultColour()
@@ -144,7 +145,8 @@ class Line(ChartElement):
             
             ids = categories.get(linecat,[])
             ids.append(p.getId())
-            categories[linecat] = ids
+            if linecat is not None:
+                categories[linecat] = ids
 
             doc.add(p)
 
@@ -158,6 +160,6 @@ class Line(ChartElement):
                 plotline(linepoints,linecat)
         else:
             linepoints = self.dataset.query([self.x,self.y,self.size])
-            plotline(linepoints,"")
+            plotline(linepoints,None)
 
         return {"categories":categories}

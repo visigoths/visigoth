@@ -147,6 +147,9 @@ class Area(ChartElement):
             self.catmap[cat] = ids
         
     def plotLine(self,diagram,cat,linepoints,col):
+        if not linepoints:
+            return
+
         coords = [(self.computeX(x),self.computeY(y)) for (x,y,_) in linepoints]
 
         p = path(coords,col,self.line_width,smoothing=self.smoothing)

@@ -17,7 +17,7 @@ Example
 
 `(Link to open example in new tab) <../_static/src/charts/bar/example.html>`_:
 
-Source Code `(Link to Github) <https://github.com/visigoths/visigoth/blob/master/docs/src/charts/bar/example.py>`_:
+Source Code `(Link to Github) <https://github.com/visualtopology/visigoth/blob/master/docs/src/charts/bar/example.py>`_:
 
 .. literalinclude:: ../_static/src/charts/bar/example.py
     :language: python
