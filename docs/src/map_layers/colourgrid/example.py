@@ -29,13 +29,25 @@ class CustomProjection(object):
 folder=os.path.split(__file__)[0]
 sst = json.loads(open(os.path.join(folder,"seatemp.json")).read())
 
+height = len(sst)
+width = len(sst[0])
+
+lat_spacing = 180/height
+lon_spacing = 360/width
+
+# work out the centers of each cell, first the latitudes
+lats = [-90 + ((i+0.5)*lat_spacing) for i in range(height)]
+
+# then the longitudes
+lons = [-180 + ((i+0.5)*lon_spacing) for i in range(width)]
+
 d = Diagram(fill="#D0D0D0")
 
 # set up map with global coverage, Mollweide projection
 m = Map(fill="#E0E0E0",width=512,projection=CustomProjection("ESRI:54009"),boundaries=((-180,-85),(180,85)))
 
 # add a colourgird layer to the map using the SST data
-cg = ColourGrid(sst,boundaries=((-180,-90),(180,90)))
+cg = ColourGrid(sst,lats=lats,lons=lons,sharpen=True)
 m.add(cg)
 
 # add the map, some descriptive text and the legend to the diagram

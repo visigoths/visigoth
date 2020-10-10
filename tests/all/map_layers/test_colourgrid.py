@@ -41,14 +41,21 @@ class TestColourGrid(unittest.TestCase):
     def test_basic(self):
         d = Diagram(fill="white")
 
-        peaks0 = [(0.5, 0.5, 100)]
+        peaks0 = [(0.75, 0.65, 100)]
+        peaks1 = [(0.3, 0.5, 150)]
+        peaks2 = [(0.2, 0.8, 120)]
 
         resolution0 = 300
-        data0 = [[self.computeHeight(peaks0, x / resolution0, y / resolution0) for x in range(resolution0)] for y in
+        data0 = [[self.computeHeight(peaks0, x / resolution0, y / resolution0)+
+                  self.computeHeight(peaks1, x / resolution0, y / resolution0)+
+                  self.computeHeight(peaks2, x / resolution0, y / resolution0) for x in range(resolution0)] for y in
                  range(resolution0)]
 
+        lons = [(i+0.5)*1/300 for i in range(300)]
+        lats = [(i+0.5)*1/300 for i in range(300)]
+
         m0 = Map(512, projection=Projections.IDENTITY, boundaries=((0.0,0.0),(1.0,1.0)))
-        c0 = ColourGrid(data0, boundaries=((0.0,0.0),(1.0,1.0)),palette=ContinuousPalette(withIntervals=True))
+        c0 = ColourGrid(data0, lons=lons, lats=lats ,palette=ContinuousPalette(withIntervals=True))
         m0.add(c0)
 
         d.add(Box(m0))

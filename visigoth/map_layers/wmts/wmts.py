@@ -46,10 +46,9 @@ class WMTS(MapLayer):
             
     Note:  this WMTS layer can only currently work with the default Web Mercator (EPSG:3857) projection
     """
-    def __init__(self,url=default_url,image_type=None,attribution=default_attribution, default_attribution_link=default_attribution_link,embed_images=True):
+    def __init__(self,url=default_url,image_type=None,attribution=default_attribution, attribution_link=default_attribution_link,embed_images=True):
         super(WMTS, self).__init__()
-        if url == WMTS.default_url:
-            self.setInfo(name="WMTS",attribution=attribution,url=default_attribution_link)
+        self.setInfo(name="WMTS",attribution=attribution,url=attribution_link)
         self.bounds = None
         self.width = None
         self.wmts_url = url

@@ -29,24 +29,49 @@ from visigoth.utils.js import Js
 from visigoth.utils.image.png_canvas import PngCanvas
 from visigoth.utils.colour import ContinuousPalette, Colour
 from visigoth.utils.mapping import Projections
+from visigoth.utils.data.search import Search
 
 class ColourGrid(MapLayer):
     """
-    Create a Colour grid plot
+    Create a Colour grid plot.
 
     Arguments:
-        data (list): list of rows, where each row is an equal size list of column values values
-        boundaries(tuple): a tuple containing (min-lon,min-lat) and (max-lon,max-lat) pairs
+        data (list): data values, organised as a list of rows, where each row is an equal size list of column values
+        lats (list): a list of the lat values providing the center of each row
+        lons (list): a list of the lon values providing the center of each column
 
     Keyword Arguments:
         palette(object): a ContinuousPalette or DiscretePalette
+        sharpen(bool): produce a sharper (double resolution) image at 2x resolution, slower to run
+
     """
 
-    def __init__(self, data, boundaries, palette=None):
+    def __init__(self, data, lats, lons, palette=None, sharpen=False):
         super().__init__()
         self.data = data
-        self.region_boundaries = boundaries
-        self.boundaries = boundaries
+        self.lats = lats[:]
+        self.lons = lons[:]
+        self.sharpen = sharpen
+
+        # check if lats and lons are sorted ascending or descending
+        self.lat_reversed = lats[0] > lats[-1]
+        self.lon_reversed = lons[0] > lons[-1]
+
+        # ensure lats and lons arrays are sorted into ascending order
+        if self.lat_reversed:
+            self.lats.reverse()
+        if self.lon_reversed:
+            self.lons.reverse()
+
+        # work out the lat/lon boundaries of the plot area
+        lat_spacing_north = self.lats[-1] - self.lats[-2]
+        lat_spacing_south = self.lats[1] - self.lats[0]
+
+        lon_spacing_east = self.lons[-1] - self.lons[-2]
+        lon_spacing_west = self.lons[1] - self.lons[0]
+
+        self.boundaries = ((min(lons)-lon_spacing_west/2,min(lats)-lat_spacing_south/2),(max(lons)+lon_spacing_east/2,max(lats)+lat_spacing_north/2))
+        self.region_boundaries = self.boundaries
         self.width = None
         self.height = None
         self.rows = len(self.data)
@@ -95,10 +120,13 @@ class ColourGrid(MapLayer):
             return None
         if lat < min_lat or lat > max_lat:
             return None
-        x_frac = (lon - min_lon)/(max_lon-min_lon)
-        x_index = min(round(self.columns * x_frac),self.columns-1)
-        y_frac = (lat - min_lat)/(max_lat - min_lat)
-        y_index = min(round(self.rows * y_frac),self.rows-1)
+        (y_index, _) = Search.binary_search(self.lats,lat)
+        if self.lat_reversed:
+            y_index = (len(self.lats)-1)-y_index
+
+        (x_index, _) = Search.binary_search(self.lons,lon)
+        if self.lon_reversed:
+            x_index = (len(self.lons)-1)-x_index
         return self.data[y_index][x_index]
 
     def draw(self, doc, cx, cy):
@@ -153,22 +181,30 @@ class ColourGrid(MapLayer):
                         return index
                 return 0
 
+        # get the eastings and northings of the SW and NE corners
         ((min_e, min_n), (max_e, max_n)) = Projections.getENBoundaries(self.projection, self.boundaries)
 
         height_px = self.rows
         width_px = self.columns
+        if self.sharpen:
+            height_px *= 2
+            width_px *= 2
         x_step = (max_e - min_e)/width_px
         y_step = (max_n - min_n)/height_px
+        # create an image canvas and fill out each point
         c = PngCanvas(height_px, width_px, colours)
         for x in range(width_px):
             e = min_e + (x_step/2) + x*x_step
             for y in range(height_px):
                 n = max_n - (y_step / 2) - y*y_step
+                # (e,n) is the easting and northing of each pixel
+                # now get the lon/lat according to the map CRS
                 (lon,lat) = self.projection.toLonLat((e,n))
+                # obtain the closest value in the input data
                 v = self.getValueAt(lon,lat)
+                # get the colour of the pixel
                 ci = getColourIndex(v)
                 c.addpixel(x, y, ci)
-
 
         file = io.BytesIO()
         c.write(file)

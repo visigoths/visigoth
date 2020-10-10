@@ -18,15 +18,13 @@
 #   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 #   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-import os
-
-from visigoth.svg import polygon, circle, path, line, rectangle, clip_path, embedded_svg
 from visigoth.map_layers.geoplot.multithing import Multithing
+from visigoth.utils.marker.pin_marker import PinMarker
+from visigoth.utils.marker.circle_marker import CircleMarker
 
 class Multipoint(Multithing):
 
-    location_marker=open(os.path.join(os.path.split(__file__)[0],"location_ionicon.svg"),"rt").read()
-    
+
     """
     Create a set of one or more points
 
@@ -65,23 +63,11 @@ class Multipoint(Multithing):
     def draw(self,doc,xy):
         if isinstance(self.marker,bool):
             if self.marker:
-                off_y = 32*(2*self.radius/512)
-                i = embedded_svg(2*self.radius,2*self.radius,xy[0]-self.radius,xy[1]-2*self.radius+off_y,Multipoint.location_marker)
-                i.addAttr("fill",self.fill)
-                i.addAttr("stroke",self.stroke)
-                i.addAttr("stroke-width",self.stroke_width)
-                if self.tooltip:
-                    i.setTooltip(self.tooltip)
-                doc.add(i)
-                return i.getId()
+                marker = PinMarker(self.radius,self.stroke,self.stroke_width)
             else:
-                c = circle(xy[0],xy[1],self.radius,self.fill)
-                c.addAttr("stroke",self.stroke)
-                c.addAttr("stroke-width",self.stroke_width)
-                if self.tooltip:
-                    c.setTooltip(self.tooltip)
-                doc.add(c)
-                return c.getId()
+                marker = CircleMarker(self.radius,self.stroke,self.stroke_width)
+
+            return marker.plot(doc, xy[0], xy[1], self.tooltip, self.fill)
         else:
             return self.marker.plot(doc,xy[0],xy[1],self.tooltip,self.fill)
     

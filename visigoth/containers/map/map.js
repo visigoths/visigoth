@@ -92,12 +92,12 @@ class map {
         var that = this;
         if (this.overlay) {
             this.overlay.addEventListener("mousedown", function(event) {
-                // event.preventDefault();
+                event.preventDefault();
                 that.dragStart(event);
             });
 
             this.overlay.addEventListener("mouseup", function(event) {
-                // event.preventDefault();
+                event.preventDefault();
                 that.dragEnd(event);
             });
 
