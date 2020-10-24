@@ -22,6 +22,7 @@ import base64
 import os
 import os.path
 import io
+import math
 
 from visigoth.svg import image
 from visigoth.map_layers import MapLayer
@@ -64,13 +65,14 @@ class ColourGrid(MapLayer):
             self.lons.reverse()
 
         # work out the lat/lon boundaries of the plot area
+        # given that the input lats and lons provide the center of each data cell
         lat_spacing_north = self.lats[-1] - self.lats[-2]
         lat_spacing_south = self.lats[1] - self.lats[0]
 
         lon_spacing_east = self.lons[-1] - self.lons[-2]
         lon_spacing_west = self.lons[1] - self.lons[0]
 
-        self.boundaries = ((min(lons)-lon_spacing_west/2,min(lats)-lat_spacing_south/2),(max(lons)+lon_spacing_east/2,max(lats)+lat_spacing_north/2))
+        self.boundaries = ((self.lons[0]-lon_spacing_west/2,self.lats[0]-lat_spacing_south/2),(self.lons[-1]+lon_spacing_east/2,self.lats[-1]+lat_spacing_north/2))
         self.region_boundaries = self.boundaries
         self.width = None
         self.height = None
@@ -87,8 +89,8 @@ class ColourGrid(MapLayer):
         self.max_val = None
         self.min_val = None
         if self.data:
-            self.max_val = max([v for rowdata in self.data for v in rowdata if v is not None])
-            self.min_val = min([v for rowdata in self.data for v in rowdata if v is not None])
+            self.max_val = max([v for rowdata in self.data for v in rowdata if v is not None and math.isfinite(v)])
+            self.min_val = min([v for rowdata in self.data for v in rowdata if v is not None and math.isfinite(v)])
 
         if palette is None:
             palette = ContinuousPalette(withIntervals=True)

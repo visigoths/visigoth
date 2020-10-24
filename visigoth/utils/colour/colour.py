@@ -161,8 +161,16 @@ class Colour(object):
         xc = x
         yc = y
 
+        # add a half pixel shim to the width or height of each colour band depending on orientation
+        # this avoids narrow "gaps" between colour bands when rendered in some browsers
+        w_shim = 0
+        h_shim = 0
+
         if orientation=="vertical":
             yc += height
+            h_shim = 0.5
+        else:
+            w_shim = 0.5
 
         if self.gradients:
             for idx in range(1,len(self.palette)):
@@ -170,20 +178,28 @@ class Colour(object):
                 (val1,col1) = self.palette[idx]
 
                 frac = (val1-val0)/(self.maxValue-self.minValue)
-
-                lg = linear_gradient(col0,col1,orientation)
-                lgid = lg.getId()
-                fill = "url(#"+lgid+")"
-                doc.add(lg)
-
                 rw = width
                 rh = height
+
                 if orientation=="horizontal":
                     rw = width*frac
+                    th = rw
                 else:
                     rh = height*frac
                     yc = yc - rh
-                r = rectangle(xc,yc,rw,rh,stroke=None,stroke_width=0)
+                    th = rh
+
+                if th < 5:
+                    # if there are a lot of narrow colour bands (< 5 pixels)
+                    # just use a solid colour block with the mid point colour instead of a linear gradient
+                    fill = self.computeColour(Colour.parseColour(col0),Colour.parseColour(col1),0.5)
+                else:
+                    lg = linear_gradient(col0,col1,orientation)
+                    lgid = lg.getId()
+                    fill = "url(#"+lgid+")"
+                    doc.add(lg)
+
+                r = rectangle(xc,yc,rw+w_shim,rh+h_shim,stroke=None,stroke_width=0)
                 r.addAttr("fill",fill)
                 doc.add(r)
                 if orientation=="horizontal":
@@ -198,7 +214,7 @@ class Colour(object):
                 else:
                     rh = height * frac
                     yc = yc - rh
-                r = rectangle(xc, yc, rw, rh, stroke=None, stroke_width=0)
+                r = rectangle(xc, yc, rw+w_shim, rh+h_shim, stroke=None, stroke_width=0)
                 r.addAttr("fill", col)
                 doc.add(r)
                 if orientation == "horizontal":
