@@ -45,7 +45,7 @@ class TestLegend(unittest.TestCase):
         for cmap in cmaps:
             p = DiscretePalette(colourMap=cmap)
             for v in ["A","B","C","D","E","F"]:
-                p.getColour(v)
+                p.allocateColour(v)
             d.add(Text("colour-map="+cmap))
             d.add(Box(Legend(p, width=700, legend_columns=2)))
 
@@ -56,38 +56,38 @@ class TestLegend(unittest.TestCase):
         d = Diagram(fill="white")
 
         cp = ContinuousPalette(withIntervals=False)
-        cp.getColour(0.0)
-        cp.getColour(7.0)
+        cp.allocateColour(0.0)
+        cp.allocateColour(7.0)
         d.add(Text("no intervals"))
         d.add(Legend(cp, 700))
 
         for (minv,maxv) in [(0.0,6.0),(0.00017,0.00042),(-10,-5),(3.0,4.5),(-1.0,2.0),(200,1000)]:
             cp = ContinuousPalette()
-            cp.getColour(minv)
-            cp.getColour(maxv)
+            cp.allocateColour(minv)
+            cp.allocateColour(maxv)
             d.add(Text("palette %f -> %f"%(minv,maxv)))
             d.add(Legend(cp, 700))
 
         custom_colourmap = ContinuousPalette(colourMap=[(0.0,0.0,1.0),(0.0,1.0,0.0),(1.0,0.0,0.0)])
-        custom_colourmap.getColour(0)
-        custom_colourmap.getColour(5)
+        custom_colourmap.allocateColour(0)
+        custom_colourmap.allocateColour(5)
         d.add(Text("custom colourmap Blue -> Green -> Red"))
         d.add(Legend(custom_colourmap,700,orientation="horizontal"))
 
         seq = Sequence(orientation="horizontal")
         continuous_palette5 = ContinuousPalette()
-        continuous_palette5.getColour(-1.0)
-        continuous_palette5.getColour(2.0)
+        continuous_palette5.allocateColour(-1.0)
+        continuous_palette5.allocateColour(2.0)
         seq.add(Box(Legend(continuous_palette5, 200, orientation="vertical")))
 
         continuous_palette6 = ContinuousPalette()
-        continuous_palette6.getColour(200)
-        continuous_palette6.getColour(1000)
+        continuous_palette6.allocateColour(200)
+        continuous_palette6.allocateColour(1000)
         seq.add(Box(Legend(continuous_palette6, 200, orientation="vertical")))
 
         continuous_palette7 = ContinuousPalette()
-        continuous_palette7.getColour(0.0)
-        continuous_palette7.getColour(3.0)
+        continuous_palette7.allocateColour(0.0)
+        continuous_palette7.allocateColour(3.0)
         seq.add(Box(Legend(continuous_palette7, 200, orientation="vertical")))
         d.add(Text("Vertical orientation"))
         d.add(seq)
@@ -95,8 +95,8 @@ class TestLegend(unittest.TestCase):
         cmaps = ContinuousPalette.listColourMaps()
         for cmap in cmaps:
             p = ContinuousPalette(colourMap=cmap)
-            p.getColour(0.0)
-            p.getColour(100.0)
+            p.allocateColour(0.0)
+            p.allocateColour(100.0)
             d.add(Text("colour-map=" + cmap))
             d.add(Box(Legend(p, width=700)))
 

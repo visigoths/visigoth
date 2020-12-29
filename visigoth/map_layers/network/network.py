@@ -168,8 +168,8 @@ class Network(Geoplot):
             min_rank = min([self.ranks[n] for n in self.ranks])
             max_rank = max([self.ranks[n] for n in self.ranks])
             # add the value range to the palette
-            self.getPalette().getColour(min_rank)
-            self.getPalette().getColour(max_rank)
+            self.getPalette().allocateColour(min_rank)
+            self.getPalette().allocateColour(max_rank)
 
         # add minimal points to establish boundaries for the map
         for idx in range(len(self.nodes)):

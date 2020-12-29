@@ -19,6 +19,7 @@
 #   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import os.path
+import copy
 
 from visigoth.map_layers import MapLayer
 from visigoth.svg import text, line
@@ -39,7 +40,7 @@ class Ruler(MapLayer):
         text_attributes(dict): a dict containing SVG name/value pairs
     """
 
-    def __init__(self,label="",decimal_places=2,stroke="black",stroke_width=2,font_height=16,text_attributes={}):
+    def __init__(self,label="",decimal_places=2,stroke="grey",stroke_width=2,font_height=16,text_attributes={}):
         super(Ruler,self).__init__()
         self.length = 0
         self.ruler_width = font_height / 2
@@ -48,7 +49,9 @@ class Ruler(MapLayer):
         self.stroke = stroke
         self.stroke_width = stroke_width
         self.font_height = font_height
-        self.text_attributes = text_attributes
+        self.text_attributes = copy.deepcopy(text_attributes)
+        if "fill" not in self.text_attributes:
+            self.text_attributes["fill"] = self.stroke
 
     def isForegroundLayer(self):
         return True
@@ -82,7 +85,7 @@ class Ruler(MapLayer):
             self.units = "km"
         else:
             self.units = "m"
-        self.label = str(self.distance)+self.units
+        self.label = str(self.distance) + " " + self.units
 
     def getWidth(self):
         return self.width

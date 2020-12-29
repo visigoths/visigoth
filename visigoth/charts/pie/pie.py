@@ -70,7 +70,7 @@ class Pie(ChartElement):
         for colour in self.colour:
             cats = self.data.query([colour],unique=True,flatten=True)
             for cat in cats:
-                self.getPalette().getColour(cat)
+                self.getPalette().allocateColour(cat)
 
     def getHeight(self):
         return self.height

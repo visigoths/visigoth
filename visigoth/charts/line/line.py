@@ -97,7 +97,7 @@ class Line(ChartElement):
 
         if self.colour != None:
             for val in self.dataset.query([self.colour],unique=True,flatten=True):
-                self.getPalette().getColour(val)
+                self.getPalette().allocateColour(val)
 
         if self.size:
             for v in self.dataset.query([self.size],unique=True,flatten=True):

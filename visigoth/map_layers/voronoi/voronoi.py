@@ -84,9 +84,7 @@ class Voronoi(MapLayer):
 
         for (_,_,colour,_,size) in self.input_data:
             self.getMarkerManager().noteSize(size)
-            self.getPalette().getColour(colour)
-
-
+            self.getPalette().allocateColour(colour)
 
     def getBoundaries(self):
         if not self.boundaries:

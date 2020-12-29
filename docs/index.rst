@@ -6,7 +6,7 @@
 visigoth
 ========
 
-visigoth is a lightweight python3 library for making visualisations to display data and geospatial information by rendering them as HTML5 or support vector graphics (SVG) files, typically viewed using a web-browser.  If you are looking for information on the western branch of the ancient nomadic tribe of Germanic peoples referred to collectively as the Goths please refer `to the visualtopology wikipedia page <https://en.wikipedia.org/wiki/visualtopology>`_.
+visigoth is a lightweight python3 library for making visualisations to display data and geospatial information by rendering them as HTML5 or support vector graphics (SVG) files, typically viewed using a web-browser.  If you are looking for information on the western branch of the ancient nomadic tribe of Germanic peoples referred to collectively as the Goths please refer `to the visigoths wikipedia page <https://en.wikipedia.org/wiki/visigoths>`_.
 
 Source code for the visigoth library is available `on github <https://github.com/visualtopology/visigoth>`_.
 

@@ -39,3 +39,4 @@ from .voronoi import Voronoi
 from .wms import WMS
 from .wmts import WMTS
 from .colourgrid.colourgrid import ColourGrid
+from .imagegrid.imagegrid import ImageGrid

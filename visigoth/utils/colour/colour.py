@@ -32,32 +32,23 @@ class Colour(object):
 
     webColours = { col["name"].lower():"#"+col["hex"] for col in colours }
 
-    def __init__(self,palette,minValue=None,maxValue=None,defaultColour="red",colourMap=None):
-        self.colourMap = colourMap
-        self.colourMapIndex = 0
+    def __init__(self,palette,minValue=None,maxValue=None,defaultColour="red"):
         self.palette = palette
         self.defaultColour = defaultColour
         self.palette_lookup = {}
-        self.discrete = True
         if len(self.palette):
-            if isinstance(self.palette[0][0],str):
-                # palette is discrete and a list of (cat,col)
-                self.discrete = True
-                self.palette_lookup = { cat:col for (cat,col) in self.palette }
+            if len(self.palette[0]) == 2:
+                # palette is continuous and a list of (val,col) pairs
+                self.palette_lookup = []
+                for i in range(1,len(self.palette)):
+                    (val0,col0) = self.palette[i-1]
+                    (val1,col1) = self.palette[i]
+                    self.palette_lookup.append((val0, val1, Colour.parseColour(col0), Colour.parseColour(col1)))
+                self.gradients = True
             else:
-                self.discrete = False
-                if len(self.palette[0]) == 2:
-                    # palette is continuous and a list of (val,col) pairs
-                    self.palette_lookup = []
-                    for i in range(1,len(self.palette)):
-                        (val0,col0) = self.palette[i-1]
-                        (val1,col1) = self.palette[i]
-                        self.palette_lookup.append((val0, val1, Colour.parseColour(col0), Colour.parseColour(col1)))
-                    self.gradients = True
-                else:
-                    # palette is continuous and a list of (val1,val2,col) triples
-                    self.gradients = False
-                    self.palette_lookup = [(val0, val1, Colour.parseColour(col)) for (val0, val1, col) in self.palette]
+                # palette is continuous and a list of (val1,val2,col) triples
+                self.gradients = False
+                self.palette_lookup = [(val0, val1, Colour.parseColour(col)) for (val0, val1, col) in self.palette]
         self.opacity = 1.0
         self.minValue = minValue
         self.maxValue = maxValue
@@ -73,6 +64,8 @@ class Colour(object):
 
     @staticmethod
     def parseColour(col):
+        if not isinstance(col,str):
+            raise ColourException("Unable to parse colour from non-string (%s)" % (str(col)))
         if col and (len(col) != 7 or col[0] != "#"):
             if col.lower() in Colour.webColours:
                 col = Colour.webColours[col.lower()]
@@ -93,6 +86,8 @@ class Colour(object):
 
     @staticmethod
     def toHEX(colour):
+        if colour is None:
+            return None
         return Colour.rgb2colour(Colour.parseColour(colour))
     
     @staticmethod
@@ -115,47 +110,31 @@ class Colour(object):
     def getDefaultColour(self):
         return self.defaultColour
 
-    def applyOpacity(self,colour):
-        opacity = self.getOpacity()
+    @staticmethod
+    def applyOpacity(colour,opacity):
         if opacity < 1.0:
-            (r,g,b,a) = self.parseColour(colour)
+            (r,g,b,a) = Colour.parseColour(colour)
             return "#%02X%02X%02X%02X"%(r,g,b,round(opacity*255))
         else:
             return colour
 
     def getColour(self,val):
-        if self.discrete:
-            if val in self.palette_lookup:
-                return self.applyOpacity(self.palette_lookup[val])
-            if self.colourMap:
-                extendedColour = self.getExtendedPaletteColour(val)
-                if extendedColour:
-                    return extendedColour
+        if self.gradients:
+            for idx in range(len(self.palette_lookup)):
+                lookup = self.palette_lookup[idx]
+                (lwb,upb,lwc,upc) = lookup
+                if val >= lwb and (val < upb or (idx==len(self.palette_lookup)-1 and val <= upb)):
+                    col = self.computeColour(lwc,upc,(val-lwb)/(upb-lwb))
+                    return col
         else:
-            if self.gradients:
-                for idx in range(len(self.palette_lookup)):
-                    lookup = self.palette_lookup[idx]
-                    (lwb,upb,lwc,upc) = lookup
-                    if val >= lwb and (val < upb or (idx==len(self.palette_lookup)-1 and val <= upb)):
-                        col = self.computeColour(lwc,upc,(val-lwb)/(upb-lwb))
-                        return col
-            else:
-                for (val0,val1,col) in self.palette_lookup:
-                    if val >= val0 and val < val1:
-                        return self.rgb2colour(col)
-                if val == self.palette_lookup[-1][1]:
-                    return self.rgb2colour(self.palette_lookup[-1][2])
+            for (val0,val1,col) in self.palette_lookup:
+                if val >= val0 and val < val1:
+                    return self.rgb2colour(col)
+            if val == self.palette_lookup[-1][1]:
+                return self.rgb2colour(self.palette_lookup[-1][2])
 
         return self.defaultColour
 
-    def getExtendedPaletteColour(self,discrete_val):
-        if self.colourMap in DiscreteColourMaps:
-            colours = DiscreteColourMaps[self.colourMap]
-            colour = colours[self.colourMapIndex % len(colours)]
-            self.colourMapIndex += 1
-            self.palette_lookup[discrete_val] = colour
-            return colour
-        return None
 
     def drawColourRectangle(self,doc,x,y,width,height,orientation="horizontal",stroke_width=None,stroke=None):
         xc = x

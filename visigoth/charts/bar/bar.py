@@ -83,7 +83,7 @@ class Bar(ChartElement):
         self.colourvals = []
         if self.colour is not None:
             for v in self.dataset.query([self.colour],unique=True,flatten=True):
-                self.getPalette().getColour(v)
+                self.getPalette().allocateColour(v)
                 self.colourvals.append(v)
         self.colourvals = sorted(self.colourvals)
 

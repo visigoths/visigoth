@@ -1,12 +1,12 @@
 //    Visigoth: A lightweight Python3 library for rendering data visualizations in SVG
 //    Copyright (C) 2020  Niall McCarroll
 //   Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-//   and associated documentation files (the "Software"), to deal in the Software without 
+//   and associated documentation files (the "Software"), to deal in the Software without
 //   restriction, including without limitation the rights to use, copy, modify, merge, publish,
 //   distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
 //   Software is furnished to do so, subject to the following conditions:
 //
-//   The above copyright notice and this permission notice shall be included in all copies or 
+//   The above copyright notice and this permission notice shall be included in all copies or
 //   substantial portions of the Software.
 //
 //   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
@@ -15,7 +15,7 @@
 //   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-class ruler {
+class imagegrid {
 
     constructor(id,width,height,x,y,sendfn,config) {
         this.id = id;
@@ -25,19 +25,10 @@ class ruler {
         this.y = y;
         this.sendfn = sendfn;
         this.config = config;
-        this.label = document.getElementById(this.config.label);
     }
 
     zoom(zoom_level) {
-        var zoom_value = this.config.value / zoom_level;
-        var newlabel;
-        if (zoom_value == Math.floor(zoom_value)) {
-            newlabel = zoom_value + " " + this.config.units;
-        } else {
-            newlabel = zoom_value.toFixed(3) + " " + this.config.units;
-        }
-        this.label.removeChild(this.label.firstChild);
-        this.label.appendChild(document.createTextNode(newlabel));
+
     }
 
     recieve(obj,channel) {

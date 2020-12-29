@@ -64,6 +64,8 @@ class WordCloud(ChartElement):
             palette = DiscretePalette()
         self.setPalette(palette)
         self.total = sum([v for (word,cat,v) in self.data])
+        for (_,cat,_) in self.data:
+            palette.allocateColour(cat)
         self.plots = []
         self.renders = []
         self.text_attributes = text_attributes

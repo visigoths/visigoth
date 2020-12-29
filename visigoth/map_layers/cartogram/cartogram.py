@@ -96,7 +96,7 @@ class Cartogram(MapLayer):
 
         for (lon,lat,colour,label,size) in self.data:
             self.getMarkerManager().noteSize(size)
-            self.getPalette().getColour(colour)
+            self.getPalette().allocateColour(colour)
 
         self.link_stroke = link_stroke
         self.link_stroke_width = link_stroke_width

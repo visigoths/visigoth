@@ -43,9 +43,13 @@ class PROJ_EPSG_3857(Projection):
 
     def fromLonLat(self,lon_lat):
         (lon,lat) = lon_lat
-        e = lon * PROJ_EPSG_3857.C1 / 180
-        n = math.log(math.tan((90+lat) * math.pi / 360.0)) / (math.pi / 180)
-        n = n * PROJ_EPSG_3857.C1 / 180
+        try:
+            e = lon * PROJ_EPSG_3857.C1 / 180
+            n = math.log(math.tan((90+lat) * math.pi / 360.0)) / (math.pi / 180)
+            n = n * PROJ_EPSG_3857.C1 / 180
+        except:
+            print((lon,lat))
+            raise
         return (e,n)
 
     def toLonLat(self,e_n):

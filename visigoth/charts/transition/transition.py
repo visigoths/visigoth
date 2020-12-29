@@ -114,7 +114,7 @@ class Transition(ChartElement):
         # make sure that all categories are added to the palette
         for cat in self.categories:
             if cat != "":
-                self.getPalette().getColour(cat)
+                self.getPalette().allocateColour(cat)
 
         ay = Axis(self.height-self.font_height,"vertical",0,len(self.keys),label=self.y_axis_label,font_height=self.font_height,text_attributes=self.text_attributes)
         self.setAxes(None,ay)

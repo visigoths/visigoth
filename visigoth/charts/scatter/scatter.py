@@ -95,7 +95,7 @@ class Scatter(ChartElement):
         self.setAxes(ax,ay)
         if self.colour:
             for v in self.dataset.query([self.colour],unique=True,flatten=True):
-                self.getPalette().getColour(v)
+                self.getPalette().allocateColour(v)
         if self.size:
             for v in self.dataset.query([self.size],unique=True,flatten=True):
                 self.getMarkerManager().noteSize(v)

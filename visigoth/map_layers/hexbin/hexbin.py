@@ -44,8 +44,9 @@ class Hexbin(MapLayer):
         stroke(str) : the colour to use for bin lines
         stroke_width(float) : the width (in pixels) to use for bin lines
         draw_empty_bins(bool) : whether to draw hexagonal bins with zero value
+        min_freq(int) : only draw bins with this frequency or higher
     """
-    def __init__(self,data,lon=0,lat=1,colour=None,nr_bins_across=10,palette=None,stroke="grey",stroke_width=1, draw_empty_bins=False):
+    def __init__(self,data,lon=0,lat=1,colour=None,nr_bins_across=10,palette=None,stroke="grey",stroke_width=1, draw_empty_bins=False,min_freq=1):
         super(Hexbin, self).__init__()
         dataset = Dataset(data)
         self.data = dataset.query([lon,lat,colour if colour is not None else Dataset.constant(1)])
@@ -61,6 +62,7 @@ class Hexbin(MapLayer):
         self.bins = []
         self.boundaries = None
         self.draw_empty_bins = draw_empty_bins
+        self.min_freq = min_freq
 
     def getBoundaries(self):
         if self.boundaries:
@@ -135,10 +137,18 @@ class Hexbin(MapLayer):
             (px,py) = self.transform((lon,lat))
             py = self.height - py
             self.points.append((px,py))
-            for row in range(0,self.nr_bins_down):
-                for col in range(0,self.nr_bins_across):
+            col_e = (px / self.width) * self.nr_bins_across
+            row_e = (py / self.height) * self.nr_bins_down
+            row_min = max(math.floor(row_e-1),0)
+            row_max = min(math.ceil(row_e+1),self.nr_bins_down-1)
+            col_min = max(math.floor(col_e - 1), 0)
+            col_max = min(math.ceil(col_e + 1), self.nr_bins_across-1)
+            hits = 0
+            for row in range(row_min,row_max+1):
+                for col in range(col_min,col_max+1):
                     (hx,hy) = self.centers[(col,row)]
                     if self.inHexagon(px,py,hx,hy):
+                        hits += 1
                         freq = self.freqs[(col,row)]+value
                         self.freqs[(col,row)] = freq
                         if freq > maxfreq:
@@ -146,8 +156,8 @@ class Hexbin(MapLayer):
             count += 1
             progress.report("building",(count+1)/total)
         progress.complete("complete")
-        self.getPalette().getColour(0)
-        self.getPalette().getColour(maxfreq)
+        self.getPalette().allocateColour(0)
+        self.getPalette().allocateColour(maxfreq)
         self.getPalette().build()
 
     def draw(self,doc,cx,cy):
@@ -157,7 +167,7 @@ class Hexbin(MapLayer):
             for col in range(0,self.nr_bins_across):
                 (hx,hy) = self.centers[(col,row)]
                 freq = self.freqs[(col,row)]
-                if freq>0 or self.draw_empty_bins:
+                if freq>=self.min_freq or self.draw_empty_bins:
                     col = self.getPalette().getColour(freq)
                     h = hexagon(ox+hx,oy+hy,self.dlength,col,self.stroke,self.stroke_width)
                     doc.add(h)

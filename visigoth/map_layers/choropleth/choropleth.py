@@ -55,7 +55,7 @@ class Choropleth(Geoimport):
         self.setPalette(palette)
         self.stroke_width = stroke_width
         for props in self.getPolygonProperties():
-            col = self.getPalette().getColour(self.valueNameOrFn(props))
+            self.getPalette().allocateColour(self.valueNameOrFn(props))
 
     def getFill(self,geojson_props):
         if isinstance(self.valueNameOrFn,str):

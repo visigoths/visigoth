@@ -326,8 +326,8 @@ class Contour(MapLayer):
 
     def setPalette(self,palette):
         super().setPalette(palette)
-        palette.getColour(self.min_val)
-        palette.getColour(self.max_val)
+        palette.allocateColour(self.min_val)
+        palette.allocateColour(self.max_val)
 
     def generateLabel(self,points,threshold):
 
@@ -378,12 +378,10 @@ class Contour(MapLayer):
                 doc.add(r)
             threshold += self.contour_interval
 
-
         while threshold < self.max_val:
             (total,concavity) = self.computeContourLines(threshold,ox,oy)
             contourTotal.append((threshold,total,concavity))
             threshold += self.contour_interval
-
 
         if self.palette:
             for (threshold,contours,concavity) in contourTotal:

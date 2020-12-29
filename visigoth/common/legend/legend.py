@@ -37,6 +37,7 @@ class Legend(DiagramElement):
     Keyword Arguments:
         width(int): width of the legend area
         label(str): a descriptive label to display
+        labelfn(function): function which accepts an axis value and returns a label string
         orientation(str): "horizontal"|"vertical" whether to display legend horizontally or vertically (applies only to continuous palette)
         legend_columns(int): the number of columns to split the legend into (applies only to discrete palette)
         stroke(str): the stroke colour for the line around the toggle control
@@ -45,7 +46,7 @@ class Legend(DiagramElement):
         text_attributes(dict): a dict containing SVG name/value pairs
     """
 
-    def __init__(self,palette,width=512,label=None,orientation="horizontal",legend_columns=0,stroke="black",stroke_width=2, font_height=24,text_attributes={}):
+    def __init__(self,palette,width=512,label=None,labelfn=None,orientation="horizontal",legend_columns=0,stroke="black",stroke_width=2, font_height=24,text_attributes={}):
         DiagramElement.__init__(self)
         self.palette = palette
         self.text_attributes = text_attributes
@@ -53,6 +54,7 @@ class Legend(DiagramElement):
         self.height = 0
         self.axis = None
         self.label = label
+        self.labelfn = labelfn
         self.stroke = stroke
         self.stroke_width = stroke_width
         self.font_height = font_height
@@ -68,8 +70,8 @@ class Legend(DiagramElement):
 
         if isinstance(self.palette,ContinuousPalette):
             self.configureForContinuousPalette()
-            self.axis = Axis(self.width, self.orientation, self.palette.getMinValue(), self.palette.getMaxValue(),
-                         label=self.label, font_height=self.font_height, axis_font_height=self.font_height, text_attributes=self.text_attributes,
+            self.axis = Axis(self.width-2*self.palette.getCapSize(), self.orientation, self.palette.getMinValue(), self.palette.getMaxValue(),
+                         label=self.label, labelfn=self.labelfn, font_height=self.font_height, axis_font_height=self.font_height, text_attributes=self.text_attributes,
                          stroke=self.stroke, stroke_width=self.stroke_width)
 
     def getHeight(self):
@@ -102,7 +104,7 @@ class Legend(DiagramElement):
         self.palette.build()
         if self.palette.isDiscrete():
             if not self.legend_columns:
-                max_text_width = max(map(lambda x:FontManager.getTextLength(self.text_attributes,x[0],self.font_height),self.palette.getCategories()))
+                max_text_width = max(map(lambda x:FontManager.getTextLength(self.text_attributes,self.palette.getLabel(x[0]),self.font_height),self.palette.getCategories()))
                 column_content_width = max_text_width + self.font_height*3
                 self.legend_columns = max(1,self.width // column_content_width)
             self.height = (self.font_height*len(self.palette.getCategories())*2) // self.legend_columns
@@ -112,9 +114,9 @@ class Legend(DiagramElement):
             self.axis.build(fmt)
             if self.orientation == "horizontal":
                 self.height = self.bar_width + self.bar_spacing + self.axis.getHeight()
-                self.width = self.axis.getWidth()
+                # self.width = self.axis.getWidth()
             else:
-                self.height = self.axis.getHeight()
+                # self.height = self.axis.getHeight()
                 self.width = self.bar_width + self.bar_spacing + self.axis.getWidth()
 
     def draw(self,d,cx,cy):
@@ -131,7 +133,7 @@ class Legend(DiagramElement):
         oy = cy - self.height/2
         ox = cx
         legend_column_width = self.width / self.legend_columns
-        max_text_width = max(map(lambda x:FontManager.getTextLength(self.text_attributes,x[0],self.font_height),self.palette.getCategories()))
+        max_text_width = max(map(lambda x:FontManager.getTextLength(self.text_attributes,str(x[0]),self.font_height),self.palette.getCategories()))
         column_content_width = max_text_width + self.font_height*1.5
         column_offset = 0
         if column_content_width < legend_column_width:
@@ -141,6 +143,7 @@ class Legend(DiagramElement):
         col = 0
         config = { "categories": {} }
         for (category, colour) in self.palette.getCategories():
+            label = self.palette.getLabel(category)
             g = self.font_height
             if self.discrete_marker_style == "square":
                 points = [(legend_x, legend_y), (legend_x + g, legend_y), (legend_x + g, legend_y + g),
@@ -152,7 +155,7 @@ class Legend(DiagramElement):
                 p = line(legend_x,legend_y+g/2,legend_x+g,legend_y+g/2,stroke=colour,stroke_width=self.stroke_width)
             config["categories"][category] = [p.getId()];
             d.add(p)
-            t = text(legend_x+1.5*g, legend_y+g/2, category)
+            t = text(legend_x+1.5*g, legend_y+g/2, label)
             t.addAttr("font-size", self.font_height)
             t.addAttr("text-anchor", "start")
             t.setVerticalCenter()

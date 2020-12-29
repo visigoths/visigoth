@@ -84,7 +84,7 @@ class POI(Geoplot):
 
         for (size,colour) in self.dataset.query([self.size,self.colour]):
             self.getMarkerManager().noteSize(size)
-            self.getPalette().getColour(colour)
+            self.getPalette().allocateColour(colour)
 
     def getBoundaries(self):
         return MapLayer.computeBoundaries(self.dataset.query([self.lon,self.lat]))

@@ -73,7 +73,7 @@ class Table(DiagramElement):
         self.header_text_attributes = header_text_attributes
         if self.colour != None:
             for val in self.dataset.query([self.colour],unique=True,flatten=True):
-                self.getPalette().getColour(val)
+                self.getPalette().allocateColour(val)
 
     def getPalette(self):
         return self.palette

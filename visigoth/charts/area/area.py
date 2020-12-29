@@ -76,7 +76,7 @@ class Area(ChartElement):
         if not palette:
             palette = DiscretePalette()
         for cat in self.cats:
-            palette.getColour(cat)
+            palette.allocateColour(cat)
         self.setPalette(palette)
 
         if not marker_manager:
@@ -119,7 +119,7 @@ class Area(ChartElement):
 
         if self.colour != None:
             for val in self.data.query([self.colour],unique=True,flatten=True):
-                self.getPalette().getColour(val)
+                self.getPalette().allocateColour(val)
         
         if self.size != None:
             for v in self.data.query([self.size],unique=True,flatten=True):

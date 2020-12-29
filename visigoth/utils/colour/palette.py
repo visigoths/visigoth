@@ -21,11 +21,14 @@
 from visigoth.utils.colour.colour import Colour, ColourException
 from visigoth.common.axis import AxisUtils
 from visigoth.utils.colour.colourmaps import ColourMaps, DiscreteColourMaps
+from visigoth.svg import polygon
+
+import math
 
 class Palette(object):
 
     def __init__(self,defaultColour):
-        self.defaultColour = defaultColour
+        self.defaultColour = Colour.toHEX(defaultColour)
 
     def getDefaultColour(self):
         return self.defaultColour
@@ -38,15 +41,14 @@ class DiscretePalette(Palette):
 
     def __init__(self,colourMap="pastel",defaultColour="gray"):
         super(DiscretePalette,self).__init__(defaultColour)
-        self.colour = None
+        self.built = False
         self.categories = []
-        self.categoryset = set()
-        self.colourMap = colourMap
+        self.categorylist = []
+        self.colourMap = DiscreteColourMaps[colourMap] if colourMap else None
         self.opacity = 1.0
+        self.value_labels = {}
+        self.colour_lookup = {}
 
-    def build(self):
-        pass
-        
     @staticmethod
     def listColourMaps():
         return sorted(DiscreteColourMaps.keys())
@@ -54,50 +56,80 @@ class DiscretePalette(Palette):
     def isDiscrete(self):
         return True
 
-    def addColour(self,category,colour):
+    def addColour(self,category,colour,label=None):
+        if label is None:
+            label = str(category)
         self.categories.append((category,colour))
-        self.categoryset.add(category)
+        self.categorylist.append(category)
+        self.value_labels[category] = label
         return self
 
     def getCategories(self):
         return self.categories
 
+    def allocateColour(self,value):
+        if value is not None:
+            if value not in self.categorylist:
+                self.categorylist.append(value)
+
+    def build(self):
+        # build a colour lookup table
+        if not self.built:
+            final_categories=[]
+            for (cat,col) in self.categories:
+                col = Colour.applyOpacity(col, self.opacity)
+                self.colour_lookup[cat] = col
+                final_categories.append((cat,col))
+
+            # assign colours to all unassigned categories from the colour map
+            cm_index = 0
+            for category in self.categorylist:
+                if category not in self.colour_lookup:
+                    if not self.colourMap:
+                        raise Exception("Please define a colour map")
+                    col = self.colourMap[cm_index]
+                    col = Colour.applyOpacity(col, self.opacity)
+                    self.colour_lookup[category] = col
+                    cm_index += 1
+                    cm_index = cm_index % len(self.colourMap)
+                    final_categories.append((category,col))
+
+            self.categories = final_categories
+            # apply opacity to the default colour
+            self.setDefaultColour(Colour.applyOpacity(self.getDefaultColour(),self.opacity))
+            self.built = True
+
     def getColour(self,value):
-        if self.colour == None:
-            self.colour = Colour(self.categories,colourMap=self.colourMap)
-            self.colour.setOpacity(self.opacity)
         if value is None:
             return self.getDefaultColour()
-        try:
-            # if the value already represents a valid colour, use that colour
-            Colour.parseColour(value)
-            col = value
-        except ColourException:
-            # assign a new colour from the colour map, if necessary
-            col = self.colour.getColour(value)
-        if value not in self.categoryset:
-            self.categoryset.add(value)
-            self.categories.append((value,col))
-        return col
+        else:
+            if value in self.colour_lookup:
+                return self.colour_lookup[value]
+            else:
+                return self.getDefaultColour()
+
+    def getLabel(self,value):
+        return self.value_labels.get(value,str(value))
 
     def setOpacity(self,opacity):
         self.opacity = opacity
-        if self.colour:
-            self.colour.setOpacity(opacity)
 
     def getOpacity(self):
         return self.opacity
 
 class ContinuousPalette(Palette):
 
-    def __init__(self, withIntervals=True, colourMap="viridis", defaultColour="gray",min_val=None,max_val=None):
+    def __init__(self, withIntervals=True, colourMap="viridis", defaultColour="gray",undershootColour=None,overshootColour=None,min_val=None,max_val=None):
         super(ContinuousPalette,self).__init__(defaultColour)
+        self.undershootColour=Colour.toHEX(undershootColour)
+        self.overshootColour=Colour.toHEX(overshootColour)
         self.colour = None
         self.range = []
         self.withIntervals = withIntervals
         self.intervals = []
         self.rescaled = False
         self.colourMap = None
+        self.cap_size = 10
 
         self.fixed_min_value=min_val is not None
         self.min_value = min_val
@@ -120,6 +152,15 @@ class ContinuousPalette(Palette):
                 self.__appendColour("#%02X%02X%02X"%(int(255*r),int(255*g),int(255*b)),i)
             else:
                 self.__appendColour(entry,i)
+
+    def getCapSize(self):
+        return self.cap_size
+
+    def getUndershootColour(self):
+        return self.undershootColour if self.undershootColour is not None else self.getColour(self.min_value)
+
+    def getOvershootColour(self):
+        return self.overshootColour if self.overshootColour is not None else self.getColour(self.max_value)
 
     @staticmethod
     def listColourMaps():
@@ -188,19 +229,53 @@ class ContinuousPalette(Palette):
     def getIntervals(self):
         return self.intervals
 
-    def getColour(self,value):
-        if value is None:
-            return self.getDefaultColour()
+    def allocateColour(self,value):
         if not self.fixed_min_value:
             if self.min_value == None or value < self.min_value:
                 self.min_value = value
         if not self.fixed_max_value:
             if self.max_value == None or value > self.max_value:
                 self.max_value = value
-        if self.colour:
+
+    def getColour(self,value):
+        if value is None or math.isnan(value):
+            return self.getDefaultColour()
+        elif value < self.min_value:
+            return self.getUndershootColour()
+        elif value > self.max_value:
+            return self.getOvershootColour()
+        elif self.colour:
             return self.colour.getColour(value)
         else:
             return None
 
     def drawColourRectangle(self,doc,x,y,width,height,orientation,stroke_width=None,stroke=None):
-        return self.colour.drawColourRectangle(doc,x,y,width,height,orientation,stroke_width=stroke_width,stroke=stroke)
+        if orientation == "horizontal":
+            rx = x + self.cap_size
+            ry = y
+            rwidth = width - 2*self.cap_size
+            rheight  = height
+        else:
+            rx = x
+            ry = y + self.cap_size
+            rwidth = width
+            rheight = height  - 2 * self.cap_size
+
+        self.colour.drawColourRectangle(doc,rx,ry,rwidth,rheight,orientation,stroke_width=stroke_width,stroke=stroke)
+        xmin = rx
+        xmax = rx+rwidth
+        ymin = ry
+        ymax = ry+rheight
+        if orientation == "horizontal":
+            p1 = polygon([(xmin,ymin),(xmin,ymax),(xmin-10,y+rheight/2)],fill=self.getUndershootColour(),stroke=stroke, stroke_width=stroke_width)
+            p2 = polygon([(xmax, ymin), (xmax, ymax), (xmax + 10, y+rheight/2)], fill=self.getOvershootColour(),stroke=stroke, stroke_width=stroke_width)
+        else:
+            p1 = polygon([(xmin, ymin), (xmax, ymin), (xmin + rwidth / 2,ymin - 10)], fill=self.overshootColour,
+                         stroke=stroke, stroke_width=stroke_width)
+            p2 = polygon([(xmin, ymax), (xmax, ymax), (xmin + rwidth/2, ymax + 10)], fill=self.undershootColour,
+                         stroke=stroke, stroke_width=stroke_width)
+        p1.addAttr("stroke-linejoin","round")
+        doc.add(p1)
+        p2.addAttr("stroke-linejoin", "round")
+        doc.add(p2)
+

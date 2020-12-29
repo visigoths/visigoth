@@ -118,8 +118,8 @@ class KDE(MapLayer):
             tdata.append(tdata_row)
             progress.report("building", (row + 1) / self.nr_samples_down)
         progress.complete("complete")
-        self.palette.getColour(0)
-        self.palette.getColour(maxval)
+        self.palette.allocateColour(0)
+        self.palette.allocateColour(maxval)
         contour_interval = maxval / self.contour_bands
         self.contour = Contour(tdata,contour_interval=contour_interval,label_fn=self.label_fn,stroke_width=0)
         self.contour.setPalette(self.getPalette())

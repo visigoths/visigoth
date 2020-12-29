@@ -76,7 +76,7 @@ class Scatter(Geoplot):
 
         for (_,_,_,colour,size) in self.data:
             self.getMarkerManager().noteSize(size)
-            self.getPalette().getColour(colour)
+            self.getPalette().allocateColour(colour)
 
     def getBoundaries(self):
         return MapLayer.computeBoundaries(self.dataset.query([self.lon,self.lat]))

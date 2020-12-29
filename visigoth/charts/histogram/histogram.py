@@ -74,7 +74,7 @@ class Histogram(ChartElement):
         self.colourcats = []
         if self.colour != None:
             for cat in self.dataset.query([self.colour], unique=True, flatten=True):
-                self.getPalette().getColour(cat)
+                self.getPalette().allocateColour(cat)
                 self.colourcats.append(cat)
         else:
             self.colourcats.append(None)
