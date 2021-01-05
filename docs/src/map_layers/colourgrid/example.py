@@ -2,11 +2,13 @@
 
 import os
 import json
+import math
 
 from visigoth import Diagram
 from visigoth.common import Legend, Text
 from visigoth.map_layers import ColourGrid
 from visigoth.containers import Map
+from visigoth.utils.colour.palette import ContinuousPalette
 from pyproj import Transformer
 
 class CustomProjection(object):
@@ -46,8 +48,23 @@ d = Diagram(fill="#D0D0D0")
 # set up map with global coverage, Mollweide projection
 m = Map(fill="#E0E0E0",width=512,projection=CustomProjection("ESRI:54009"),boundaries=((-180,-85),(180,85)))
 
+maxv = -1000
+minv = 1000
+
+for row in sst:
+    for val in row:
+        if val is not None:
+            maxv = max(maxv,val)
+            minv = min(minv,val)
+
+maxv = math.ceil(maxv)
+minv = math.floor(minv)
+
+# palette = ContinuousPalette(intervals=list(range(minv,maxv+1,2)))
+palette = ContinuousPalette()
+
 # add a colourgird layer to the map using the SST data
-cg = ColourGrid(sst,lats=lats,lons=lons,sharpen=True)
+cg = ColourGrid(sst,lats=lats,lons=lons,sharpen=True,palette=palette)
 m.add(cg)
 
 # add the map, some descriptive text and the legend to the diagram

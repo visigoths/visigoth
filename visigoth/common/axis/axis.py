@@ -148,6 +148,12 @@ class Axis(DiagramElement):
         return self
 
     def setTickPositions(self,tickpositions):
+        """
+        Sets the tick positions as a list of values in ascending order
+
+        :param tickpositions:
+        :return:
+        """
         self.tickpoints = tickpositions
         return self
 
@@ -178,7 +184,7 @@ class Axis(DiagramElement):
             if self.integer_ticks:
                 self.axisutils.setIntegerInterval(self.integer_interval)
 
-            if not self.tickpoints:
+            if self.tickpoints is None or len(self.tickpoints) == 0:
                 self.tickpoints = self.axisutils.computeTickPoints()
             else:
                 self.axisutils.setTickPoints(self.tickpoints[:])

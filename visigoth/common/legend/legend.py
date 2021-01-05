@@ -111,6 +111,8 @@ class Legend(DiagramElement):
         else:
             self.axis.setMinValue(self.palette.getMinValue())
             self.axis.setMaxValue(self.palette.getMaxValue())
+            tickpoints = self.palette.getTickPositions()
+            self.axis.setTickPositions(tickpoints)
             self.axis.build(fmt)
             if self.orientation == "horizontal":
                 self.height = self.bar_width + self.bar_spacing + self.axis.getHeight()

@@ -162,10 +162,12 @@ class AxisUtils(object):
                     self.tickpoints.append(point)
                 point += spacing
             self.spacing = spacing
-        return self.tickpoints[:]
+        return self.tickpoints
 
     def getSpacing(self):
         return self.spacing
 
     def build(self):
-        return self.computeTickPoints()
+        if not self.tickpoints:
+            self.computeTickPoints()
+        return self.tickpoints[:]

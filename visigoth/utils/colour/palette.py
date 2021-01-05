@@ -40,6 +40,31 @@ class Palette(object):
 class DiscretePalette(Palette):
 
     def __init__(self,colourMap="pastel",defaultColour="gray"):
+        """
+        Create a palette mapping discrete values to colours
+
+        Arguments:
+            colourMap(str): the name of a colourMap (see Notes) OR a list of colour names
+
+        Keyword Arguments:
+            defaultColour(str): the name of the default colour to use (to represent mpy values)
+
+        Notes:
+            A list of the names and numbers of colours in each map is:
+
+            "deep": 10
+            "deep6": 6
+            "muted": 10
+            "muted6": 6
+            "pastel": 10
+            "pastel6": 6
+            "bright": 10
+            "bright6": 6
+            "dark": 10
+            "dark6": 6
+            "colorblind": 10
+            "colorblind6":6
+        """
         super(DiscretePalette,self).__init__(defaultColour)
         self.built = False
         self.categories = []
@@ -119,7 +144,20 @@ class DiscretePalette(Palette):
 
 class ContinuousPalette(Palette):
 
-    def __init__(self, withIntervals=True, colourMap="viridis", defaultColour="gray",undershootColour=None,overshootColour=None,min_val=None,max_val=None):
+    def __init__(self, colourMap="viridis", withIntervals=True, intervals=[], defaultColour="gray",min_val=None,max_val=None,undershootColour=None,overshootColour=None):
+        """
+        Create a palette mapping continuous values to colours
+
+        KeywordArguments:
+            colourMap(str): the name of a predefined colorMap to use (see Notes) or a list of colour names
+            withIntervals(boolean): whether the colour range should be divided into a smallish number of intervals
+            intervals(list): manually define list of values in ascending order defining the intervals
+            defaultColour(str): the name of the default colour to use (to represent mpy values)
+            min_val(float): manually set a minimum value (use the minimum from the data if not provided)
+            max_val(float): manually set a maximum value (use the maximum from the data if not provided)
+            undershootColour(str): the colour to use for values below a manually set minimum value
+            overshootColour (str): the colour to use for values above a manually set maximum value
+        """
         super(ContinuousPalette,self).__init__(defaultColour)
         self.undershootColour=Colour.toHEX(undershootColour)
         self.overshootColour=Colour.toHEX(overshootColour)
@@ -130,7 +168,7 @@ class ContinuousPalette(Palette):
         self.rescaled = False
         self.colourMap = None
         self.cap_size = 10
-
+        self.tickpositions = intervals
         self.fixed_min_value=min_val is not None
         self.min_value = min_val
 
@@ -202,13 +240,24 @@ class ContinuousPalette(Palette):
         else:
             self.colour = Colour(self.range,self.min_value,self.max_value)
 
+    def getTickPositions(self):
+        return self.tickpositions
+
     def setIntervals(self):
         self.colour = Colour(self.range,self.min_value,self.max_value)
+        # work out the lower and upper bounds of the value range
         lwb = self.min_value
         upb = self.max_value
-
-        axisutils = AxisUtils(100,"vertical",self.min_value,self.max_value)
+        # take tickpositions into account, if the caller has set them
+        if self.tickpositions:
+            lwb = min(lwb,self.tickpositions[0])
+            upb = max(upb,self.tickpositions[-1])
+        axisutils = AxisUtils(100,"vertical",lwb,upb)
+        if self.tickpositions:
+            axisutils.setTickPoints(self.tickpositions)
         ticks = axisutils.build()
+        lwb = ticks[0]
+        upb = ticks[-1]
         self.intervals = []
         # intervals will be a list of (val0,val1,col) associating colour col with values in the range v >= val0 and v < val1
         for idx in range(len(ticks)):
@@ -224,7 +273,9 @@ class ContinuousPalette(Palette):
             if idx == len(ticks)-1 and val < upb:
                 col = self.colour.getColour(val + (upb - val) / 2)
                 self.intervals.append((val, upb, col))
-        self.colour = Colour(self.intervals,self.min_value,self.max_value)
+        self.colour = Colour(self.intervals,lwb,upb)
+        self.min_value = lwb
+        self.max_value = upb
 
     def getIntervals(self):
         return self.intervals
