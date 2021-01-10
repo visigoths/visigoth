@@ -5,16 +5,16 @@ import csv
 from visigoth import Diagram
 from visigoth.charts import SOM
 from visigoth.common import Text, Legend
-from visigoth.utils.colour import ContinuousPalette
+from visigoth.utils.colour import ContinuousColourManager
 
 
-cpalette0 = ContinuousPalette(withIntervals=False)
+ccolour_manager0 = ContinuousColourManager(withIntervals=False)
 
-cpalette1 = ContinuousPalette(withIntervals=False)
+ccolour_manager1 = ContinuousColourManager(withIntervals=False)
 
-cpalette2 = ContinuousPalette(withIntervals=False)
+ccolour_manager2 = ContinuousColourManager(withIntervals=False)
 
-cpalette3 = ContinuousPalette(withIntervals=False)
+ccolour_manager3 = ContinuousColourManager(withIntervals=False)
 
 min_temp_data = []
 max_temp_data = []
@@ -39,25 +39,25 @@ def mean(vec):
 
 d = Diagram(fill="white")
 
-som0 = SOM(min_temp_data,512,dimension=lambda l: mean(l),dimensionPalette=cpalette0)
-som1 = SOM(max_temp_data,512,dimension=lambda l: mean(l),dimensionPalette=cpalette1)
-som2 = SOM(precipitation_data,512,dimension=lambda l: mean(l),dimensionPalette=cpalette2)
+som0 = SOM(min_temp_data,512,dimension=lambda l: mean(l),dimensionPalette=ccolour_manager0)
+som1 = SOM(max_temp_data,512,dimension=lambda l: mean(l),dimensionPalette=ccolour_manager1)
+som2 = SOM(precipitation_data,512,dimension=lambda l: mean(l),dimensionPalette=ccolour_manager2)
 som2.getPalette().setDefaultColour("white")
 
 d.add(Text("Cities clustered by monthly minimum temperature(s)"))
 d.add(som0)
 d.add(Text("Mean minimum daily temperature (Celsius)",font_height=12))
-d.add(Legend(cpalette0,width=500))
+d.add(Legend(ccolour_manager0,width=500))
 
 d.add(Text("Cities clustered by monthly maximum temperature(s)"))
 d.add(som1)
 d.add(Text("Mean maximum daily temperature (Celsius)",font_height=12))
-d.add(Legend(cpalette1,width=500))
+d.add(Legend(ccolour_manager1,width=500))
 
 d.add(Text("Cities clustered by precipitation"))
 d.add(som2)
 d.add(Text("Mean daily precipitation (mm)",font_height=12))
-d.add(Legend(cpalette2,width=500))
+d.add(Legend(ccolour_manager2,width=500))
 
 html = d.draw(format="html")
 

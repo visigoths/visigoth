@@ -26,7 +26,7 @@ import unittest
 
 from visigoth.diagram import Diagram
 from visigoth.charts.wordcloud import WordCloud
-from visigoth.utils.colour import DiscretePalette
+from visigoth.utils.colour import DiscreteColourManager
 from visigoth.common.space import Space
 from visigoth.common.legend import Legend
 from visigoth.common.text import Text
@@ -38,8 +38,8 @@ class TestWordCloud(unittest.TestCase):
 
     def test_basic(self):
 
-        palette = DiscretePalette()
-        palette.addColour("A","green").addColour("B","blue").addColour("C","red").addColour("D","purple")
+        colour_manager = DiscreteColourManager()
+        colour_manager.addColour("A","green").addColour("B","blue").addColour("C","red").addColour("D","purple")
 
         d = Diagram()
     
@@ -57,9 +57,9 @@ class TestWordCloud(unittest.TestCase):
             ("snail","C",30),
             ("badass","D",130)]
 
-        d.add(Box(WordCloud(data, width=600, height=600, palette=palette, text_attributes={"font-weight":"bold"}, flip_fraction=0.1),fill="lightgrey"))
+        d.add(Box(WordCloud(data, width=600, height=600, colour_manager=colour_manager, text_attributes={"font-weight":"bold"}, flip_fraction=0.1),fill="lightgrey"))
 
-        d.add(Box(WordCloud(data, width=600, height=600, palette=palette, text_attributes={"font-weight":"bold"}, flip_fraction=0.0)))
+        d.add(Box(WordCloud(data, width=600, height=600, colour_manager=colour_manager, text_attributes={"font-weight":"bold"}, flip_fraction=0.0)))
 
         TestUtils.draw_output(d,"test_wordcloud")
 

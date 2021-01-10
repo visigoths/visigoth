@@ -37,11 +37,11 @@ class Palette(object):
         self.defaultColour = Colour.toHEX(defaultColour)
 
 
-class DiscretePalette(Palette):
+class DiscreteColourManager(Palette):
 
     def __init__(self,colourMap="pastel",defaultColour="gray"):
         """
-        Create a palette mapping discrete values to colours
+        Create a colour_manager mapping discrete values to colours
 
         Arguments:
             colourMap(str): the name of a colourMap (see Notes) OR a list of colour names
@@ -65,7 +65,7 @@ class DiscretePalette(Palette):
             "colorblind": 10
             "colorblind6":6
         """
-        super(DiscretePalette,self).__init__(defaultColour)
+        super(DiscreteColourManager,self).__init__(defaultColour)
         self.built = False
         self.categories = []
         self.categorylist = []
@@ -142,33 +142,32 @@ class DiscretePalette(Palette):
     def getOpacity(self):
         return self.opacity
 
-class ContinuousPalette(Palette):
+class ContinuousColourManager(Palette):
 
-    def __init__(self, colourMap="viridis", withIntervals=True, intervals=[], defaultColour="gray",min_val=None,max_val=None,undershootColour=None,overshootColour=None):
+    def __init__(self, colourMap="viridis", withIntervals=True, ticks=[], defaultColour="gray",min_val=None,max_val=None,underflowColour=None,overflowColour=None):
         """
-        Create a palette mapping continuous values to colours
+        Create a colour_manager mapping continuous values to colours
 
         KeywordArguments:
             colourMap(str): the name of a predefined colorMap to use (see Notes) or a list of colour names
             withIntervals(boolean): whether the colour range should be divided into a smallish number of intervals
-            intervals(list): manually define list of values in ascending order defining the intervals
+            ticks(list): manually define list of values in ascending order defining the tick positions
             defaultColour(str): the name of the default colour to use (to represent mpy values)
             min_val(float): manually set a minimum value (use the minimum from the data if not provided)
             max_val(float): manually set a maximum value (use the maximum from the data if not provided)
-            undershootColour(str): the colour to use for values below a manually set minimum value
-            overshootColour (str): the colour to use for values above a manually set maximum value
+            underflowColour(str): the colour to use for values below a manually set minimum value
+            overflowColour (str): the colour to use for values above a manually set maximum value
         """
-        super(ContinuousPalette,self).__init__(defaultColour)
-        self.undershootColour=Colour.toHEX(undershootColour)
-        self.overshootColour=Colour.toHEX(overshootColour)
+        super(ContinuousColourManager,self).__init__(defaultColour)
+        self.underflowColour=Colour.toHEX(underflowColour)
+        self.overflowColour=Colour.toHEX(overflowColour)
         self.colour = None
-        self.range = []
         self.withIntervals = withIntervals
         self.intervals = []
         self.rescaled = False
         self.colourMap = None
         self.cap_size = 10
-        self.tickpositions = intervals
+        self.tickpositions = ticks
         self.fixed_min_value=min_val is not None
         self.min_value = min_val
 
@@ -181,38 +180,35 @@ class ContinuousPalette(Palette):
             colourMap = ColourMaps[colourMap]
 
         self.colourMap = colourMap
+        self.colours = []
         for i in range(len(self.colourMap)):
-            entry = self.colourMap[i]
-            if isinstance(entry,list) or isinstance(entry,tuple):
-                r = self.colourMap[i][0]
+            colour = self.colourMap[i]
+            if isinstance(colour,list) or isinstance(colour,tuple):
+                r = colour[0]
                 g = self.colourMap[i][1]
                 b = self.colourMap[i][2]
-                self.__appendColour("#%02X%02X%02X"%(int(255*r),int(255*g),int(255*b)),i)
-            else:
-                self.__appendColour(entry,i)
+                colour = "#%02X%02X%02X"%(int(255*r),int(255*g),int(255*b))
+            self.colours.append(colour)
+
 
     def getCapSize(self):
         return self.cap_size
 
-    def getUndershootColour(self):
-        return self.undershootColour if self.undershootColour is not None else self.getColour(self.min_value)
+    def getUnderflowColour(self):
+        return self.underflowColour if self.underflowColour is not None else self.getColour(self.min_value)
 
-    def getOvershootColour(self):
-        return self.overshootColour if self.overshootColour is not None else self.getColour(self.max_value)
+    def getOverflowColour(self):
+        return self.overflowColour if self.overflowColour is not None else self.getColour(self.max_value)
 
     @staticmethod
     def listColourMaps():
         return sorted(ColourMaps.keys())
 
     def __repr__(self):
-        return str(self.range)
+        return str(self.colour)
 
     def isDiscrete(self):
         return False
-
-    def __appendColour(self,colour,value):
-        self.range.append((value,colour))
-        self.range = sorted(self.range,key = lambda x:x[0])
 
     def getMinValue(self):
         return self.min_value
@@ -229,22 +225,23 @@ class ContinuousPalette(Palette):
         # make sure max is > min
         if self.max_value <= self.min_value:
             self.max_value = self.min_value + 1
-        # set the domain of the colour range linearly from min to max
-        for idx in range(0,len(self.range)):
-            frac = idx / (len(self.range)-1)
-            val = self.min_value + (frac * (self.max_value-self.min_value))
-            self.range[idx] = (val,self.range[idx][1])
-        #
+
         if self.withIntervals:
-            self.setIntervals()
+            # palett is to be divided into intervals
+            self.__buildIntervals()
         else:
-            self.colour = Colour(self.range,self.min_value,self.max_value)
+            # set the domain of the colour range linearly from min to max
+            crange = []
+            for idx in range(0, len(self.colours)):
+                frac = idx / (len(self.colours) - 1)
+                val = self.min_value + (frac * (self.max_value - self.min_value))
+                crange.append((val, self.colours[idx]))
+            self.colour = Colour(crange,self.min_value,self.max_value)
 
     def getTickPositions(self):
         return self.tickpositions
 
-    def setIntervals(self):
-        self.colour = Colour(self.range,self.min_value,self.max_value)
+    def __buildIntervals(self):
         # work out the lower and upper bounds of the value range
         lwb = self.min_value
         upb = self.max_value
@@ -259,20 +256,21 @@ class ContinuousPalette(Palette):
         lwb = ticks[0]
         upb = ticks[-1]
         self.intervals = []
+        # set the domain of the colour range linearly from min to max
+        crange = []
+        for idx in range(0, len(self.colours)):
+            frac = idx / (len(self.colours)-1)
+            val = lwb + (frac * (upb - lwb))
+            crange.append((val, self.colours[idx]))
+        # set up an iterim Colour object to get the colours for each interval
+        interim_colour = Colour(crange, lwb, upb)
         # intervals will be a list of (val0,val1,col) associating colour col with values in the range v >= val0 and v < val1
-        for idx in range(len(ticks)):
-            val = ticks[idx]
-            if idx == 0 and val > lwb:
-                col = self.colour.getColour(lwb + (val-lwb)/2)
-                self.intervals.append((lwb,val,col))
-            if idx > 0:
-                val0 = ticks[idx-1]
-                val1 = ticks[idx]
-                col = self.colour.getColour(val0 + (val1-val0)/2)
-                self.intervals.append((val0,val1,col))
-            if idx == len(ticks)-1 and val < upb:
-                col = self.colour.getColour(val + (upb - val) / 2)
-                self.intervals.append((val, upb, col))
+        for idx in range(1,len(ticks)):
+            val0 = ticks[idx-1]
+            val1 = ticks[idx]
+            col = interim_colour.getColour((val1+val0)/2)
+            self.intervals.append((val0,val1,col))
+
         self.colour = Colour(self.intervals,lwb,upb)
         self.min_value = lwb
         self.max_value = upb
@@ -292,9 +290,9 @@ class ContinuousPalette(Palette):
         if value is None or math.isnan(value):
             return self.getDefaultColour()
         elif value < self.min_value:
-            return self.getUndershootColour()
+            return self.getUnderflowColour()
         elif value > self.max_value:
-            return self.getOvershootColour()
+            return self.getOverflowColour()
         elif self.colour:
             return self.colour.getColour(value)
         else:
@@ -318,12 +316,12 @@ class ContinuousPalette(Palette):
         ymin = ry
         ymax = ry+rheight
         if orientation == "horizontal":
-            p1 = polygon([(xmin,ymin),(xmin,ymax),(xmin-10,y+rheight/2)],fill=self.getUndershootColour(),stroke=stroke, stroke_width=stroke_width)
-            p2 = polygon([(xmax, ymin), (xmax, ymax), (xmax + 10, y+rheight/2)], fill=self.getOvershootColour(),stroke=stroke, stroke_width=stroke_width)
+            p1 = polygon([(xmin,ymin),(xmin,ymax),(xmin-self.cap_size,y+rheight/2)],fill=self.getUnderflowColour(),stroke=stroke, stroke_width=stroke_width)
+            p2 = polygon([(xmax, ymin), (xmax, ymax), (xmax + self.cap_size, y+rheight/2)], fill=self.getOverflowColour(),stroke=stroke, stroke_width=stroke_width)
         else:
-            p1 = polygon([(xmin, ymin), (xmax, ymin), (xmin + rwidth / 2,ymin - 10)], fill=self.overshootColour,
+            p1 = polygon([(xmin, ymin), (xmax, ymin), (xmin + rwidth / 2,ymin - self.cap_size)], fill=self.getOverflowColour(),
                          stroke=stroke, stroke_width=stroke_width)
-            p2 = polygon([(xmin, ymax), (xmax, ymax), (xmin + rwidth/2, ymax + 10)], fill=self.undershootColour,
+            p2 = polygon([(xmin, ymax), (xmax, ymax), (xmin + rwidth/2, ymax + self.cap_size)], fill=self.getUnderflowColour(),
                          stroke=stroke, stroke_width=stroke_width)
         p1.addAttr("stroke-linejoin","round")
         doc.add(p1)

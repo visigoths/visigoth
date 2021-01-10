@@ -27,8 +27,8 @@ from .embedded_data import EmbeddedData
 from .event_handler import EventHandler
 from .image import Image
 from .legend import Legend
-from .map_layer_manager import MapLayerManager
-from .search_manager import SearchManager
+from .layer_controller import LayerController
+from .search_controller import SearchController
 from .slice_controller import SliceController
 from .panzoom import PanZoom
 from .space import Space

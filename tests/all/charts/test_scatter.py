@@ -25,7 +25,7 @@ from visigoth.utils.test_utils import TestUtils
 from visigoth.charts.scatter import Scatter
 from visigoth.containers.box import Box
 
-from visigoth.utils.colour import DiscretePalette
+from visigoth.utils.colour import DiscreteColourManager
 from visigoth.common import Legend, Text
 
 class TestScatterPlot(unittest.TestCase):
@@ -33,10 +33,10 @@ class TestScatterPlot(unittest.TestCase):
     def test_basic(self):
         d = Diagram(fill="white")
 
-        palette0 = DiscretePalette()
-        palette0.addColour("A","red")
-        palette0.addColour("B","purple")
-        palette0.addColour("C","orange")
+        colour_manager0 = DiscreteColourManager()
+        colour_manager0.addColour("A","red")
+        colour_manager0.addColour("B","purple")
+        colour_manager0.addColour("C","orange")
 
 
         d = Diagram(fill="white")
@@ -48,13 +48,13 @@ class TestScatterPlot(unittest.TestCase):
 
         d.add(Text("Multi-colour"))
 
-        scatter0 = Scatter(data0, x=0, y=1, label=2, colour=3, size=4, width=500, height=500, palette=palette0)
+        scatter0 = Scatter(data0, x=0, y=1, label=2, colour=3, size=4, width=500, height=500, colour_manager=colour_manager0)
         (xAxis,yAxis) = scatter0.getAxes()
         xAxis.setLabel("label-x")
         yAxis.setLabel("label-y")
 
         d.add(Box(scatter0))
-        legend0 = Legend(palette0,400,legend_columns=2)
+        legend0 = Legend(colour_manager0,400,legend_columns=2)
         d.add(legend0)
         d.connect(legend0,"colour",scatter0,"colour")
         d.connect(scatter0,"colour",legend0,"colour")

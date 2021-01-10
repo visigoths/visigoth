@@ -37,8 +37,9 @@ class Box(DiagramElement):
         fill(str): fill colour for the box
         min_width: minimum width of box in pixels
         min_height: minimum height of box in pixels
+        corner_radius: a radius to use for the border corner, in pixels
     """
-    def __init__(self,element,margin=2,stroke_width=2,stroke="grey",padding=2,fill=None,min_width=None,min_height=None):
+    def __init__(self,element,margin=2,stroke_width=2,stroke="grey",padding=2,fill=None,min_width=None,min_height=None,corner_radius=0):
         DiagramElement.__init__(self)
         self.element = element
         self.margin = margin
@@ -50,6 +51,7 @@ class Box(DiagramElement):
         self.fill = fill
         self.min_width = min_width
         self.min_height = min_height
+        self.corner_radius = corner_radius
 
     def build(self,fmt):
         self.element.build(fmt)
@@ -93,5 +95,6 @@ class Box(DiagramElement):
 
             border_width = self.padding*2+self.element.getWidth()+self.stroke_width
             border_height = self.padding*2+self.element.getHeight()+self.stroke_width
-            border = rectangle(x-self.width/2+off_side,y+off_top,border_width,border_height,stroke_width=self.stroke_width,stroke=self.stroke)
+
+            border = rectangle(x-self.width/2+off_side,y+off_top,border_width,border_height,stroke_width=self.stroke_width,stroke=self.stroke,rx=self.corner_radius,ry=self.corner_radius)
             diagram.add(border)

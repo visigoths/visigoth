@@ -19,7 +19,7 @@
 #   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # Discrete Colour Maps from Seaborn - Acknowledgement:
-# https://github.com/mwaskom/seaborn/blob/master/seaborn/palettes.py
+# https://github.com/mwaskom/seaborn/blob/master/seaborn/colour_managers.py
 
 DiscreteColourMaps = {
     "deep": ["#4C72B0", "#DD8452", "#55A868", "#C44E52", "#8172B3",

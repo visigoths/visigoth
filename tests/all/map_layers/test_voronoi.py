@@ -27,7 +27,7 @@ from visigoth.utils.test_utils import TestUtils
 from visigoth.containers.map import Map
 from visigoth.containers.box import Box
 from visigoth.map_layers.voronoi import Voronoi
-from visigoth.utils.colour import DiscretePalette
+from visigoth.utils.colour import DiscreteColourManager
 from visigoth.utils.marker import MarkerManager
 
 class TestVoronoi(unittest.TestCase):
@@ -39,10 +39,10 @@ class TestVoronoi(unittest.TestCase):
         rng = random.Random(1)
 
         data1 = [(rng.random(), rng.random(), str(x), "p"+str(x)) for x in range(0, 100)]
-        p = DiscretePalette()
+        p = DiscreteColourManager()
         mm = MarkerManager()
         mm.setDefaultRadius(5)
-        m1.add(Voronoi(data1,palette=p,lon=0,lat=1,colour=2,marker_manager=mm))
+        m1.add(Voronoi(data1,colour_manager=p,lon=0,lat=1,colour=2,marker_manager=mm))
         d.add(Box(m1))
 
         m2 = Map(512)
@@ -64,7 +64,7 @@ class TestVoronoi(unittest.TestCase):
 
         m1 = Map(512)
 
-        p = DiscretePalette()
+        p = DiscreteColourManager()
         p.addColour("A","red").addColour("B","blue").addColour("C","green").addColour("D","orange")
 
         data1 = [(0.25,0.25,"A"),

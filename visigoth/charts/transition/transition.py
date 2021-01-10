@@ -21,12 +21,12 @@
 from visigoth.charts import ChartElement
 from visigoth.common.axis import Axis
 from visigoth.svg import text,polygon,linear_gradient,group
-from visigoth.utils.colour import DiscretePalette
+from visigoth.utils.colour import DiscreteColourManager
 from visigoth.utils.data import Dataset
 
 class Transition(ChartElement):
 
-    def __init__(self, data, label=0, states=[], width=768, height=768,  palette=None, transition_labels=[],  stroke="black", stroke_width=1, x_axis_label="",y_axis_label="count", font_height=16, text_attributes={}):
+    def __init__(self, data, label=0, states=[], width=768, height=768,  colour_manager=None, transition_labels=[],  stroke="black", stroke_width=1, x_axis_label="",y_axis_label="count", font_height=16, text_attributes={}):
         """
         Add a Transition plot
 
@@ -36,7 +36,7 @@ class Transition(ChartElement):
             states (list of str or int): The columns to define successive states at each transition point
             width(int): the width of the plot in pixels
             height(int): the height of the plot in pixels
-            palette(DiscretePalette): a DiscretePalette object
+            colour_manager(DiscreteColourManager): a DiscreteColourManager object
             transition_labels(list): list containing the labels for each of the transition points
 
         Keyword Arguments:
@@ -51,7 +51,7 @@ class Transition(ChartElement):
         super(Transition,self).__init__()
         self.width = width
         self.height = height
-        self.palette = None
+        self.colour_manager = None
         dataset = Dataset(data)
         if states == []:
             states = list(range(1,len(data[0])))
@@ -82,8 +82,8 @@ class Transition(ChartElement):
         self.keys = sorted([key for key in self.data])
         self.transition_count = len(self.category_counts)-1
 
-        # order categories according to the palette order
-        self.category_order = [c for (c,col) in palette.getCategories()]
+        # order categories according to the colour_manager order
+        self.category_order = [c for (c,col) in colour_manager.getCategories()]
 
         # data structure mapping from category to a list of SVG ids, supporting brushing
         self.ids_by_category = { cat:[] for cat in self.category_order}
@@ -107,11 +107,11 @@ class Transition(ChartElement):
                             if catA == cat0 and catB == cat1:
                                 self.transitions[transition][side].append(key)
 
-        if palette == None:
-            palette = DiscretePalette()
-        self.setPalette(palette)
+        if colour_manager == None:
+            colour_manager = DiscreteColourManager()
+        self.setPalette(colour_manager)
 
-        # make sure that all categories are added to the palette
+        # make sure that all categories are added to the colour_manager
         for cat in self.categories:
             if cat != "":
                 self.getPalette().allocateColour(cat)

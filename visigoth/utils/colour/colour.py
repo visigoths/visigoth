@@ -32,23 +32,23 @@ class Colour(object):
 
     webColours = { col["name"].lower():"#"+col["hex"] for col in colours }
 
-    def __init__(self,palette,minValue=None,maxValue=None,defaultColour="red"):
-        self.palette = palette
+    def __init__(self,colour_manager,minValue=None,maxValue=None,defaultColour="red"):
+        self.colour_manager = colour_manager
         self.defaultColour = defaultColour
-        self.palette_lookup = {}
-        if len(self.palette):
-            if len(self.palette[0]) == 2:
-                # palette is continuous and a list of (val,col) pairs
-                self.palette_lookup = []
-                for i in range(1,len(self.palette)):
-                    (val0,col0) = self.palette[i-1]
-                    (val1,col1) = self.palette[i]
-                    self.palette_lookup.append((val0, val1, Colour.parseColour(col0), Colour.parseColour(col1)))
+        self.colour_manager_lookup = {}
+        if len(self.colour_manager):
+            if len(self.colour_manager[0]) == 2:
+                # colour_manager is continuous and a list of (val,col) pairs
+                self.colour_manager_lookup = []
+                for i in range(1,len(self.colour_manager)):
+                    (val0,col0) = self.colour_manager[i-1]
+                    (val1,col1) = self.colour_manager[i]
+                    self.colour_manager_lookup.append((val0, val1, Colour.parseColour(col0), Colour.parseColour(col1)))
                 self.gradients = True
             else:
-                # palette is continuous and a list of (val1,val2,col) triples
+                # colour_manager is continuous and a list of (val1,val2,col) triples
                 self.gradients = False
-                self.palette_lookup = [(val0, val1, Colour.parseColour(col)) for (val0, val1, col) in self.palette]
+                self.colour_manager_lookup = [(val0, val1, Colour.parseColour(col)) for (val0, val1, col) in self.colour_manager]
         self.opacity = 1.0
         self.minValue = minValue
         self.maxValue = maxValue
@@ -120,18 +120,18 @@ class Colour(object):
 
     def getColour(self,val):
         if self.gradients:
-            for idx in range(len(self.palette_lookup)):
-                lookup = self.palette_lookup[idx]
+            for idx in range(len(self.colour_manager_lookup)):
+                lookup = self.colour_manager_lookup[idx]
                 (lwb,upb,lwc,upc) = lookup
-                if val >= lwb and (val < upb or (idx==len(self.palette_lookup)-1 and val <= upb)):
+                if val >= lwb and (val < upb or (idx==len(self.colour_manager_lookup)-1 and val <= upb)):
                     col = self.computeColour(lwc,upc,(val-lwb)/(upb-lwb))
                     return col
         else:
-            for (val0,val1,col) in self.palette_lookup:
+            for (val0,val1,col) in self.colour_manager_lookup:
                 if val >= val0 and val < val1:
                     return self.rgb2colour(col)
-            if val == self.palette_lookup[-1][1]:
-                return self.rgb2colour(self.palette_lookup[-1][2])
+            if val == self.colour_manager_lookup[-1][1]:
+                return self.rgb2colour(self.colour_manager_lookup[-1][2])
 
         return self.defaultColour
 
@@ -152,9 +152,9 @@ class Colour(object):
             w_shim = 0.5
 
         if self.gradients:
-            for idx in range(1,len(self.palette)):
-                (val0,col0) = self.palette[idx-1]
-                (val1,col1) = self.palette[idx]
+            for idx in range(1,len(self.colour_manager)):
+                (val0,col0) = self.colour_manager[idx-1]
+                (val1,col1) = self.colour_manager[idx]
 
                 frac = (val1-val0)/(self.maxValue-self.minValue)
                 rw = width
@@ -184,7 +184,7 @@ class Colour(object):
                 if orientation=="horizontal":
                     xc += rw
         else:
-            for (val0,val1,col) in self.palette:
+            for (val0,val1,col) in self.colour_manager:
                 frac = (val1 - val0) / (self.maxValue - self.minValue)
                 rw = width
                 rh = height

@@ -26,7 +26,7 @@ from visigoth.utils.mapping import Mapping
 
 from visigoth.map_layers.geoplot import Geoplot,Multipoint,Multiline
 from visigoth.utils.js import Js
-from visigoth.utils.colour import DiscretePalette, ContinuousPalette
+from visigoth.utils.colour import DiscreteColourManager, ContinuousColourManager
 from visigoth.utils.marker import MarkerManager
 from visigoth.utils.data import Dataset
 
@@ -103,13 +103,13 @@ class Network(Geoplot):
 
         ranking_algorithm(object) : to colour nodes by rank, pass an instance of visigoth.map_layers.network.DDPageRank
 
-        palette(DiscretePalette) : define the colours to use in conjunction with the ranking algorithm
+        colour_manager(DiscreteColourManager) : define the colours to use in conjunction with the ranking algorithm
         marker_manager(MarkerManager) : manage the markers used to represent nodes
 
         font_height(int) : font size in pixels for contour labels
         text_attributes(dict): a dict containing SVG name/value attributes to apply to contour labels
     """
-    def __init__(self,node_data,edge_data,node_id=0,node_lon=1,node_lat=2,node_label=None,node_size=None,edge_from_node=0,edge_to_node=1,ranking_algorithm=None,palette=None,marker_manager=None,font_height=8,text_attributes={}):
+    def __init__(self,node_data,edge_data,node_id=0,node_lon=1,node_lat=2,node_label=None,node_size=None,edge_from_node=0,edge_to_node=1,ranking_algorithm=None,colour_manager=None,marker_manager=None,font_height=8,text_attributes={}):
         super().__init__()
         node_dataset = Dataset(node_data)
         edge_dataset = Dataset(edge_data)
@@ -130,13 +130,13 @@ class Network(Geoplot):
             edge = Edge(f,t)
             self.edges.append(edge)
 
-        if not palette:
+        if not colour_manager:
             if self.colour is not None and self.dataset.isDiscrete(self.colour):
-                palette = DiscretePalette()
+                colour_manager = DiscreteColourManager()
             else:
-                palette = ContinuousPalette()
+                colour_manager = ContinuousColourManager()
 
-        self.setPalette(palette)
+        self.setPalette(colour_manager)
 
         if not marker_manager:
             marker_manager = MarkerManager()
@@ -167,7 +167,7 @@ class Network(Geoplot):
             self.ranks = self.ranking_algorithm.compute(self.nodes,self.edges,self.projection)
             min_rank = min([self.ranks[n] for n in self.ranks])
             max_rank = max([self.ranks[n] for n in self.ranks])
-            # add the value range to the palette
+            # add the value range to the colour_manager
             self.getPalette().allocateColour(min_rank)
             self.getPalette().allocateColour(max_rank)
 
@@ -177,7 +177,7 @@ class Network(Geoplot):
             self.getMarkerManager().getMarker(node.getSize())
             self.add(Multipoint([node.getLonLat()]))
 
-        self.palette.build()
+        self.colour_manager.build()
 
     def draw(self,doc,cx,cy):
         # add edges and re-add the points now we can establish the colours

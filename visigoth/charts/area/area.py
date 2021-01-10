@@ -22,7 +22,7 @@ from visigoth.charts import ChartElement
 
 from visigoth.svg import path
 from visigoth.common import Axis
-from visigoth.utils.colour.palette import DiscretePalette
+from visigoth.utils.colour.colour_manager import DiscreteColourManager
 from visigoth.utils.data import Dataset
 from visigoth.utils.marker import MarkerManager
 
@@ -43,7 +43,7 @@ class Area(ChartElement):
         size (str or int): Identify the column to determine the size of each point
         width(int) : the width of the plot including axes
         height(int) : the height of the plot including axes
-        palette(object) : a ContinuousPalette or DiscretePalette instance to control line colour
+        colour_manager(object) : a ContinuousColourManager or DiscreteColourManager instance to control line colour
         marker_manager(object) : a MarkerManager instance to control marker appearance
         smoothing (float) : smoothing factor to apply to lines, 0.0=no smoothing
         line_width (int) : width of the lines
@@ -51,7 +51,7 @@ class Area(ChartElement):
         text_attributes (dict): SVG attribute name value pairs to apply to labels
     """
 
-    def __init__(self, data, x=0, y=1, colour=2, id=None, label=None, size=None, width=768, height=768,  palette=None, marker_manager=None, smoothing=0.0, line_width=4, font_height=24, text_attributes={}):
+    def __init__(self, data, x=0, y=1, colour=2, id=None, label=None, size=None, width=768, height=768,  colour_manager=None, marker_manager=None, smoothing=0.0, line_width=4, font_height=24, text_attributes={}):
         super(Area, self).__init__()
         self.setTooltipFunction(lambda cat,val: "%s: (%s,%s)"%(cat,str(val[0]),str(val[1])))
         self.setDrawGrid(True)
@@ -73,11 +73,11 @@ class Area(ChartElement):
         self.width = width
         self.height = height
     
-        if not palette:
-            palette = DiscretePalette()
+        if not colour_manager:
+            colour_manager = DiscreteColourManager()
         for cat in self.cats:
-            palette.allocateColour(cat)
-        self.setPalette(palette)
+            colour_manager.allocateColour(cat)
+        self.setPalette(colour_manager)
 
         if not marker_manager:
             marker_manager = MarkerManager()
@@ -171,7 +171,7 @@ class Area(ChartElement):
         points = self.data.query([self.x,self.y,self.id,self.label,self.size])
         linepoints = [(x,y,sz) for (x,y,_,_,sz) in points]
         linepoints = sorted(linepoints,key=lambda p:p[0])
-        self.plotLine(diagram,None,linepoints,self.palette.getDefaultColour())
+        self.plotLine(diagram,None,linepoints,self.colour_manager.getDefaultColour())
             
     def drawAreas(self,diagram):
     
@@ -204,7 +204,7 @@ class Area(ChartElement):
         for cat in revcats:
             linepoints = catlines[cat]
             linepoints = sorted(linepoints,key=lambda p:p[0])
-            linecol = self.palette.getColour(cat)
+            linecol = self.colour_manager.getColour(cat)
             self.plotLine(diagram,cat,linepoints,linecol)
             
     def drawChart(self,doc,chart_cx,chart_cy,chart_width,chart_height):

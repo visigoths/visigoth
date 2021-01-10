@@ -23,7 +23,7 @@ import unittest
 from visigoth import Diagram
 from visigoth.utils.test_utils import TestUtils
 from visigoth.charts.line import Line
-from visigoth.utils.colour import DiscretePalette
+from visigoth.utils.colour import DiscreteColourManager
 from visigoth.common import Legend, Text
 
 class TestLine(unittest.TestCase):
@@ -31,25 +31,25 @@ class TestLine(unittest.TestCase):
     def test_page(self):
         d = Diagram(fill="white")
 
-        d.add(Text("Single-Line"))
+        d.add(Text("Single-Line, broken by None y-value"))
 
-        data0 = [(1,0.5),(2,0.3),(3,0.4),(4,0.1),(5,0.7)]
+        data0 = [(1,0.5),(1.5,0.5),(2,0.3),(2.5,0.5),(3,None),(3.5,0.35),(4,0.1),(4.5,0.8),(5,0.7)]
         line0 = Line(data0,x=0,y=1,width=600,height=600)
         d.add(line0)
         
-        palette1 = DiscretePalette()
-        palette1.addColour("A","red").addColour("B","purple").addColour("C","orange")
+        colour_manager1 = DiscreteColourManager()
+        colour_manager1.addColour("A","red").addColour("B","purple").addColour("C","orange")
 
         data1 = [(1,11,"A"),(2,11.5,"A"),(3,13.7,"A"),(4,18,"A"),(5,25,"A")]
         data1 += [(1,5,"B"),(2,4.3,"B"),(3,3.2,"B"),(4,5.7,"B"),(5,9.4,"B")]
         data1 += [(1,27,"C"),(2,17,"C"),(3,18.1,"C"),(4,12,"C"),(5,3,"C")]
 
         d.add(Text("Multi-Line"))
-        line1 = Line(data1,x=0,y=1,colour=2,width=600,height=600,palette=palette1, smoothing=0.3)
+        line1 = Line(data1,x=0,y=1,colour=2,width=600,height=600,colour_manager=colour_manager1, smoothing=0.3)
 
         d.add(line1)
         
-        legend1 = Legend(palette1,400,legend_columns=2)
+        legend1 = Legend(colour_manager1,400,legend_columns=2)
         d.add(legend1)
         
         d.connect(legend1,"colour",line1,"colour")
@@ -58,9 +58,9 @@ class TestLine(unittest.TestCase):
         d.add(Text("Custom Axes"))
 
         data2 = [{"x":2.1,"y":3.4},{"x":2.3,"y":4.5},{"x":2.5,"y":9.0},{"x":2.7,"y":19.3}]
-        palette2 = DiscretePalette()
-        palette2.setDefaultColour("green")
-        line2 = Line(data2,x="x",y="y",palette=palette2,width=600,height=600,smoothing=0.0)
+        colour_manager2 = DiscreteColourManager()
+        colour_manager2.setDefaultColour("green")
+        line2 = Line(data2,x="x",y="y",colour_manager=colour_manager2,width=600,height=600,smoothing=0.0)
 
         (ax,ay) = line2.getAxes()
         ax.setMinValue(2)

@@ -22,7 +22,7 @@ from visigoth.charts import ChartElement
 from visigoth.svg import rectangle, text, line
 from visigoth.common.axis import Axis
 from visigoth.utils.data import Dataset
-from visigoth.utils.colour import DiscretePalette
+from visigoth.utils.colour import DiscreteColourManager
 
 
 class Histogram(ChartElement):
@@ -34,11 +34,11 @@ class Histogram(ChartElement):
 
     Keyword Arguments:
         x (str or int): Identify the column to yield continuous values
-        colour (str or int): Identify the column to define the colour (use palette default colour if not specified)
+        colour (str or int): Identify the column to define the colour (use colour_manager default colour if not specified)
         nr_bin (int): The number of bins to create
         width (int): the width of the plot in pixels
         height (int): the height of the plot in pixels
-        palette(list) : a DiscretePalette object
+        colour_manager(list) : a DiscreteColourManager object
         stroke (str): stroke color for bars
         stroke_width (int): stroke width for bars
         font_height (int): the height of the font for text labels
@@ -47,7 +47,7 @@ class Histogram(ChartElement):
         labelfn (lambda): function to compute a label string, given a category and numeric value
     """
 
-    def __init__(self, data, x=0, colour=None, nr_bins=15, width=512, height=512, palette=None, stroke="black", stroke_width=2,
+    def __init__(self, data, x=0, colour=None, nr_bins=15, width=512, height=512, colour_manager=None, stroke="black", stroke_width=2,
                  font_height=12, spacing_fraction=0.1, text_attributes={}, labelfn=lambda k, v: "%0.2f" % v):
         super().__init__()
         self.dataset = Dataset(data)
@@ -65,9 +65,9 @@ class Histogram(ChartElement):
         self.stroke_width = stroke_width
         self.labelfn = labelfn
 
-        if not palette:
-            palette = DiscretePalette()
-        self.setPalette(palette)
+        if not colour_manager:
+            colour_manager = DiscreteColourManager()
+        self.setPalette(colour_manager)
 
         (x_min,x_max) = self.dataset.query(aggregations=[Dataset.min(self.x), Dataset.max(self.x)])[0]
 
@@ -119,7 +119,7 @@ class Histogram(ChartElement):
     def drawChart(self, doc, cx, cy, width, height):
         categories = {}
         for cat in self.binfreqs:
-            colour = self.palette.getColour(cat)
+            colour = self.colour_manager.getColour(cat)
             binfreqs = self.binfreqs[cat]
             ids = []
             for index in range(len(self.intervals)):

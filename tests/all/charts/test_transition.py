@@ -22,7 +22,7 @@ import unittest
 
 from visigoth.diagram import Diagram
 from visigoth.charts.transition import Transition
-from visigoth.utils.colour import DiscretePalette
+from visigoth.utils.colour import DiscreteColourManager
 from visigoth.common.space import Space
 from visigoth.common.legend import Legend
 from visigoth.common.text import Text
@@ -33,8 +33,8 @@ class TestTransition(unittest.TestCase):
 
     def test_basic(self):
 
-        palette = DiscretePalette()
-        palette.addColour("A", "green").addColour("B", "blue").addColour("C", "red").addColour("D","orange")
+        colour_manager = DiscreteColourManager()
+        colour_manager.addColour("A", "green").addColour("B", "blue").addColour("C", "red").addColour("D","orange")
 
         data = [
             ["S0", "","","A","A","A"],
@@ -47,10 +47,10 @@ class TestTransition(unittest.TestCase):
         d = Diagram(fill="white")
 
         d.add(Text("Basic Test",font_height=32,text_attributes={"stroke":"red"}))
-        t = Transition(data,width=1024,height=512,palette=palette,transition_labels=["T1", "T2","T3","T4","T5"],y_axis_label="Count")
+        t = Transition(data,width=1024,height=512,colour_manager=colour_manager,transition_labels=["T1", "T2","T3","T4","T5"],y_axis_label="Count")
         d.add(t)
         d.add(Space(20,20))
-        l = Legend(palette,1024, legend_columns=4)
+        l = Legend(colour_manager,1024, legend_columns=4)
         d.add(l)
 
         d.connect(t,"colour",l,"colour")

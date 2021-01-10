@@ -21,7 +21,7 @@ from visigoth.utils.test_utils import TestUtils
 from visigoth.containers import TimeLine, Box
 from visigoth.charts import Bar
 from visigoth.common import Legend, Text
-from visigoth.utils.colour import DiscretePalette
+from visigoth.utils.colour import DiscreteColourManager
 
 class TestSequence(unittest.TestCase):
 
@@ -31,17 +31,17 @@ class TestSequence(unittest.TestCase):
         timeline1 = TimeLine(orientation="vertical")
         timeline2 = TimeLine(orientation="horizontal")
 
-        palette = DiscretePalette()
-        palette.addColour("A","#E7FFAC").addColour("B","#FFC9DE")
-        palette.addColour("C","#B28DFF").addColour("D","#ACE7FF")
+        colour_manager = DiscreteColourManager()
+        colour_manager.addColour("A","#E7FFAC").addColour("B","#FFC9DE")
+        colour_manager.addColour("C","#B28DFF").addColour("D","#ACE7FF")
 
         data1 = [("A",10),("B",5),("C",-4),("D",3)]
         data2 = [("A",8),("B",2),("C",-1),("D",6)]
         data3 = [("A",3),("B",5),("C",2),("D",-3)]
 
-        bar1 = Bar(data1, x=0, y=1, colour=0, width=400, height=400, palette=palette)
-        bar2 = Bar(data2, x=0, y=1, colour=0, width=200, height=200, palette=palette)
-        bar3 = Bar(data3, x=0, y=1, colour=0, width=300, height=300, palette=palette)
+        bar1 = Bar(data1, x=0, y=1, colour=0, width=400, height=400, colour_manager=colour_manager)
+        bar2 = Bar(data2, x=0, y=1, colour=0, width=200, height=200, colour_manager=colour_manager)
+        bar3 = Bar(data3, x=0, y=1, colour=0, width=300, height=300, colour_manager=colour_manager)
 
         timeline1.add(datetime.datetime(2016,1,1,0,0,0),None,"2016")
         timeline1.add(datetime.datetime(2017,1,1,0,0,0),Box(bar1),"2017",offset=100)
@@ -57,7 +57,7 @@ class TestSequence(unittest.TestCase):
         timeline2.add(datetime.datetime(2020,1,1,0,0,0),None,"2020")
 
         d.add(timeline1).add(timeline2)
-        legend = Legend(palette=palette,legend_columns=4,width=768)
+        legend = Legend(colour_manager=colour_manager,legend_columns=4,width=768)
         d.add(legend)
 
         TestUtils.draw_output(d, "test_timeline")

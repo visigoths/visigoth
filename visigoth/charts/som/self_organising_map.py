@@ -37,9 +37,9 @@ class SelfOrganisingMap(object):
         seed(int) : random seed - set to produce repeatable results
     """
 
-    def __init__(self,data, hexgrid, palette, gridwidth, gridheight, iters, seed=None):
+    def __init__(self,data, hexgrid, colour_manager, gridwidth, gridheight, iters, seed=None):
         self.hexgrid = hexgrid
-        self.palette = palette
+        self.colour_manager = colour_manager
         self.gridheight = gridheight
         self.gridwidth = gridwidth
         self.iters = iters
@@ -107,8 +107,8 @@ class SelfOrganisingMap(object):
         for (label, category, instance) in self.instances:
             winner_coords = self.coords(self.computeActivations(instance))
             colour = ""
-            if category and self.palette:
-                colour = self.palette.getColour(category)
+            if category and self.colour_manager:
+                colour = self.colour_manager.getColour(category)
             self.scores[winner_coords].append((label,colour,category))
 
     def getScores(self):

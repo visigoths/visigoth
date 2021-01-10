@@ -2,7 +2,7 @@
 
 from visigoth import Diagram
 from visigoth.containers import Map, Box
-from visigoth.common import MapLayerManager
+from visigoth.common import LayerController
 from visigoth.map_layers import WMTS, Geoplot
 from visigoth.utils.mapping import Projections
 from visigoth.map_layers.geoplot import Multipoint
@@ -48,7 +48,7 @@ layers.append({"layer":dem2,"label":"Digital Elevation Model 2"})
 m1.add(Geoplot(multipoints=[Multipoint([(172.639847,-43.525650)],label="Christchurch",marker=True,fill="#FF000050")]))
 d.add(Box(m1))
 
-mlm = MapLayerManager(layers,title="Layers",height=600,width=400)
+mlm = LayerController(layers,title="Layers",height=600,width=400)
 d.connect(mlm,"manage_layers",m1,"manage_layers")
 d.add(mlm)
 

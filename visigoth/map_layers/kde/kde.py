@@ -25,7 +25,7 @@ import os.path
 from visigoth.utils.mapping import Mapping
 from visigoth.map_layers import MapLayer
 from visigoth.map_layers.contour import Contour
-from visigoth.utils.colour import ContinuousPalette
+from visigoth.utils.colour import ContinuousColourManager
 from visigoth.utils.js import Js
 from visigoth.utils.data import Dataset
 from visigoth.utils.term.progress import Progress
@@ -43,17 +43,17 @@ class KDE(MapLayer):
         bandwidth(int): defines the radius of the area of influence of each data point
         nr_samples_across(int): number of points to sample for contours across the plot
         contour_bands(int): the number of contour bands to create
-        palette(ContinuousPalette) : define the colours used in the plot
+        colour_manager(ContinuousColourManager) : define the colours used in the plot
     """
-    def __init__(self,data,lon=0,lat=1,colour=None,kernel=None,bandwidth=1000,nr_samples_across=20,contour_bands=10,palette=None,label_fn=lambda x:"%.2f"%(x),font_height=8,text_attributes={}):
+    def __init__(self,data,lon=0,lat=1,colour=None,kernel=None,bandwidth=1000,nr_samples_across=20,contour_bands=10,colour_manager=None,label_fn=lambda x:"%.2f"%(x),font_height=8,text_attributes={}):
         super(KDE, self).__init__()
         dataset = Dataset(data)
         self.data = dataset.query([lon,lat,colour if colour is not None else Dataset.constant(1)])
         self.kernel = kernel
         self.bandwidth = bandwidth
-        if not palette:
-            palette = ContinuousPalette()
-        self.setPalette(palette)
+        if not colour_manager:
+            colour_manager = ContinuousColourManager()
+        self.setPalette(colour_manager)
         if self.kernel == None:
             self.kernel = KDE.createGaussianKernel(self.bandwidth)
         self.nr_samples_across = nr_samples_across
@@ -118,8 +118,8 @@ class KDE(MapLayer):
             tdata.append(tdata_row)
             progress.report("building", (row + 1) / self.nr_samples_down)
         progress.complete("complete")
-        self.palette.allocateColour(0)
-        self.palette.allocateColour(maxval)
+        self.colour_manager.allocateColour(0)
+        self.colour_manager.allocateColour(maxval)
         contour_interval = maxval / self.contour_bands
         self.contour = Contour(tdata,contour_interval=contour_interval,label_fn=self.label_fn,stroke_width=0)
         self.contour.setPalette(self.getPalette())

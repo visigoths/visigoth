@@ -25,7 +25,7 @@ from visigoth.charts import ChartElement
 from visigoth.svg import sector, text
 from visigoth.utils.fonts.fontmanager import FontManager
 from visigoth.utils.data import Dataset
-from visigoth.utils.colour import DiscretePalette
+from visigoth.utils.colour import DiscreteColourManager
 
 class Pie(ChartElement):
     """
@@ -39,7 +39,7 @@ class Pie(ChartElement):
         colour (str or int): Identify the column to define the sector colour (provide a list to create a multi-level pie chart)
         width (int): the width of the plot in pixels
         height (int): the height of the plot in pixels
-        palette(list) : a DiscretePalette object
+        colour_manager(list) : a DiscreteColourManager object
         stroke (str): stroke color for pie sectors
         stroke_width (int): stroke width for pie sectors
         doughnut (boolean): set True to draw as a doughnut rather than a pie chart
@@ -47,7 +47,7 @@ class Pie(ChartElement):
         font_height (int): sets the maximum font height used to display labels
         text_attributes (dict): attributes to apply to text labels
     """
-    def __init__(self,data,value=0,colour=1,width=768,height=768,palette=None,stroke="black",stroke_width=2,doughnut=False,labelfn=lambda k,v:"%s:%0.1f"%(k,v),font_height=20,text_attributes={}):
+    def __init__(self,data,value=0,colour=1,width=768,height=768,colour_manager=None,stroke="black",stroke_width=2,doughnut=False,labelfn=lambda k,v:"%s:%0.1f"%(k,v),font_height=20,text_attributes={}):
         super(Pie, self).__init__()
         self.data = Dataset(data)
         self.value = value
@@ -57,9 +57,9 @@ class Pie(ChartElement):
         self.levels = len(self.colour)
         self.width = width
         self.height = height
-        if not palette:
-            palette = DiscretePalette()
-        self.setPalette(palette)
+        if not colour_manager:
+            colour_manager = DiscreteColourManager()
+        self.setPalette(colour_manager)
         self.stroke = stroke
         self.stroke_width = stroke_width
         self.doughnut = doughnut

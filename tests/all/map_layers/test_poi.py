@@ -27,7 +27,7 @@ from visigoth.containers import Box
 from visigoth.common import Space
 from visigoth.map_layers import WMS, POI
 from visigoth.utils.mapping import Geocoder, Mapping
-from visigoth.utils.colour.palette import DiscretePalette
+from visigoth.utils.colour.colour_manager import DiscreteColourManager
 
 class TestPOI(unittest.TestCase):
 

@@ -1,1 +1,0 @@
-from visigoth.common.map_layer_manager.map_layer_manager import MapLayerManager

@@ -30,7 +30,7 @@ class ChartElement(DiagramElement):
         super(ChartElement,self).__init__()
         self.setTooltipFunction()
         self.setGridStyle()
-        self.palette = None
+        self.colour_manager = None
         self.marker_manager = None
         self.xAxis = None
         self.yAxis = None
@@ -42,11 +42,11 @@ class ChartElement(DiagramElement):
     def setDrawGrid(self,draw_grid):
         self.draw_grid = draw_grid
 
-    def setPalette(self,palette):
-        self.palette = palette
+    def setPalette(self,colour_manager):
+        self.colour_manager = colour_manager
 
     def getPalette(self):
-        return self.palette
+        return self.colour_manager
 
     def setMargins(self,marginx,marginy):
         self.marginx = marginx
@@ -102,8 +102,8 @@ class ChartElement(DiagramElement):
         return self.yAxis.getPointPosition(self.chart_oy,value)
 
     def build(self,fmt):
-        if self.palette:
-            self.palette.build()
+        if self.colour_manager:
+            self.colour_manager.build()
 
         x_axis_height = 0
         y_axis_width = 0

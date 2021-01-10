@@ -46,7 +46,7 @@ fieldset {
     border-radius: 5px;
 }"""
 
-class SearchManager(EmbeddedHtml):
+class SearchController(EmbeddedHtml):
     """
     Create an embedded HTML search manager
 

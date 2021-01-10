@@ -7,8 +7,8 @@ import gzip
 from visigoth import Diagram
 from visigoth.containers import Map, Box
 from visigoth.map_layers import WMTS, Hexbin
-from visigoth.common import Text, MapLayerManager, Legend
-from visigoth.utils.colour import ContinuousPalette
+from visigoth.common import Text, LayerController, Legend
+from visigoth.utils.colour import ContinuousColourManager
 from visigoth.utils.mapping import Projections
 
 bounds = ((-74.2, 40.6), (-73.5, 40.9))
@@ -44,10 +44,10 @@ wms = WMTS(embed_images=False)
 wms.setInfo("Map")
 m.add(wms)
 
-palette = ContinuousPalette(colourMap="viridis",withIntervals=False)
+colour_manager = ContinuousColourManager(colourMap="viridis",withIntervals=False)
 
 # define the heatmap
-heatmap = Hexbin(data,palette=palette,nr_bins_across=400,stroke_width=0,stroke="none",min_freq=1)
+heatmap = Hexbin(data,colour_manager=colour_manager,nr_bins_across=400,stroke_width=0,stroke="none",min_freq=1)
 m.add(heatmap)
 
 # lay out the diagram, starting with a title
@@ -55,10 +55,10 @@ d.add(Text("NY Yellow Cab pickup/dropoff locations"))
 
 # add the legend and map
 d.add(Box(m))
-d.add(Legend(palette,label="Frequency (thousands)",labelfn=lambda x:str(int(x/1000))))
+d.add(Legend(colour_manager,label="Frequency (thousands)",labelfn=lambda x:str(int(x/1000))))
 
 # add a layer manager to allow layers to be turned on and off
-mlm = MapLayerManager([{"layer":heatmap,"label":"Trips"}],title="Select Layer(s)",height=150)
+mlm = LayerController([{"layer":heatmap,"label":"Trips"}],title="Select Layer(s)",height=150)
 d.add(mlm)
 d.connect(mlm,"manage_layers",m,"manage_layers")
 d.add(Text("NY Taxi Trips"))

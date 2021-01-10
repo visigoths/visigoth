@@ -4,7 +4,7 @@ import random
 
 from visigoth.diagram import Diagram
 from visigoth.charts import Scatter
-from visigoth.utils.colour import DiscretePalette, ContinuousPalette
+from visigoth.utils.colour import DiscreteColourManager, ContinuousColourManager
 from visigoth.common import Text, Legend
 
 rng = random.Random()
@@ -13,21 +13,21 @@ scatterdata2 = [(rng.random(),rng.random(),"",rng.choice(["A","B","C","D","E","F
 
 d = Diagram(fill="white")
 
-for colourMap in DiscretePalette.listColourMaps():
-    palette = DiscretePalette(colourMap=colourMap)
-    scatter = Scatter(scatterdata2, 400, 400, palette)
+for colourMap in DiscreteColourManager.listColourMaps():
+    colour_manager = DiscreteColourManager(colourMap=colourMap)
+    scatter = Scatter(scatterdata2, 400, 400, colour_manager)
     d.add(Text(colourMap,font_height=32))
     d.add(scatter)
-    legend = Legend(palette,400)
+    legend = Legend(colour_manager,400)
     d.add(legend)
     d.connect(legend,"colour",scatter,"colour")
 
-for colourMap in ContinuousPalette.listColourMaps():
-    palette = ContinuousPalette(colourMap=colourMap)
-    scatter = Scatter(scatterdata1, 400, 400, palette)
+for colourMap in ContinuousColourManager.listColourMaps():
+    colour_manager = ContinuousColourManager(colourMap=colourMap)
+    scatter = Scatter(scatterdata1, 400, 400, colour_manager)
     d.add(Text(colourMap,font_height=32))
     d.add(scatter)
-    legend = Legend(palette,400,legend_columns=2)
+    legend = Legend(colour_manager,400,legend_columns=2)
     d.add(legend)
 
 html = d.draw(format="html")

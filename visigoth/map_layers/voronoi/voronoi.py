@@ -27,7 +27,7 @@ from visigoth.utils.mapping import Mapping
 from visigoth.utils.js import Js
 from visigoth.map_layers.voronoi.bowyer_watson import circumcircle, bowyer_watson
 
-from visigoth.utils.colour import DiscretePalette, ContinuousPalette
+from visigoth.utils.colour import DiscreteColourManager, ContinuousColourManager
 from visigoth.utils.marker import MarkerManager
 
 from visigoth.utils.data import Dataset
@@ -47,10 +47,10 @@ class Voronoi(MapLayer):
         size (str or int): Identify the column to provide the size for each point
         stroke (str): stroke color for plotting boundaries
         stroke_width (int): stroke width for plotting boundaries
-        palette(object) : a ContinuousPalette or DiscretePalette instance to control chart colour
+        colour_manager(object) : a ContinuousColourManager or DiscreteColourManager instance to control chart colour
         marker_manager(object) : a MarkerManager instance to control marker appearance
     """
-    def __init__(self,data,lat=0,lon=1,colour=2,label=None,size=None,stroke="black",stroke_width=2,palette=None,marker_manager=None):
+    def __init__(self,data,lat=0,lon=1,colour=2,label=None,size=None,stroke="black",stroke_width=2,colour_manager=None,marker_manager=None):
         super(Voronoi, self).__init__()
         self.width = 0
         self.height = 0
@@ -70,12 +70,12 @@ class Voronoi(MapLayer):
         self.dataset = Dataset(data)
         self.input_data = self.dataset.query([lon,lat,colour,label,size])
 
-        if not palette:
+        if not colour_manager:
             if not self.colour or self.dataset.isDiscrete(self.colour):
-                palette = DiscretePalette()
+                colour_manager = DiscreteColourManager()
             else:
-                palette = ContinuousPalette()
-        self.setPalette(palette)
+                colour_manager = ContinuousColourManager()
+        self.setPalette(colour_manager)
 
         if not marker_manager:
             marker_manager = MarkerManager()

@@ -25,7 +25,7 @@ import unittest
 from visigoth.diagram import Diagram
 from visigoth.charts.som import SOM
 from visigoth.common.legend import Legend
-from visigoth.utils.colour import DiscretePalette, ContinuousPalette, Colour
+from visigoth.utils.colour import DiscreteColourManager, ContinuousColourManager, Colour
 from visigoth.utils.test_utils import TestUtils
 
 class TestScatterPlot(unittest.TestCase):
@@ -34,11 +34,11 @@ class TestScatterPlot(unittest.TestCase):
 
         variables = ["A","B","C","D","E"]
 
-        palette = DiscretePalette()
+        colour_manager = DiscreteColourManager()
 
-        palette.addColour("A","green").addColour("B","blue").addColour("C","red").addColour("D","purple").addColour("E","yellow")
+        colour_manager.addColour("A","green").addColour("B","blue").addColour("C","red").addColour("D","purple").addColour("E","yellow")
 
-        cpalette = ContinuousPalette(withIntervals=False)
+        ccolour_manager = ContinuousColourManager(withIntervals=False)
 
         rng = random.Random(1)
 
@@ -58,13 +58,13 @@ class TestScatterPlot(unittest.TestCase):
 
         d = Diagram(fill="white")
 
-        som = SOM(data,width=512,gridheight=10,gridwidth=10,palette=palette,dimension=lambda l: l[0],dimensionPalette=cpalette)
+        som = SOM(data,width=512,gridheight=10,gridwidth=10,colour_manager=colour_manager,dimension=lambda l: l[0],dimensionPalette=ccolour_manager)
         som.getMarkerManager().setDefaultRadius(5)
 
         d.add(som)
-        d.add(Legend(cpalette,width=500))
+        d.add(Legend(ccolour_manager,width=500))
 
-        legend1 = Legend(palette,width=500,legend_columns=2)
+        legend1 = Legend(colour_manager,width=500,legend_columns=2)
         d.add(legend1)
         d.connect(legend1,"colour",som,"colour")
         d.connect(som,"colour",legend1,"colour")

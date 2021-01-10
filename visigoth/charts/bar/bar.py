@@ -22,7 +22,7 @@ from visigoth.charts import ChartElement
 from visigoth.svg import rectangle,text,line
 from visigoth.common.axis import Axis
 from visigoth.utils.data import Dataset
-from visigoth.utils.colour import DiscretePalette, ContinuousPalette
+from visigoth.utils.colour import DiscreteColourManager, ContinuousColourManager
 
 class Bar(ChartElement):
     """
@@ -34,11 +34,11 @@ class Bar(ChartElement):
     Keyword Arguments:    
         x (str or int): Identify the column to yield discrete values
         y (str or int): Identify the column to measure on the y-axis (use count if not specified)
-        colour (str or int): Identify the column to define the bar colour (use palette default colour if not specified)
+        colour (str or int): Identify the column to define the bar colour (use colour_manager default colour if not specified)
         stacked (bool): When colour is defined, choose wether to stack coloured bars or display them side by side
         width (int): the width of the plot in pixels
         height (int): the height of the plot in pixels
-        palette(list) : a DiscretePalette|ContinuousPalette object
+        colour_manager(list) : a DiscreteColourManager|ContinuousColourManager object
         stroke (str): stroke color for bars
         stroke_width (int): stroke width for bars
         font_height (int): the height of the font for text labels
@@ -46,7 +46,7 @@ class Bar(ChartElement):
         text_attributes (dict): SVG attribute name value pairs to apply to labels
         labelfn (lambda): function to compute a label string, given a category and numeric value
     """
-    def __init__(self,data,x=0,y=1,colour=None,stacked=True,width=512,height=512,palette=None,stroke="black",stroke_width=2,font_height=12,spacing_fraction=0.1,text_attributes={},labelfn=None):
+    def __init__(self,data,x=0,y=1,colour=None,stacked=True,width=512,height=512,colour_manager=None,stroke="black",stroke_width=2,font_height=12,spacing_fraction=0.1,text_attributes={},labelfn=None):
         super(Bar, self).__init__()
         self.dataset = Dataset(data)
         self.setDrawGrid(True)
@@ -63,12 +63,12 @@ class Bar(ChartElement):
         self.stroke_width = stroke_width
         self.labelfn = labelfn
         
-        if not palette:
+        if not colour_manager:
             if self.colour is None or self.dataset.isDiscrete(self.colour):
-                palette = DiscretePalette()
+                colour_manager = DiscreteColourManager()
             else:
-                palette = ContinuousPalette()
-        self.setPalette(palette)
+                colour_manager = ContinuousColourManager()
+        self.setPalette(colour_manager)
 
         querycols = [self.x]
         if self.y != None:
@@ -157,9 +157,9 @@ class Bar(ChartElement):
                 # stacked bars
                 for (cat,value) in segments:
                     if self.colour is not None:
-                        colour = self.palette.getColour(cat)
+                        colour = self.colour_manager.getColour(cat)
                     else:
-                        colour = self.palette.getDefaultColour()
+                        colour = self.colour_manager.getDefaultColour()
                     y1 = self.computeY(value)
                     y0 = self.computeY(lastvalue)
 
@@ -180,7 +180,7 @@ class Bar(ChartElement):
                     segment_vals[cat] = value
                 for cat in self.colourvals:
                     value = segment_vals.get(cat,0)
-                    colour = self.palette.getColour(cat)
+                    colour = self.colour_manager.getColour(cat)
                     y0 = self.computeY(0)
                     y1 = self.computeY(value)
                     bh = abs(y1 - y0)

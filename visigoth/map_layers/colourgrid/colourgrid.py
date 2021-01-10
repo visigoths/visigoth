@@ -22,7 +22,7 @@ import math
 
 from visigoth.map_layers import MapLayer
 
-from visigoth.utils.colour import ContinuousPalette
+from visigoth.utils.colour import ContinuousColourManager
 
 class ColourGrid(MapLayer):
     """
@@ -34,12 +34,12 @@ class ColourGrid(MapLayer):
         lons (list): a list of the lon values providing the center of each column
 
     Keyword Arguments:
-        palette(object): a ContinuousPalette or DiscretePalette
+        colour_manager(object): a ContinuousColourManager or DiscreteColourManager
         sharpen(bool): produce a sharper (double resolution) image at 2x resolution, slower to run
 
     """
 
-    def __init__(self, data, lats, lons, palette=None, sharpen=False):
+    def __init__(self, data, lats, lons, colour_manager=None, sharpen=False):
         super().__init__()
         self.data = data
 
@@ -61,9 +61,9 @@ class ColourGrid(MapLayer):
                 self.min_val = 0
                 self.max_val = 0
 
-        if palette is None:
-            palette = ContinuousPalette(withIntervals=True)
-        self.setPalette(palette)
+        if colour_manager is None:
+            colour_manager = ContinuousColourManager(withIntervals=True)
+        self.setPalette(colour_manager)
         if not self.getPalette().isDiscrete():
             self.getPalette().allocateColour(self.min_val)
             self.getPalette().allocateColour(self.max_val)
@@ -98,7 +98,7 @@ class ColourGrid(MapLayer):
             a_row = []
             for col_idx in range(len(row)):
                 value = row[col_idx]
-                col = self.palette.getColour(value)
+                col = self.colour_manager.getColour(value)
                 # col should be a hex encoded string, either #RRGGBBAA or #RRGGBB
                 r = int(col[1:3], 16)
                 g = int(col[3:5], 16)

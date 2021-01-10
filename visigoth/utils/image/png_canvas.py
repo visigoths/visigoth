@@ -44,13 +44,13 @@ class PngCanvas(object):
         self.buffer = None
         self.text_attributes=text_attributes
 
-    def init_palette(self,palette):
+    def init_colour_manager(self,colour_manager):
         self.plt = []
         self.trns = []
-        for (r,g,b,t) in palette:
+        for (r,g,b,t) in colour_manager:
             self.plt.append((r<<16)|(g<<8)|b)
             self.trns.append(t)
-        for p in range(0,256-len(palette)):
+        for p in range(0,256-len(colour_manager)):
             self.plt.append(0)
             self.trns.append(255)
     
@@ -69,7 +69,7 @@ class PngCanvas(object):
                 # check if we exceed 256 indices, the maximum allowed
                 if len(self.allocated_colours) > 256:
                     # too many, so remove the allocated colours and fall back to RGBA
-                    self.allocated_colours = None # overflow palette
+                    self.allocated_colours = None # overflow colour_manager
                     index = None
         self.data[x + (y * self.width)] = (r,g,b,a,index)
         
@@ -78,7 +78,7 @@ class PngCanvas(object):
 
     def write(self, file):
         if self.allocated_colours is not None:
-            self.init_palette(self.allocated_colours)
+            self.init_colour_manager(self.allocated_colours)
             
         self.fd = file
 

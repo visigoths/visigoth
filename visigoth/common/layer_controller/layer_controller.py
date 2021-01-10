@@ -64,7 +64,7 @@ fieldset {
     border-radius: 5px;
 }"""
 
-class MapLayerManager(EmbeddedHtml):
+class LayerController(EmbeddedHtml):
     """
     Create an embedded HTML map layer manager
 

@@ -4,10 +4,10 @@ import random
 
 from visigoth.diagram import Diagram
 from visigoth.charts import Scatter
-from visigoth.utils.colour import DiscretePalette
+from visigoth.utils.colour import DiscreteColourManager
 from visigoth.common import Legend
 
-palette = DiscretePalette()
+colour_manager = DiscreteColourManager()
 
 r = random.Random()
 data = []
@@ -16,11 +16,11 @@ for idx in range(0,100):
 
 d = Diagram()
 
-scatter = Scatter(data, x=0, y=1, label=2, colour=3, size=4, palette=palette)
+scatter = Scatter(data, x=0, y=1, label=2, colour=3, size=4, colour_manager=colour_manager)
 (ax,ay) = scatter.getAxes()
 ax.setMinValue(0.0).setMaxValue(1.0)
 ay.setMinValue(0.0).setMaxValue(1.0)
-legend = Legend(palette,400,legend_columns=2)
+legend = Legend(colour_manager,400,legend_columns=2)
 legend.setDiscreteMarkerStyle("circle")
 
 d.add(legend)

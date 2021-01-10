@@ -7,8 +7,8 @@ from visigoth.containers import Map, Box
 from visigoth.map_layers import WMS, KDE, Geoplot
 from visigoth.map_layers.geoplot import Multipoint
 from visigoth.charts import Area
-from visigoth.common import Text, MapLayerManager, Legend
-from visigoth.utils.colour import DiscretePalette, ContinuousPalette
+from visigoth.common import Text, LayerController, Legend
+from visigoth.utils.colour import DiscreteColourManager, ContinuousColourManager
 from visigoth.utils.mapping import Geocoder, Mapping, Projections
 
 # get the boundaries of a region approximately 20 km radius around Central London
@@ -65,11 +65,11 @@ wms = WMS("osm")
 wms.setInfo("Map")
 m.add(wms)
 
-# define a palette for the heatmap ranging from white to blue to red
-palette = ContinuousPalette(colourMap=[(1,1,1),(0,0,1),(1,0,0)])
+# define a colour_manager for the heatmap ranging from white to blue to red
+colour_manager = ContinuousColourManager(colourMap=[(1,1,1),(0,0,1),(1,0,0)])
 
 # define the heatmap
-heatmap = KDE([(lon,lat) for (lon,lat,_) in data],bandwidth=300,nr_samples_across=100,palette=palette,label_fn=None)
+heatmap = KDE([(lon,lat) for (lon,lat,_) in data],bandwidth=300,nr_samples_across=100,colour_manager=colour_manager,label_fn=None)
 heatmap.setOpacity(0.5)
 m.add(heatmap)
 
@@ -82,12 +82,12 @@ gp.setVisible(False) # hide this layer by default
 m.add(gp)
 
 # add area chart showing the distribution of all accidents
-area_palette = DiscretePalette()
-area_palette.setDefaultColour("lightblue")
+area_colour_manager = DiscreteColourManager()
+area_colour_manager.setDefaultColour("lightblue")
 area_data = []
 for hour in freqs_by_hour:
     area_data.append((hour,freqs_by_hour[hour]))
-area_chart = Area(area_data, x=0, y=1, colour=None, width=512, height=512, palette=area_palette)
+area_chart = Area(area_data, x=0, y=1, colour=None, width=512, height=512, colour_manager=area_colour_manager)
 (ax,ay) = area_chart.getAxes()
 ax.setLabel("Time Of Day (Hour)")
 ay.setLabel("Accident Frequency/Hour")
@@ -96,16 +96,16 @@ ax.setTickPositions(list(range(24)))
 # lay out the diagram, starting with a title
 d.add(Text("London Area Serious and Fatal Road Accidents 2018"))
 
-# define a palette for the accident site plot with totals
-discrete_palette = DiscretePalette()
-discrete_palette.addColour("%d Serious Non-Fatal Accidents"%(total_serious), "grey").addColour("%d Fatal Accidents"%(total_fatal), "red")
+# define a colour_manager for the accident site plot with totals
+discrete_colour_manager = DiscreteColourManager()
+discrete_colour_manager.addColour("%d Serious Non-Fatal Accidents"%(total_serious), "grey").addColour("%d Fatal Accidents"%(total_fatal), "red")
 
 # add the legend and map
-d.add(Legend(discrete_palette,width=700, legend_columns=2, font_height=18))
+d.add(Legend(discrete_colour_manager,width=700, legend_columns=2, font_height=18))
 d.add(Box(m))
 
 # add a layer manager to allow layers to be turned on and off
-mlm = MapLayerManager([{"layer":gp,"label":"Accident Locations"},{"layer":heatmap,"label":"Accident Heatmap"}],title="Select Layer(s)",height=150)
+mlm = LayerController([{"layer":gp,"label":"Accident Locations"},{"layer":heatmap,"label":"Accident Heatmap"}],title="Select Layer(s)",height=150)
 d.add(mlm)
 d.connect(mlm,"manage_layers",m,"manage_layers")
 d.add(Text("Serious and Fatal Accidents By Time Of Day"))

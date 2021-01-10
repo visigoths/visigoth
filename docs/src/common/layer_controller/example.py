@@ -7,7 +7,7 @@ from visigoth.containers import Map
 from visigoth.utils.mapping import Geocoder, Mapping, Projections
 from visigoth.map_layers import WMS
 from visigoth.containers import Box
-from visigoth.common import Text, MapLayerManager
+from visigoth.common import Text, LayerController
 
 folder=os.path.split(__file__)[0]
 
@@ -23,7 +23,7 @@ wms1.setInfo("Open Street Map").setOpacity(0.5)
 wms2 = WMS("satellite")
 wms2.setInfo("Satellite").setOpacity(0.5)
 
-mlm = MapLayerManager([{"layer":wms1,"label":"Satellite"},{"layer":wms2,"label":"Open Street Map"}],
+mlm = LayerController([{"layer":wms1,"label":"Satellite"},{"layer":wms2,"label":"Open Street Map"}],
                       title="Controls",height=150)
 d.add(mlm)
 

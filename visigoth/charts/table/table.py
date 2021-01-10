@@ -20,7 +20,7 @@
 
 from visigoth.containers import Grid, Box
 from visigoth.common import DiagramElement, Text
-from visigoth.utils.colour import DiscretePalette, ContinuousPalette
+from visigoth.utils.colour import DiscreteColourManager, ContinuousColourManager
 
 from visigoth.utils.data.dataset import Dataset
 
@@ -39,14 +39,14 @@ class Table(DiagramElement):
         max_column_width: maximum width of a column in pixels
         stroke_width(int): width of the grid lines in pixels
         stroke(str): colour of the grid lines
-        palette(object) : a ContinuousPalette or DiscretePalette instance to control row colour
+        colour_manager(object) : a ContinuousColourManager or DiscreteColourManager instance to control row colour
         padding(int): width of the cell padding in pixels
         fill(str): fill colour for the cells
         font_height(int): the font size for the legend (optional, defaults to 24)
         text_attributes(dict): a dict containing SVG name/value pairs to apply to table body text
         header_text_attributes(dict): a dict containing SVG name/value pairs to apply to table header text
     """
-    def __init__(self,data,headings=[],colour=None,max_column_width=None,stroke="grey",palette=None,stroke_width=2,padding=10,fill=None,font_height=24,text_attributes={},header_text_attributes={"font-weight":"bold"}):
+    def __init__(self,data,headings=[],colour=None,max_column_width=None,stroke="grey",colour_manager=None,stroke_width=2,padding=10,fill=None,font_height=24,text_attributes={},header_text_attributes={"font-weight":"bold"}):
         super(Table,self).__init__()
         self.grid = Grid(stroke=stroke,stroke_width=stroke_width,padding=padding,fill=fill)
         self.dataset = Dataset(data)
@@ -60,12 +60,12 @@ class Table(DiagramElement):
             formatter = heading[2] if len(heading)>2 else lambda x:str(x)
             self.headings.append((col,name,formatter))
         self.colour = colour
-        self.palette = palette
-        if not self.palette and self.colour != None:
+        self.colour_manager = colour_manager
+        if not self.colour_manager and self.colour != None:
             if self.dataset.isDiscrete(self.colour):
-                self.palette = DiscretePalette()
+                self.colour_manager = DiscreteColourManager()
             else:
-                self.palette = ContinuousPalette()
+                self.colour_manager = ContinuousColourManager()
 
         self.max_column_width = max_column_width
         self.font_height = font_height
@@ -76,7 +76,7 @@ class Table(DiagramElement):
                 self.getPalette().allocateColour(val)
 
     def getPalette(self):
-        return self.palette
+        return self.colour_manager
 
     def build(self,fmt):
         rowdata = self.dataset.query([col for (col,_,_) in self.headings])

@@ -5,7 +5,7 @@ from visigoth.containers import Box, Map
 from visigoth.common import Legend
 from visigoth.map_layers import Network, WMS
 from visigoth.map_layers.network import DDPageRank
-from visigoth.utils.colour import ContinuousPalette
+from visigoth.utils.colour import ContinuousColourManager
 from visigoth.utils.marker import MarkerManager
 
 d = Diagram()
@@ -23,14 +23,14 @@ edges = [
  ('8', '6'), ('3', '1'), ('0', '9'), ('5', '9'), ('1', '5'), ('9', '0'), ('5', '2'), ('1', '2'), ('8', '9'),
  ('4', '6'), ('6', '0')]
 
-palette = ContinuousPalette()
+colour_manager = ContinuousColourManager()
 mm = MarkerManager().setDefaultRadius(10)
 
-nw = Network(node_data=nodes,edge_data=edges,marker_manager=mm,palette=palette,ranking_algorithm=DDPageRank())
+nw = Network(node_data=nodes,edge_data=edges,marker_manager=mm,colour_manager=colour_manager,ranking_algorithm=DDPageRank())
 m1.add(WMS("osm").setOpacity(0.5))
 m1.add(nw)
 d.add(Box(m1))
-d.add(Legend(palette,512))
+d.add(Legend(colour_manager,512))
 html = d.draw(format="html")
 
 f = open("example.html", "w")

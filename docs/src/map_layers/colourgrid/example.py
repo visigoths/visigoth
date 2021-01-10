@@ -8,7 +8,7 @@ from visigoth import Diagram
 from visigoth.common import Legend, Text
 from visigoth.map_layers import ColourGrid
 from visigoth.containers import Map
-from visigoth.utils.colour.palette import ContinuousPalette
+from visigoth.utils.colour.colour_manager import ContinuousColourManager
 from pyproj import Transformer
 
 class CustomProjection(object):
@@ -60,11 +60,11 @@ for row in sst:
 maxv = math.ceil(maxv)
 minv = math.floor(minv)
 
-# palette = ContinuousPalette(intervals=list(range(minv,maxv+1,2)))
-palette = ContinuousPalette()
+# colour_manager = ContinuousColourManager(intervals=list(range(minv,maxv+1,2)))
+colour_manager = ContinuousColourManager()
 
-# add a colourgird layer to the map using the SST data
-cg = ColourGrid(sst,lats=lats,lons=lons,sharpen=True,palette=palette)
+# add a colourgrid layer to the map using the SST data
+cg = ColourGrid(sst,lats=lats,lons=lons,sharpen=True,colour_manager=colour_manager)
 m.add(cg)
 
 # add the map, some descriptive text and the legend to the diagram

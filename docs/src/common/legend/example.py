@@ -2,18 +2,18 @@
 
 from visigoth import Diagram
 from visigoth.common import Legend
-from visigoth.utils.colour import ContinuousPalette, DiscretePalette
+from visigoth.utils.colour import ContinuousColourManager, DiscreteColourManager
 
-discrete_palette = DiscretePalette()
-discrete_palette.addColour("A", "green").addColour("B", "blue").addColour("C", "red").addColour("D", "orange").addColour("E","purple")
+discrete_colour_manager = DiscreteColourManager()
+discrete_colour_manager.addColour("A", "green").addColour("B", "blue").addColour("C", "red").addColour("D", "orange").addColour("E","purple")
 
-continuous_palette = ContinuousPalette(withIntervals=False)
-continuous_palette.allocateColour(0)
-continuous_palette.allocateColour(10)
+continuous_colour_manager = ContinuousColourManager(withIntervals=False)
+continuous_colour_manager.allocateColour(0)
+continuous_colour_manager.allocateColour(10)
 
 d = Diagram(fill="white")
-d.add(Legend(discrete_palette,width=700, legend_columns=3))
-d.add(Legend(continuous_palette,700))
+d.add(Legend(discrete_colour_manager,width=700, legend_columns=3))
+d.add(Legend(continuous_colour_manager,700))
 
 html = d.draw(format="html")
 

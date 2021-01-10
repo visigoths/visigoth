@@ -22,7 +22,7 @@
 import os.path
 from visigoth.map_layers.geoimport import Geoimport
 from visigoth.utils.js import Js
-from visigoth.utils.colour import ContinuousPalette
+from visigoth.utils.colour import ContinuousColourManager
 
 
 class Choropleth(Geoimport):
@@ -36,7 +36,7 @@ class Choropleth(Geoimport):
 
     Keyword Arguments:
         labelNameOrFn(str|function) : the name of the property (or function of the properties dict) to provide the label
-        palette(DiscretePalette|ContinuousPalette) : a DiscretePalette|ContinuousPalette object for mapping values to colours
+        colour_manager(DiscreteColourManager|ContinuousColourManager) : a DiscreteColourManager|ContinuousColourManager object for mapping values to colours
         stroke (str): stroke color
         stroke_width (int): stroke width
 
@@ -44,15 +44,15 @@ class Choropleth(Geoimport):
 
     """
 
-    def __init__(self, path, valueNameOrFn, labelNameOrFn=None, palette=None, stroke="black",stroke_width=2):
+    def __init__(self, path, valueNameOrFn, labelNameOrFn=None, colour_manager=None, stroke="black",stroke_width=2):
         super().__init__(path,polygon_style=lambda props:self.getPolygonStyle(props))
         self.path = path
         self.valueNameOrFn = valueNameOrFn
         self.labelNameOrFn = labelNameOrFn
         self.stroke = stroke
-        if palette is None:
-            palette = ContinuousPalette()
-        self.setPalette(palette)
+        if colour_manager is None:
+            colour_manager = ContinuousColourManager()
+        self.setPalette(colour_manager)
         self.stroke_width = stroke_width
         for props in self.getPolygonProperties():
             self.getPalette().allocateColour(self.valueNameOrFn(props))

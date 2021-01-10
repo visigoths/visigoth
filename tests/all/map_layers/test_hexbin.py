@@ -24,7 +24,7 @@ import math
 
 from visigoth import Diagram
 from visigoth.utils.test_utils import TestUtils
-from visigoth.utils.colour import ContinuousPalette
+from visigoth.utils.colour import ContinuousColourManager
 from visigoth.containers.map import Map
 from visigoth.common.legend import Legend
 from visigoth.map_layers.hexbin import Hexbin
@@ -41,11 +41,11 @@ class TestHexbin(unittest.TestCase):
 
         data1 = [(rng.random(), rng.random()) for x in range(0, 100)]
 
-        palette1 = ContinuousPalette()
+        colour_manager1 = ContinuousColourManager()
 
-        m1.add(Hexbin(data1, nr_bins_across=10, palette=palette1,stroke="purple",stroke_width=3))
+        m1.add(Hexbin(data1, nr_bins_across=10, colour_manager=colour_manager1,stroke="purple",stroke_width=3))
         m1.add(Scatter(data1))
-        legend1 = Legend(palette1,512)
+        legend1 = Legend(colour_manager1,512)
         d.add(m1)
         d.add(legend1)
 
@@ -55,11 +55,11 @@ class TestHexbin(unittest.TestCase):
         angles = [math.pi * rng.random() * 2 for r in range(50)]
         data2 = [(0.5+0.2*math.sin(a), 0.5+0.2*math.cos(a)) for a in angles]
 
-        palette2 = ContinuousPalette()
+        colour_manager2 = ContinuousColourManager()
 
-        m2.add(Hexbin(data2, nr_bins_across=15, palette=palette2,stroke=None))
+        m2.add(Hexbin(data2, nr_bins_across=15, colour_manager=colour_manager2,stroke=None))
         m2.add(Scatter(data2))
-        legend2 = Legend(palette2, 512)
+        legend2 = Legend(colour_manager2, 512)
         d.add(m2)
         d.add(legend2)
 

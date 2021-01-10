@@ -20,7 +20,7 @@
 
 from visigoth.charts import ChartElement
 from visigoth.utils.data import Dataset
-from visigoth.utils.colour import DiscretePalette, ContinuousPalette
+from visigoth.utils.colour import DiscreteColourManager, ContinuousColourManager
 
 from visigoth.common.axis import Axis
 from visigoth.utils.marker import MarkerManager
@@ -38,17 +38,17 @@ class Scatter(ChartElement):
         y (str or int): Identify the column to provide the y-axis value for each point
         width(int) : the width of the plot including axes
         height(int) : the height of the plot including axes
-        colour (str or int): Identify the column to define the point colour (use palette default colour if not specified)
+        colour (str or int): Identify the column to define the point colour (use colour_manager default colour if not specified)
         label (str or int): Identify the column to define the label
         size (str or int): Identify the column to determine the size of each marker
         slice (str or int): Identify the column to determine the slice to which each marker belongs
-        palette(object) : a ContinuousPalette or DiscretePalette instance to control chart colour
+        colour_manager(object) : a ContinuousColourManager or DiscreteColourManager instance to control chart colour
         marker_manager(object) : a MarkerManager instance to control marker appearance
         font_height (int): the height of the font for text labels
         text_attributes (dict): SVG attribute name value pairs to apply to labels
     """
 
-    def __init__(self, data, x=0, y=1, width=768, height=768, colour=None, label=None, size=None, slice=None, palette=None, marker_manager=None, font_height=24, text_attributes={}):
+    def __init__(self, data, x=0, y=1, width=768, height=768, colour=None, label=None, size=None, slice=None, colour_manager=None, marker_manager=None, font_height=24, text_attributes={}):
         super(Scatter, self).__init__()
         self.setTooltipFunction(lambda cat,val: "%s %s: (%.02f,%.02f)"%(cat[0],cat[1],val[0],val[1]))
         self.dataset = Dataset(data)
@@ -62,12 +62,12 @@ class Scatter(ChartElement):
         self.width = width
         self.height = height
         
-        if not palette:
+        if not colour_manager:
             if not self.colour or self.dataset.isDiscrete(self.colour):
-                palette = DiscretePalette()
+                colour_manager = DiscreteColourManager()
             else:
-                palette = ContinuousPalette()
-        self.setPalette(palette)
+                colour_manager = ContinuousColourManager()
+        self.setPalette(colour_manager)
 
         if not marker_manager:
             marker_manager = MarkerManager()
@@ -117,9 +117,9 @@ class Scatter(ChartElement):
 
         def plot(doc,x,y,v,label,sz, visible=True):
             if v != None:
-                col = self.palette.getColour(v)
+                col = self.colour_manager.getColour(v)
             else:
-                col = self.palette.getDefaultColour()
+                col = self.colour_manager.getDefaultColour()
 
             cx = self.computeX(x)
             cy = self.computeY(y)

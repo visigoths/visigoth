@@ -7,7 +7,7 @@ from visigoth.diagram import Diagram
 from visigoth.common import Text, Space, Legend
 from visigoth.containers import Grid
 from visigoth.charts import Scatter
-from visigoth.utils.colour import DiscretePalette
+from visigoth.utils.colour import DiscreteColourManager
 from visigoth.utils.marker.marker_manager import MarkerManager
 
 rng = random.Random()
@@ -24,16 +24,16 @@ for line in reader:
     else:
         data.append({k:line[keys[k]] for k in keys})
 
-p = DiscretePalette()
+p = DiscreteColourManager()
 g = Grid()
 
 fields = ["sepal_length","sepal_width","petal_length","petal_width"]
 
 mm = MarkerManager(default_radius=2)
 
-def createPlot(x_field,y_field,data,palette):
+def createPlot(x_field,y_field,data,colour_manager):
     sdata = [(float(row[x_field]),float(row[y_field]),row["species"]) for row in data]
-    sp = Scatter(sdata, colour=2, width=250, height=250, palette=palette, font_height=14)
+    sp = Scatter(sdata, colour=2, width=250, height=250, colour_manager=colour_manager, font_height=14)
     (ax,ay) = sp.getAxes()
     ax.setLabel(x_field)
     ay.setLabel(y_field)

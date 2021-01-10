@@ -26,7 +26,7 @@ from visigoth.utils.test_utils import TestUtils
 from visigoth.common import Legend, Text, Space
 from visigoth.containers.box import Box
 from visigoth.containers.sequence import Sequence
-from visigoth.utils.colour import ContinuousPalette, DiscretePalette
+from visigoth.utils.colour import ContinuousColourManager, DiscreteColourManager
 
 
 class TestLegend(unittest.TestCase):
@@ -34,16 +34,16 @@ class TestLegend(unittest.TestCase):
     def test_discrete(self):
         d = Diagram(fill="white")
 
-        discrete_palette1 = DiscretePalette()
-        discrete_palette1.addColour("A", "green").addColour("B", "blue").addColour("C", "red").addColour("D", "orange").addColour("E","purple")
+        discrete_colour_manager1 = DiscreteColourManager()
+        discrete_colour_manager1.addColour("A", "green").addColour("B", "blue").addColour("C", "red").addColour("D", "orange").addColour("E","purple")
 
-        d.add(Box(Legend(discrete_palette1,width=700, legend_columns=3)))
-        d.add(Box(Legend(discrete_palette1,width=700, legend_columns=2)))
-        d.add(Box(Legend(discrete_palette1,width=700, legend_columns=1)))
+        d.add(Box(Legend(discrete_colour_manager1,width=700, legend_columns=3)))
+        d.add(Box(Legend(discrete_colour_manager1,width=700, legend_columns=2)))
+        d.add(Box(Legend(discrete_colour_manager1,width=700, legend_columns=1)))
 
-        cmaps = DiscretePalette.listColourMaps()
+        cmaps = DiscreteColourManager.listColourMaps()
         for cmap in cmaps:
-            p = DiscretePalette(colourMap=cmap)
+            p = DiscreteColourManager(colourMap=cmap)
             for v in ["A","B","C","D","E","F"]:
                 p.allocateColour(v)
             d.add(Text("colour-map="+cmap))
@@ -55,50 +55,74 @@ class TestLegend(unittest.TestCase):
 
         d = Diagram(fill="white")
 
-        cp = ContinuousPalette(withIntervals=False)
+        cp = ContinuousColourManager(withIntervals=False)
         cp.allocateColour(0.0)
         cp.allocateColour(7.0)
         d.add(Text("no intervals"))
         d.add(Legend(cp, 700))
 
         for (minv,maxv) in [(0.0,6.0),(0.00017,0.00042),(-10,-5),(3.0,4.5),(-1.0,2.0),(200,1000)]:
-            cp = ContinuousPalette()
+            cp = ContinuousColourManager()
             cp.allocateColour(minv)
             cp.allocateColour(maxv)
-            d.add(Text("palette %f -> %f"%(minv,maxv)))
+            d.add(Text("colour_manager %f -> %f"%(minv,maxv)))
             d.add(Legend(cp, 700))
 
-        custom_colourmap = ContinuousPalette(colourMap=[(0.0,0.0,1.0),(0.0,1.0,0.0),(1.0,0.0,0.0)])
+        custom_colourmap = ContinuousColourManager(colourMap=[(0.0,0.0,1.0),(0.0,1.0,0.0),(1.0,0.0,0.0)])
         custom_colourmap.allocateColour(0)
         custom_colourmap.allocateColour(5)
         d.add(Text("custom colourmap Blue -> Green -> Red"))
         d.add(Legend(custom_colourmap,700,orientation="horizontal"))
 
         seq = Sequence(orientation="horizontal")
-        continuous_palette5 = ContinuousPalette()
-        continuous_palette5.allocateColour(-1.0)
-        continuous_palette5.allocateColour(2.0)
-        seq.add(Box(Legend(continuous_palette5, 200, orientation="vertical")))
+        continuous_colour_manager5a = ContinuousColourManager(withIntervals=False)
+        continuous_colour_manager5a.allocateColour(-1.0)
+        continuous_colour_manager5a.allocateColour(2.0)
+        seq.add(Box(Legend(continuous_colour_manager5a, 200, orientation="vertical")))
 
-        continuous_palette6 = ContinuousPalette()
-        continuous_palette6.allocateColour(200)
-        continuous_palette6.allocateColour(1000)
-        seq.add(Box(Legend(continuous_palette6, 200, orientation="vertical")))
+        continuous_colour_manager5 = ContinuousColourManager()
+        continuous_colour_manager5.allocateColour(-1.0)
+        continuous_colour_manager5.allocateColour(2.0)
+        seq.add(Box(Legend(continuous_colour_manager5, 200, orientation="vertical")))
 
-        continuous_palette7 = ContinuousPalette()
-        continuous_palette7.allocateColour(0.0)
-        continuous_palette7.allocateColour(3.0)
-        seq.add(Box(Legend(continuous_palette7, 200, orientation="vertical")))
+        continuous_colour_manager6 = ContinuousColourManager()
+        continuous_colour_manager6.allocateColour(200)
+        continuous_colour_manager6.allocateColour(1000)
+        seq.add(Box(Legend(continuous_colour_manager6, 200, orientation="vertical")))
+
+        continuous_colour_manager7 = ContinuousColourManager()
+        continuous_colour_manager7.allocateColour(0.0)
+        continuous_colour_manager7.allocateColour(3.0)
+        seq.add(Box(Legend(continuous_colour_manager7, 200, orientation="vertical")))
         d.add(Text("Vertical orientation"))
         d.add(seq)
 
-        cmaps = ContinuousPalette.listColourMaps()
+        cmaps = ContinuousColourManager.listColourMaps()
         for cmap in cmaps:
-            p = ContinuousPalette(colourMap=cmap)
+            p = ContinuousColourManager(colourMap=cmap)
             p.allocateColour(0.0)
             p.allocateColour(100.0)
             d.add(Text("colour-map=" + cmap))
             d.add(Box(Legend(p, width=700)))
+
+        continuous_colour_manager8 = ContinuousColourManager(colourMap=["green","blue"],underflowColour="yellow",overflowColour="red")
+        continuous_colour_manager8.allocateColour(5000000)
+        continuous_colour_manager8.allocateColour(10000000)
+        b = Box(Legend(continuous_colour_manager8, 200, orientation="horizontal"))
+        d.add(Text("Under/overshoot colours"))
+        d.add(b)
+
+        continuous_colour_manager9 = ContinuousColourManager(colourMap=["green", "blue"], underflowColour="yellow",
+                                                overflowColour="red", ticks=[200000,500000,650000,800000,1100000])
+        b = Box(Legend(continuous_colour_manager9, 300, orientation="horizontal"))
+        d.add(Text("Custom tick positions"))
+        d.add(b)
+
+        continuous_colour_manager10 = ContinuousColourManager(colourMap=["green", "blue"], underflowColour="yellow",
+                                                overflowColour="red", ticks=[200000, 500000, 650000, 800000, 1100000])
+        b = Box(Legend(continuous_colour_manager10, 300, orientation="horizontal",labelfn=lambda v:"%0.1fM"%(v/1e6)))
+        d.add(Text("Custom labels"))
+        d.add(b)
 
         TestUtils.draw_output(d,"test_legend_continuous")
 

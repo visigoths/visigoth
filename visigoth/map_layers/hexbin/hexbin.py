@@ -22,7 +22,7 @@ import math
 import os
 import os.path
 
-from visigoth.utils.colour import ContinuousPalette
+from visigoth.utils.colour import ContinuousColourManager
 from visigoth.map_layers import MapLayer
 from visigoth.svg import hexagon
 from visigoth.utils.js import Js
@@ -40,19 +40,19 @@ class Hexbin(MapLayer):
         lon (str or int): Identify the column to provide the longitude value for each point
         colour (float or int): Attach a magnitude value to each point (if None, all points are assigned a magnitude of 1)
         nr_bins_across: number of hexagonal bins to arrange across the plot
-        palette(ContinuousPalette) : define the colours used in the plot
+        colour_manager(ContinuousColourManager) : define the colours used in the plot
         stroke(str) : the colour to use for bin lines
         stroke_width(float) : the width (in pixels) to use for bin lines
         draw_empty_bins(bool) : whether to draw hexagonal bins with zero value
         min_freq(int) : only draw bins with this frequency or higher
     """
-    def __init__(self,data,lon=0,lat=1,colour=None,nr_bins_across=10,palette=None,stroke="grey",stroke_width=1, draw_empty_bins=False,min_freq=1):
+    def __init__(self,data,lon=0,lat=1,colour=None,nr_bins_across=10,colour_manager=None,stroke="grey",stroke_width=1, draw_empty_bins=False,min_freq=1):
         super(Hexbin, self).__init__()
         dataset = Dataset(data)
         self.data = dataset.query([lon,lat,colour if colour is not None else Dataset.constant(1)])
-        if palette == None:
-            palette = ContinuousPalette()
-        self.setPalette(palette)
+        if colour_manager == None:
+            colour_manager = ContinuousColourManager()
+        self.setPalette(colour_manager)
         self.nr_bins_across = nr_bins_across
         self.width = None
         self.height = None

@@ -28,7 +28,7 @@ from visigoth.common.embedded_html import EmbeddedHtml
 from visigoth.map_layers.poi.twitter import encodeTweet
 from visigoth.utils.js import Js
 from visigoth.utils.data import Dataset
-from visigoth.utils.colour import DiscretePalette, ContinuousPalette
+from visigoth.utils.colour import DiscreteColourManager, ContinuousColourManager
 from visigoth.utils.marker import MarkerManager
 
 
@@ -43,17 +43,17 @@ class POI(Geoplot):
     Keyword Arguments:
         lat (str or int): Identify the column to provide the latitude value for each point
         lon (str or int): Identify the column to provide the longitude value for each point
-        colour (str or int): Identify the column to define the point colour (use palette default colour if not specified)
+        colour (str or int): Identify the column to define the point colour (use colour_manager default colour if not specified)
         label (str or int): Identify the column to define the label
         size (str or int): Identify the column to determine the size of each marker
         tweet (str or int): Identify the column containing a tweet status (identifier)
         image (str or int): Identify the column containing a path or url of an image
         image_scale (str or int): Identify the column containing the amount to scale an image
-        palette(object) : a ContinuousPalette or DiscretePalette instance to control chart colour
+        colour_manager(object) : a ContinuousColourManager or DiscreteColourManager instance to control chart colour
         marker_manager(object) : a MarkerManager instance to control marker appearance
     """
 
-    def __init__(self, data, lon=0, lat=1, colour=None, label=None, size=None, tweet=None, image=None, image_scale=None, palette=None, marker_manager=None):
+    def __init__(self, data, lon=0, lat=1, colour=None, label=None, size=None, tweet=None, image=None, image_scale=None, colour_manager=None, marker_manager=None):
         super().__init__()
         self.dataset = Dataset(data)
 
@@ -66,12 +66,12 @@ class POI(Geoplot):
         self.image = image
         self.image_scale = image_scale
 
-        if not palette:
+        if not colour_manager:
             if not self.colour or self.dataset.isDiscrete(self.colour):
-                palette = DiscretePalette()
+                colour_manager = DiscreteColourManager()
             else:
-                palette = ContinuousPalette()
-        self.setPalette(palette)
+                colour_manager = ContinuousColourManager()
+        self.setPalette(colour_manager)
 
         if not marker_manager:
             marker_manager = MarkerManager()
@@ -95,7 +95,7 @@ class POI(Geoplot):
 
         for (lon,lat,label,colour,size,tweet,image,image_scale) in data:
             marker = self.getMarkerManager().getMarker(size)
-            col = self.palette.getColour(colour)
+            col = self.colour_manager.getColour(colour)
             if tweet:
                 html = EmbeddedHtml(encodeTweet(tweet), "", width=300, height=300)
                 popup = Popup(html, label)

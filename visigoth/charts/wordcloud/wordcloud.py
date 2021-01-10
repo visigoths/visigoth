@@ -28,13 +28,13 @@ from visigoth.svg import text, rectangle
 from visigoth.utils.fonts import FontManager
 from visigoth.utils.term.progress import Progress
 
-from visigoth.utils.colour import DiscretePalette
+from visigoth.utils.colour import DiscreteColourManager
 
 from visigoth.utils.data import Dataset
 
 class WordCloud(ChartElement):
 
-    def __init__(self, data, label=0, colour=1, frequency=2, width=768, height=768, palette=None, text_attributes={},seed=None,flip_fraction=0.1,fill="white"):
+    def __init__(self, data, label=0, colour=1, frequency=2, width=768, height=768, colour_manager=None, text_attributes={},seed=None,flip_fraction=0.1,fill="white"):
         """
         Add a WordCloud to the section
 
@@ -47,7 +47,7 @@ class WordCloud(ChartElement):
             frequency (str or int): Identify the column to define the word frequency
             width(int) : the width of the plot in pixels
             height(int) : the height of the plot in pixels
-            palette(list) : a DiscretePalette object
+            colour_manager(list) : a DiscreteColourManager object
             text_attributes(dict) : dict containing attributes to a apply to SVG text elements
             seed(int) : random seed - set to produce repeatable results
             flip_fraction(float) : fraction of words (between 0.0 and 1.0) to display vertically
@@ -60,12 +60,12 @@ class WordCloud(ChartElement):
         self.data = dataset.query([label,colour,frequency])
         self.width = width
         self.height = height
-        if not palette:
-            palette = DiscretePalette()
-        self.setPalette(palette)
+        if not colour_manager:
+            colour_manager = DiscreteColourManager()
+        self.setPalette(colour_manager)
         self.total = sum([v for (word,cat,v) in self.data])
         for (_,cat,_) in self.data:
-            palette.allocateColour(cat)
+            colour_manager.allocateColour(cat)
         self.plots = []
         self.renders = []
         self.text_attributes = text_attributes
@@ -165,7 +165,7 @@ class WordCloud(ChartElement):
     def drawChart(self,doc,cx,cy,chart_width,chart_height):
         categories = {}
         for (word,w,h,cat,x,y,flip) in self.renders:
-            col = self.palette.getColour(cat)
+            col = self.colour_manager.getColour(cat)
             cid = self.plotWord(doc,word,w,h,col,x+cx,y+cy,flip)
             ids = categories.get(cat,[])
             ids.append(cid)

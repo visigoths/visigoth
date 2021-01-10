@@ -28,7 +28,7 @@ import os.path
 from visigoth.map_layers.geoplot import Geoplot, Multipoint
 from visigoth.utils.js import Js
 from visigoth.utils.data import Dataset
-from visigoth.utils.colour import DiscretePalette, ContinuousPalette
+from visigoth.utils.colour import DiscreteColourManager, ContinuousColourManager
 from visigoth.utils.marker import MarkerManager
 from visigoth.map_layers import MapLayer
 
@@ -43,15 +43,15 @@ class Scatter(Geoplot):
     Keyword Arguments:
         lat (str or int): Identify the column to provide the latitude value for each point
         lon (str or int): Identify the column to provide the longitude value for each point
-        colour (str or int): Identify the column to define the point colour (use palette default colour if not specified)
+        colour (str or int): Identify the column to define the point colour (use colour_manager default colour if not specified)
         label (str or int): Identify the column to define the label
         size (str or int): Identify the column to determine the size of each marker
-        palette(object) : a ContinuousPalette or DiscretePalette instance to control chart colour
+        colour_manager(object) : a ContinuousColourManager or DiscreteColourManager instance to control chart colour
         marker_manager(object) : a MarkerManager instance to control marker appearance
         marker (bool): plot a marker rather than circle
     """
 
-    def __init__(self, data, lon=0, lat=1, colour=None, label=None, size=None, palette=None, marker_manager=None):
+    def __init__(self, data, lon=0, lat=1, colour=None, label=None, size=None, colour_manager=None, marker_manager=None):
         super().__init__()
         self.dataset = Dataset(data)
 
@@ -61,12 +61,12 @@ class Scatter(Geoplot):
         self.label = label
         self.size = size
 
-        if not palette:
+        if not colour_manager:
             if not self.colour or self.dataset.isDiscrete(self.colour):
-                palette = DiscretePalette()
+                colour_manager = DiscreteColourManager()
             else:
-                palette = ContinuousPalette()
-        self.setPalette(palette)
+                colour_manager = ContinuousColourManager()
+        self.setPalette(colour_manager)
 
         if not marker_manager:
             marker_manager = MarkerManager()
@@ -88,7 +88,7 @@ class Scatter(Geoplot):
             label = datapoint[2]
             col = datapoint[3]
             sz = datapoint[4]
-            colour = self.palette.getColour(col)
+            colour = self.colour_manager.getColour(col)
             marker = self.getMarkerManager().getMarker(sz)
             self.add(Multipoint([point],marker=marker,fill=colour,label=label))
         super().build(fmt)

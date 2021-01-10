@@ -1,6 +1,6 @@
 
 ==========
-Colourgrid
+ColourGrid
 ==========
 
 .. automodule:: visigoth.map_layers.colourgrid

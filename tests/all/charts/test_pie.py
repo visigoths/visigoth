@@ -23,7 +23,7 @@ import unittest
 from visigoth import Diagram
 from visigoth.utils.test_utils import TestUtils
 from visigoth.charts.pie import Pie
-from visigoth.utils.colour import DiscretePalette
+from visigoth.utils.colour import DiscreteColourManager
 from visigoth.common import Legend, Text
 from visigoth.containers import Box
 
@@ -33,15 +33,15 @@ class TestPie(unittest.TestCase):
         d = Diagram(fill="white")
 
         d.add(Text("Basic"))
-        palette0 = DiscretePalette()
-        palette0.addColour("category A","#E7FFAC").addColour("category B","#FFC9DE")
-        palette0.addColour("category C","#B28DFF").addColour("category D","#ACE7FF")
+        colour_manager0 = DiscreteColourManager()
+        colour_manager0.addColour("category A","#E7FFAC").addColour("category B","#FFC9DE")
+        colour_manager0.addColour("category C","#B28DFF").addColour("category D","#ACE7FF")
 
         data0 = [("category A",1.2),("category B",0.1),("category C",0.4),("category D",0.5)]
-        pie0 = Pie(data0, value=1,colour=0, width=400, height=400, palette=palette0)
+        pie0 = Pie(data0, value=1,colour=0, width=400, height=400, colour_manager=colour_manager0)
         d.add(Box(pie0))
 
-        legend0 = Legend(palette0,400,legend_columns=1)
+        legend0 = Legend(colour_manager0,400,legend_columns=1)
         d.add(legend0)
 
         d.add(Text("Basic (Count)"))
@@ -55,10 +55,10 @@ class TestPie(unittest.TestCase):
 
         d.add(Text("Doughnut"))
 
-        pie1 = Pie(data0, value=1,colour=0,width=400, height=400, palette=palette0, doughnut=True)
+        pie1 = Pie(data0, value=1,colour=0,width=400, height=400, colour_manager=colour_manager0, doughnut=True)
         d.add(Box(pie1))
 
-        legend1 = Legend(palette0,400,legend_columns=1)
+        legend1 = Legend(colour_manager0,400,legend_columns=1)
         d.add(legend1)
         
         d.add(Text("Monochrome"))

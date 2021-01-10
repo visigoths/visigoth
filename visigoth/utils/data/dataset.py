@@ -35,7 +35,10 @@ class SumFunction(object):
         return 0
 
     def accumulate(self,acc,val):
-        return acc+val
+        if val is not None:
+            return acc+val
+        else:
+            return acc
 
     def finalise(self,acc):
         return acc
@@ -49,7 +52,7 @@ class MinFunction(object):
         return None
 
     def accumulate(self,acc,val):
-        if acc == None or val < acc:
+        if acc == None or (val is not None and val < acc):
             return val
         else:
             return acc
@@ -66,7 +69,7 @@ class MaxFunction(object):
         return None
 
     def accumulate(self,acc,val):
-        if acc == None or val > acc:
+        if acc == None or (val is not None and val > acc):
             return val
         else:
             return acc
@@ -86,6 +89,24 @@ class CountFunction(object):
         return acc + 1
 
     def finalise(self,acc):
+        return acc
+
+
+class CountNoneFunction(object):
+
+    def __init__(self):
+        pass
+
+    def initialValue(self):
+        return 0
+
+    def accumulate(self, acc, val):
+        if val is None:
+            return acc + 1
+        else:
+            return acc
+
+    def finalise(self, acc):
         return acc
 
 class AggregationFunction(object):
@@ -143,6 +164,10 @@ class Dataset(object):
     @staticmethod
     def count():
         return AggregationFunction(CountFunction())
+
+    @staticmethod
+    def count_none(column):
+        return AggregationFunction(CountNoneFunction(),column)
 
     @staticmethod
     def filter(column,op,literal):

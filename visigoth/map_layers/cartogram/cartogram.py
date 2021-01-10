@@ -29,7 +29,7 @@ from visigoth.map_layers import MapLayer
 from visigoth.utils.term.progress import Progress
 from visigoth.utils.js import Js
 from visigoth.utils.data import Dataset
-from visigoth.utils.colour import DiscretePalette, ContinuousPalette
+from visigoth.utils.colour import DiscreteColourManager, ContinuousColourManager
 from visigoth.utils.marker import MarkerManager
 
 class Cartogram(MapLayer):
@@ -48,7 +48,7 @@ class Cartogram(MapLayer):
 
         lat (str or int): Identify the column to provide the latitude value for each point
         lon (str or int): Identify the column to provide the longitude value for each point
-        colour (str or int): Identify the column to define the point colour (use palette default colour if not specified)
+        colour (str or int): Identify the column to define the point colour (use colour_manager default colour if not specified)
         label (str or int): Identify the column to define the label
         size (str or int): Identify the column to determine the size of each marker
         iterations(int): number of iterations to run
@@ -58,14 +58,14 @@ class Cartogram(MapLayer):
         link_stroke_width (int): the width of links
         f1 (float): relative force attracting each point to its original location
         f2 (float): relative force repelling overlapping points
-        palette(object) : a ContinuousPalette or DiscretePalette instance to control chart colour
+        colour_manager(object) : a ContinuousColourManager or DiscreteColourManager instance to control chart colour
         marker_manager(object) : a MarkerManager instance to control marker appearance
 
     Notes:
 
     """
 
-    def __init__(self, data, lon=0, lat=1, colour=None, label=None, size=None, iterations=30, font_height=24, text_attributes={},link_stroke="grey",link_stroke_width=2,f1=0.01,f2=0.5, palette=None, marker_manager=None):
+    def __init__(self, data, lon=0, lat=1, colour=None, label=None, size=None, iterations=30, font_height=24, text_attributes={},link_stroke="grey",link_stroke_width=2,f1=0.01,f2=0.5, colour_manager=None, marker_manager=None):
         super(Cartogram, self).__init__()
         self.lat = lat
         self.lon = lon
@@ -77,17 +77,17 @@ class Cartogram(MapLayer):
 
         self.width = None
         self.height = None
-        self.palette = palette
+        self.colour_manager = colour_manager
         self.font_height = font_height
         self.text_attributes = text_attributes
         self.iterations = iterations
 
-        if not palette:
+        if not colour_manager:
             if not self.colour or self.dataset.isDiscrete(self.colour):
-                palette = DiscretePalette()
+                colour_manager = DiscreteColourManager()
             else:
-                palette = ContinuousPalette()
-        self.setPalette(palette)
+                colour_manager = ContinuousColourManager()
+        self.setPalette(colour_manager)
 
         if not marker_manager:
             marker_manager = MarkerManager()

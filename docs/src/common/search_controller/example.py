@@ -9,7 +9,7 @@ from visigoth.utils.mapping import Projections, Geocoder, Mapping
 from visigoth.map_layers import WMS, Geoplot
 from visigoth.map_layers.geoplot import Multipoint
 from visigoth.containers import Popup, Box
-from visigoth.common import SearchManager, Text
+from visigoth.common import SearchController, Text
 
 folder=os.path.split(__file__)[0]
 
@@ -44,7 +44,7 @@ m = Map(768,boundaries=bounds,projection=Projections.EPSG_3857)
 wms = WMS("osm")
 wms.setInfo("Map")
 
-sm = SearchManager()
+sm = SearchController()
 d.add(sm)
 
 m.add(wms)

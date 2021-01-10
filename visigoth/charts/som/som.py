@@ -28,7 +28,7 @@ from visigoth.utils.js import Js
 from visigoth.charts.som.self_organising_map import SelfOrganisingMap
 from visigoth.charts import ChartElement
 from visigoth.utils.marker import MarkerManager
-from visigoth.utils.colour import DiscretePalette
+from visigoth.utils.colour import DiscreteColourManager
 
 from visigoth.utils.data import Dataset
 
@@ -43,21 +43,21 @@ class SOM(ChartElement):
         width(int) : the width of the plot in pixels
 
     Keyword Arguments:
-        colour (str or int): Identify the column to define the point colour (use palette default colour if not specified)
+        colour (str or int): Identify the column to define the point colour (use colour_manager default colour if not specified)
         label (str or int): Identify the column to define the label
         dimensions (str or int): Identify the column to define the vector of floats used to define the point dimensions
         gridwidth(int) : the number of columns in the SOM plot
         gridheight(int) : the number of rows in the SOM plot
         iters(int) : the number of training iterations to use when training the SOM
-        palette(visigoth.utils.colour.DiscretePalette) : mapping from category to colour
+        colour_manager(visigoth.utils.colour.DiscreteColourManager) : mapping from category to colour
         trainedSom(SelfOrganisingMap) : a pre-trained SOM model.  If specified, this SOM's grid width/height will be used
         marker_manager(object) : a MarkerManager instance to control marker appearance
         seed(int): random seed
         dimension(lambda): lambda to compute the dimension (from the values vector) value
-        dimensionPalette(ContinuousPalette): a palette to map dimension values to colours
+        dimensionPalette(ContinuousColourManager): a colour_manager to map dimension values to colours
     """
 
-    def __init__(self,data, width, label=0, colour=1, dimensions=2, gridwidth=10, gridheight=10, iters=100, palette=None, marker_manager=None, trainedSom=None, seed=None, dimension=None, dimensionPalette=None):
+    def __init__(self,data, width, label=0, colour=1, dimensions=2, gridwidth=10, gridheight=10, iters=100, colour_manager=None, marker_manager=None, trainedSom=None, seed=None, dimension=None, dimensionPalette=None):
         super(SOM, self).__init__()
         self.width = width
         dataset = Dataset(data)
@@ -69,9 +69,9 @@ class SOM(ChartElement):
             self.gridheight = gridheight
             self.gridwidth = gridwidth
 
-        if not palette:
-            palette = DiscretePalette()
-        self.setPalette(palette)
+        if not colour_manager:
+            colour_manager = DiscreteColourManager()
+        self.setPalette(colour_manager)
 
         self.iters = iters
 
@@ -79,7 +79,7 @@ class SOM(ChartElement):
             marker_manager = MarkerManager()
         self.setMarkerManager(marker_manager)
 
-        self.fill = self.palette.getDefaultColour()
+        self.fill = self.colour_manager.getDefaultColour()
         self.stroke = self.marker_manager.getStroke()
         self.stroke_width = self.marker_manager.getStrokeWidth()
 
@@ -108,7 +108,7 @@ class SOM(ChartElement):
             self.som_trained = True
         else:
             self.som_trained = False
-            self.som = SelfOrganisingMap(self.data, self.hexgrid, self.palette, self.gridwidth, self.gridheight, self.iters, seed=self.seed)
+            self.som = SelfOrganisingMap(self.data, self.hexgrid, self.colour_manager, self.gridwidth, self.gridheight, self.iters, seed=self.seed)
         self.hexgrid.setModel(self.som)
         self.plot = None
 

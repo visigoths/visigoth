@@ -27,7 +27,7 @@ from visigoth.utils.test_utils import TestUtils
 from visigoth.containers.map import Map
 from visigoth.containers.box import Box
 from visigoth.common.legend import Legend
-from visigoth.utils.colour import ContinuousPalette
+from visigoth.utils.colour import ContinuousColourManager
 from visigoth.utils.marker import MarkerManager
 from visigoth.map_layers.network import Network,DDPageRank
 
@@ -69,16 +69,16 @@ class TestNetwork(unittest.TestCase):
         for (n1,n2,_) in dists[:100]:
             edges.append((n1,n2))
     
-        palette = ContinuousPalette()
+        colour_manager = ContinuousColourManager()
 
         mm = MarkerManager()
         mm.setDefaultRadius(15)
 
-        nw = Network(node_data=nodes,edge_data=edges,palette=palette,marker_manager=mm,ranking_algorithm=DDPageRank())
+        nw = Network(node_data=nodes,edge_data=edges,colour_manager=colour_manager,marker_manager=mm,ranking_algorithm=DDPageRank())
         m1.add(nw)
         d.add(Box(m1))
 
-        d.add(Legend(palette,512))
+        d.add(Legend(colour_manager,512))
 
         TestUtils.draw_output(d,"test_network")
 

@@ -2,11 +2,11 @@
 
 from visigoth import Diagram
 from visigoth.charts import Transition
-from visigoth.utils.colour import DiscretePalette
+from visigoth.utils.colour import DiscreteColourManager
 from visigoth.common import Legend, Space, Text
 
-palette = DiscretePalette()
-palette.addColour("Status A", "green").addColour("Status B", "blue").addColour("Status C", "red")
+colour_manager = DiscreteColourManager()
+colour_manager.addColour("Status A", "green").addColour("Status B", "blue").addColour("Status C", "red")
 
 data = [
     ["M1", "","Status B","Status B","Status B"],
@@ -22,11 +22,11 @@ data = [
 d = Diagram(fill="white")
 
 d.add(Text("Status Changes Over 2 Hour Period",font_height=32,text_attributes={"stroke":"purple"}))
-t = Transition(data,label=0,states=[1,2,3,4], width=1024, palette=palette,
+t = Transition(data,label=0,states=[1,2,3,4], width=1024, colour_manager=colour_manager,
                transition_labels=["10:00", "10:30","11:00","11:30"],y_axis_label="Count")
 d.add(t)
 d.add(Space(20,20))
-l = Legend(palette,1024, legend_columns=3)
+l = Legend(colour_manager,1024, legend_columns=3)
 d.add(l)
 
 d.connect(t,"colour",l,"colour")

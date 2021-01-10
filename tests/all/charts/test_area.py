@@ -24,7 +24,7 @@ import math
 from visigoth import Diagram
 from visigoth.utils.test_utils import TestUtils
 from visigoth.charts.area import Area
-from visigoth.utils.colour import DiscretePalette
+from visigoth.utils.colour import DiscreteColourManager
 from visigoth.common import Legend, Text
 from visigoth.containers import Grid,Sequence
 
@@ -33,7 +33,7 @@ class TestArea(unittest.TestCase):
     def test_basic(self):
         d = Diagram(fill="white")
 
-        dp = DiscretePalette()
+        dp = DiscreteColourManager()
 
         data = [
             (1,12,"A"),
@@ -61,7 +61,7 @@ class TestArea(unittest.TestCase):
         for cat in ["A","B","C"]:
             s = Sequence()            
             s.add(Text(cat))
-            area0 = Area([d for d in data if d[2] == cat], x=0, y=1, palette=dp, height=300, width=300)
+            area0 = Area([d for d in data if d[2] == cat], x=0, y=1, colour_manager=dp, height=300, width=300)
             s.add(area0)
             g.add(row,col,s)
             col += 1
@@ -73,7 +73,7 @@ class TestArea(unittest.TestCase):
         d.add(Text("Smoothing"))
 
         d.add(Text("Stacked areas"))
-        area1 = Area(data, x=0, y=1, size=1, colour=2, height=600, palette=dp, width=600)
+        area1 = Area(data, x=0, y=1, size=1, colour=2, height=600, colour_manager=dp, width=600)
         area1.getMarkerManager().setMaxRadius(10)
         d.add(area1)
 
@@ -84,7 +84,7 @@ class TestArea(unittest.TestCase):
         
         for smoothing in [0.1,0.3,0.5]:
             d.add(Text("Smoothing=%f"%(smoothing)))
-            area2 = Area(data, x=0, y=1, colour=2, height=400, smoothing=smoothing, palette=dp, width=400)
+            area2 = Area(data, x=0, y=1, colour=2, height=400, smoothing=smoothing, colour_manager=dp, width=400)
             d.add(area2)
 
         TestUtils.draw_output(d,"test_area")

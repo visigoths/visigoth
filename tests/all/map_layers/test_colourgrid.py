@@ -25,7 +25,7 @@ from visigoth import Diagram
 from visigoth.utils.test_utils import TestUtils
 from visigoth.containers import Map, Box
 from visigoth.map_layers import ColourGrid
-from visigoth.utils.colour import ContinuousPalette
+from visigoth.utils.colour import ContinuousColourManager
 from visigoth.utils.mapping.projections import Projections
 from visigoth.common import Legend
 
@@ -55,11 +55,11 @@ class TestColourGrid(unittest.TestCase):
         lats = [(i+0.5)*1/300 for i in range(300)]
 
         m0 = Map(512, projection=Projections.IDENTITY, boundaries=((0.0,0.0),(1.0,1.0)))
-        c0 = ColourGrid(data0, lons=lons, lats=lats ,palette=ContinuousPalette(withIntervals=True))
+        c0 = ColourGrid(data0, lons=lons, lats=lats ,colour_manager=ContinuousColourManager(withIntervals=True))
         m0.add(c0)
 
         d.add(Box(m0))
-        d.add(Legend(width=512, palette=c0.getPalette()))
+        d.add(Legend(width=512, colour_manager=c0.getPalette()))
         #
         # peaks1 = [(0.3, 0.3, 100), (0.1, 0.9, 150), (0.6, 0.7, 120)]
         #
@@ -70,7 +70,7 @@ class TestColourGrid(unittest.TestCase):
         # c1 = ColourGrid(data1,boundaries=((0,0),(1,1)))
         # m1.add(c1)
         # d.add(Box(m1))
-        # d.add(Legend(width=512, palette=c1.getPalette()))
+        # d.add(Legend(width=512, colour_manager=c1.getPalette()))
         #
         # peaks2 = [(x/10,y/10,10) for x in [2,6] for y in [3,9]]
         #
@@ -82,7 +82,7 @@ class TestColourGrid(unittest.TestCase):
         # c2 = ColourGrid(data2, boundaries=((0,0),(1,1)))
         # m2.add(c2)
         # d.add(Box(m2))
-        # d.add(Legend(width=512, palette=c2.getPalette()))
+        # d.add(Legend(width=512, colour_manager=c2.getPalette()))
 
         TestUtils.draw_output(d,"test_colourgrid")
 

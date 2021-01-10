@@ -158,8 +158,7 @@ class AxisUtils(object):
             point = self.lwb - (self.lwb % spacing)
             self.tickpoints = []
             while point <= self.upb:
-                if point >= self.lwb:
-                    self.tickpoints.append(point)
+                self.tickpoints.append(point)
                 point += spacing
             self.spacing = spacing
         return self.tickpoints

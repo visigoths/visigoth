@@ -8,6 +8,7 @@ Map Layers
    map_layers/choropleth
    map_layers/cartogram
    map_layers/colourgrid
+   map_layers/imagegrid
    map_layers/cluster
    map_layers/compass
    map_layers/contour

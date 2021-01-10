@@ -32,13 +32,13 @@ from visigoth.map_layers.geoplot import Multipoint
 from visigoth.containers.popup import Popup
 from visigoth.containers.box import Box
 from visigoth.common.text import Text
-from visigoth.common import SearchManager
+from visigoth.common import SearchController
 
 from visigoth.utils.mapping import Projections
 from visigoth.utils.test_utils import TestUtils
 
 
-class TestSearchManager(unittest.TestCase):
+class TestSearchController(unittest.TestCase):
 
     def test_basic(self):
         rng = random.Random()
@@ -68,7 +68,7 @@ class TestSearchManager(unittest.TestCase):
 
         m = Map(768,boundaries=bounds,projection=Projections.EPSG_3857)
 
-        sm = SearchManager(height=150)
+        sm = SearchController(height=150)
         d.add(sm)
 
         m.add(gp)

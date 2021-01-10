@@ -38,15 +38,15 @@ class MapLayer(DiagramElement):
         MapLayer.counter += 1
         self.opacity = 1.0
         self.visible = True
-        self.palette = None
+        self.colour_manager = None
         self.marker_manager = None
 
-    def setPalette(self, palette):
-        self.palette = palette
+    def setPalette(self, colour_manager):
+        self.colour_manager = colour_manager
         return self
 
     def getPalette(self):
-        return self.palette
+        return self.colour_manager
 
     def setMarkerManager(self, marker_manager):
         self.marker_manager = marker_manager
@@ -86,8 +86,8 @@ class MapLayer(DiagramElement):
         return False
 
     def build(self,fmt):
-        if self.palette:
-            self.palette.build()
+        if self.colour_manager:
+            self.colour_manager.build()
 
     @staticmethod
     def computeBoundaries(locations):

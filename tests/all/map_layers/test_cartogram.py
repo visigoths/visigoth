@@ -28,7 +28,7 @@ from visigoth.containers.map import Map
 from visigoth.containers.box import Box
 from visigoth.common import Legend, Text
 from visigoth.utils.mapping.projections import Projections
-from visigoth.utils.colour import DiscretePalette
+from visigoth.utils.colour import DiscreteColourManager
 
 class TestCartogram(unittest.TestCase):
 
@@ -43,19 +43,19 @@ class TestCartogram(unittest.TestCase):
             label = "cat: "+cat
             return (cx,cy,cat,label,radius)
 
-        palette = DiscretePalette()
-        palette.addColour("cat1","yellow")
-        palette.addColour("cat2","green")
-        palette.addColour("cat3","purple")
+        colour_manager = DiscreteColourManager()
+        colour_manager.addColour("cat1","yellow")
+        colour_manager.addColour("cat2","green")
+        colour_manager.addColour("cat3","purple")
 
         for (data_size,scale) in [(25,1),(50,1),(100,0.5)]:
             data = [gen(cx,cy,20*scale,50*scale) for (cx,cy) in [(0.25,0.25),(0.75,0.75),(0.25,0.75),(0.75,0.25)] for _ in range(0,data_size)]
 
             bounds  = ((0.0,0.0),(1.0,1.0))
             m = Map(512,bounds,projection=Projections.IDENTITY)
-            c = Cartogram(data, colour=2, size=4, palette=palette, iterations=500, link_stroke="red")
+            c = Cartogram(data, colour=2, size=4, colour_manager=colour_manager, iterations=500, link_stroke="red")
             m.add(c)
-            legend = Legend(palette, width=500, legend_columns=3)
+            legend = Legend(colour_manager, width=500, legend_columns=3)
             d.add(Text(str(data_size)))
             d.add(Box(m))
             d.add(legend)

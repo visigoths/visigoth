@@ -34,20 +34,20 @@ from visigoth.common.legend import Legend
 from visigoth.common.button import Button
 from visigoth.common.text import Text
 from visigoth.common.space import Space
-from visigoth.utils.colour import ContinuousPalette
+from visigoth.utils.colour import ContinuousColourManager
 
 class TestChoropleth(unittest.TestCase):
 
     def test_basic(self):
         
-        palette = ContinuousPalette()
+        colour_manager = ContinuousColourManager()
 
         rng = random.Random()
         d = Diagram()
 
         path = os.path.join(os.path.split(__file__)[0],"arrondissements.geojson")
 
-        c = Choropleth(path, lambda props: rng.random() * 10, "name", palette)
+        c = Choropleth(path, lambda props: rng.random() * 10, "name", colour_manager)
         c.setOpacity(0.5)
         # bounds = ((2.0, 48.7),(2.5, 49.1))
         m = Map(512)
@@ -56,7 +56,7 @@ class TestChoropleth(unittest.TestCase):
         
         d.add(m)
         d.add(Space(20,20))
-        d.add(Legend(palette,width=500,legend_columns=3))
+        d.add(Legend(colour_manager,width=500,legend_columns=3))
         d.add(Text("Attribution: https://www.data.gouv.fr/en/datasets/arrondissements-1/",url="https://www.data.gouv.fr/en/datasets/arrondissements-1/",font_height=18))
 
         TestUtils.draw_output(d,"test_choropleth")

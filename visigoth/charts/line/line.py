@@ -24,7 +24,7 @@ from visigoth.svg import path
 from visigoth.common.axis import Axis
 from visigoth.utils.data import Dataset
 from visigoth.utils.marker import MarkerManager
-from visigoth.utils.colour import DiscretePalette, ContinuousPalette
+from visigoth.utils.colour import DiscreteColourManager, ContinuousColourManager
 
 class Line(ChartElement):
 
@@ -43,15 +43,22 @@ class Line(ChartElement):
         size (str or int): Identify the column to determine the size of each point
         width(int) : the width of the plot including axes
         height(int) : the height of the plot including axes
-        palette(object) : a ContinuousPalette or DiscretePalette instance to control line colour
+        colour_manager(object) : a ContinuousColourManager or DiscreteColourManager instance to control line colour
         marker_manager(object) : a MarkerManager instance to control marker appearance
         smoothing (float) : smoothing factor to apply to lines, 0.0=no smoothing
         line_width (int) : specify the width of the lines in pixels
         font_height (int): the height of the font for text labels
         text_attributes (dict): SVG attribute name value pairs to apply to labels
+
+    Note:
+        None values are permitted in some data values with the following effect:
+            y: point not plotted, line will be broken
+            size: point assigned default size
+            colour: points assigned default colour
+
     """
 
-    def __init__(self, data,x=0,y=1,id=None,colour=None,label=None,size=None,width=768, height=768, palette=None, marker_manager=None, smoothing=0.0, line_width=2, font_height=24, text_attributes={}):
+    def __init__(self, data,x=0,y=1,id=None,colour=None,label=None,size=None,width=768, height=768, colour_manager=None, marker_manager=None, smoothing=0.0, line_width=2, font_height=24, text_attributes={}):
         super(Line, self).__init__()
         self.setTooltipFunction(lambda cat,val: "%s: (%s,%s)"%(cat,str(val[0]),str(val[1])))
         self.dataset = Dataset(data)
@@ -65,12 +72,12 @@ class Line(ChartElement):
         self.width = width
         self.height = height
         
-        if not palette:
+        if not colour_manager:
             if self.colour == None or self.dataset.isDiscrete(self.colour):
-                palette = DiscretePalette()
+                colour_manager = DiscreteColourManager()
             else:
-                palette = ContinuousPalette()
-        self.setPalette(palette)
+                colour_manager = ContinuousColourManager()
+        self.setPalette(colour_manager)
 
         if not marker_manager:
             marker_manager = MarkerManager()
@@ -84,6 +91,9 @@ class Line(ChartElement):
 
         if len(self.dataset) > 0:
             xy_range = self.dataset.query(aggregations=[Dataset.min(self.x),Dataset.max(self.x),Dataset.min(self.y),Dataset.max(self.y)])[0]
+            empty_x_count = self.dataset.query(aggregations=[Dataset.count_none(self.x)], flatten=True)[0]
+            if empty_x_count > 0:
+                raise Exception("x column cannot contain missing/None values")
         else:
             xy_range = (0.0,1.0,0.0,1.0)
         (x_axis_min,x_axis_max,y_axis_min,y_axis_max) = tuple(xy_range)
@@ -119,36 +129,43 @@ class Line(ChartElement):
         categories = {}
 
         def plotpoint(x,y,cat,col,sz):
-            cx = self.computeX(x)
-            cy = self.computeY(y)
+            if x is not None and y is not None:
+                cx = self.computeX(x)
+                cy = self.computeY(y)
 
-            marker = self.getMarkerManager().getMarker(sz)
-            cid = marker.plot(doc,cx,cy,self.getTooltip(cat,(x,y)),col)
+                marker = self.getMarkerManager().getMarker(sz)
+                cid = marker.plot(doc,cx,cy,self.getTooltip(cat,(x,y)),col)
 
-            if cat is not None:
-                ids = categories.get(cat,[])
-                ids.append(cid)
-                categories[cat] = ids
+                if cat is not None:
+                    ids = categories.get(cat,[])
+                    ids.append(cid)
+                    categories[cat] = ids
             
         def plotline(linepoints,linecat):
             if not linepoints:
                 return
             linepoints = sorted(linepoints,key=lambda p:p[0])
-            coords = [(self.computeX(x),self.computeY(y)) for (x,y,_) in linepoints]
-
+            coords = []
             if linecat is not None:
-                col = self.palette.getColour(linecat)
+                col = self.colour_manager.getColour(linecat)
             else:
-                col = self.palette.getDefaultColour()
+                col = self.colour_manager.getDefaultColour()
 
-            p = path(coords,col,self.line_width,smoothing=self.smoothing)
-            
-            ids = categories.get(linecat,[])
-            ids.append(p.getId())
-            if linecat is not None:
-                categories[linecat] = ids
-
-            doc.add(p)
+            for idx in range(len(linepoints)):
+                (x,y,_) = linepoints[idx]
+                if x is not None and y is not None:
+                    coords.append((self.computeX(x),self.computeY(y)))
+                if x is None or y is None or idx==len(linepoints)-1:
+                    # draw the line segment if more than 1 point is collected
+                    # and we've reached either a missing x/y value or the end of the line
+                    if len(coords) > 1:
+                        p = path(coords,col,self.line_width,smoothing=self.smoothing)
+                        ids = categories.get(linecat,[])
+                        ids.append(p.getId())
+                        if linecat is not None:
+                            categories[linecat] = ids
+                        doc.add(p)
+                    coords = []
 
             for (x,y,sz) in linepoints:
                 plotpoint(x,y,linecat,col,sz)

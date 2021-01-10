@@ -324,10 +324,10 @@ class Contour(MapLayer):
         self.ne = self.boundaries[1]
         super().build(fmt)
 
-    def setPalette(self,palette):
-        super().setPalette(palette)
-        palette.allocateColour(self.min_val)
-        palette.allocateColour(self.max_val)
+    def setPalette(self,colour_manager):
+        super().setPalette(colour_manager)
+        colour_manager.allocateColour(self.min_val)
+        colour_manager.allocateColour(self.max_val)
 
     def generateLabel(self,points,threshold):
 
@@ -373,8 +373,8 @@ class Contour(MapLayer):
         threshold = self.contour_interval * (self.min_val//self.contour_interval)
 
         while threshold < self.min_val:
-            if self.palette:
-                r = rectangle(ox,oy,self.getWidth(),self.getHeight(),fill=self.palette.getColour(threshold))
+            if self.colour_manager:
+                r = rectangle(ox,oy,self.getWidth(),self.getHeight(),fill=self.colour_manager.getColour(threshold))
                 doc.add(r)
             threshold += self.contour_interval
 
@@ -383,7 +383,7 @@ class Contour(MapLayer):
             contourTotal.append((threshold,total,concavity))
             threshold += self.contour_interval
 
-        if self.palette:
+        if self.colour_manager:
             for (threshold,contours,concavity) in contourTotal:
                 for idx in range(len(contours)):
                     cl = contours[idx]
@@ -393,7 +393,7 @@ class Contour(MapLayer):
                         area_threshold = threshold
                         if isconcave:
                             area_threshold = threshold-self.contour_interval
-                        fill = self.palette.getColour(area_threshold)
+                        fill = self.colour_manager.getColour(area_threshold)
                         p = path(cl,None,0,smoothing=0.5,closed=True,fill=fill,tooltip=str(area_threshold))
                         doc.add(p)
 

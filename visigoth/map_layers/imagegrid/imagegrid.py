@@ -28,7 +28,7 @@ from visigoth.svg import image
 from visigoth.map_layers import MapLayer
 from visigoth.utils.js import Js
 from visigoth.utils.image.png_canvas import PngCanvas
-from visigoth.utils.colour import ContinuousPalette, Colour
+from visigoth.utils.colour import ContinuousColourManager, Colour
 from visigoth.utils.mapping import Projections
 from visigoth.utils.data.search import Search
 
@@ -48,16 +48,13 @@ class ImageGrid(MapLayer):
         sharpen(bool): produce a sharper (double resolution) image at 2x resolution, slower to run
         
     Notes:
-        r,g,b and a values must be integers in the range 0 - 255.  None values are not allowed.
-
+        r,g,b and a array values must be integers in the range 0 - 255.  None array values are not allowed.
+        The r,g,b and a arguments can be assigned to None but at least one should be a valid array
     """
 
     def __init__(self, r, g, b, a, lats, lons, sharpen=False):
         super().__init__()
-        self.r = r
-        self.g = g
-        self.b = b
-        self.a = a
+
         self.lats = lats[:]
         self.lons = lons[:]
         self.sharpen = sharpen
@@ -93,19 +90,34 @@ class ImageGrid(MapLayer):
         self.g = g
         self.b = b
         self.a = a
-        self.rows = len(r)
-        if self.rows:
-            self.columns = len(r[0])
-        else:
-            self.columns = 0
         for data in [self.r,self.g,self.b,self.a]:
-            for row in data:
-                if len(row) != self.columns:
-                    raise Exception(ImageGrid.INPUT_DATA_FORMAT_ERROR)
-                for value in row:
-                    if not isinstance(value,int) or value < 0 or value > 255:
-                        raise Exception(ImageGrid.INPUT_DATA_FORMAT_ERROR)
+            if data is not None:
+                self.rows = len(r)
+                if self.rows:
+                    self.columns = len(r[0])
+                else:
+                    self.columns = 0
+                break
 
+        for data in [self.r,self.g,self.b,self.a]:
+            if data is not None:
+                for row in data:
+                    if len(row) != self.columns:
+                        raise Exception(ImageGrid.INPUT_DATA_FORMAT_ERROR)
+                    for value in row:
+                        if not isinstance(value,int) or value < 0 or value > 255:
+                            raise Exception(ImageGrid.INPUT_DATA_FORMAT_ERROR)
+
+        # if r,g or b arrays are None, set to zero
+        if self.r is None:
+            self.r = [[0 for r in range(self.rows)] for c in range(self.columns)]
+        if self.g is None:
+            self.g = [[0 for r in range(self.rows)] for c in range(self.columns)]
+        if self.b is None:
+            self.b = [[0 for r in range(self.rows)] for c in range(self.columns)]
+        # a (alpha) array is None, set to all 255 (opaque)
+        if self.a is None:
+            self.a = [[255 for r in range(self.rows)] for c in range(self.columns)]
 
     INPUT_DATA_FORMAT_ERROR = "r,g,b and a parameters must be a non-empty list of equally sized non-empty lists containing integer values in the range 0 to 255"
 
