@@ -17,8 +17,8 @@ d.add(legend)
 d.connect(bar1,"colour",legend,"colour")
 d.connect(legend,"colour",bar1,"colour")
 
-html = d.draw(format="html")
-f = open("example.html", "w")
+html = d.draw(format="svg")
+f = open("example.svg", "w")
 f.write(html)
 f.close()
 

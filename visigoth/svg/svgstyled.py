@@ -58,6 +58,25 @@ class svgstyled(object):
 
     # add an SVG attribute
     def addAttr(self,name,value):
+        if name == "fill" or name == "stroke":
+            # SVG standard does not support alpha channel in fill/stroke
+            # so intercept here and ad fill-opacity and stroke-opacity
+            if len(value)>0 and value[0] == "#":
+                alpha = 1
+                if len(value) == 9: # "#RRGGBBAA"
+                    a = int(value[7:9],16)
+                    alpha = a/255
+                    value=value[:7]
+                elif len(value) == 5: # "#RBGA"
+                    a = int(value[4:5],16)
+                    alpha = a/15
+                    value=value[:4]
+                if alpha < 1:
+                    if name == "fill":
+                        self.attrs["fill-opacity"] = alpha
+                    else:
+                        self.attrs["stroke-opacity"] = alpha
+
         self.attrs[name] = value
         return self
 

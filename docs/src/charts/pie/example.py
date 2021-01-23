@@ -7,11 +7,11 @@ from visigoth.common import Legend
 
 colour_manager = DiscreteColourManager()
     
-data = [("A",10),("B",4),("D",12),("D.2",3),("D.3",5)]
+data = [("A","",10),("B","",4),("D","",0),("D","D.1",1),("D","D.2",20),("D","D.3",5)]
 
 d = Diagram()
 
-pie = Pie(data,colour=0,value=1,width=400, height=400, colour_manager=colour_manager, doughnut=True)
+pie = Pie(data,colour=[0,1],value=2,width=400, height=400, colour_manager=colour_manager, doughnut=True)
 d.add(pie)
 legend = Legend(colour_manager,400,legend_columns=2)
 d.add(legend)

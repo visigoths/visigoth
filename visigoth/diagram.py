@@ -78,19 +78,19 @@ class Diagram:
 
         self.setDefaultTextAttributes({"font-family":"Roboto"})
 
-    def setFontEmbedding(self,embed):
+    def setFontEmbedding(self,embed=True):
         """
         Enable or disable font embedding
 
         Arguments:
-            embed(bool): whether to embed fonts or link to them
+            embed(bool): whether to embed fonts or link to them (set to None to do neither)
 
         Notes:
             By default fonts are not embedded into the output SVG but are linked from google's servers.
             Fonts should be embedded if you want content to render correctly when offline or when the SVG file
             is to be rendered as an image.  If enabled, only fonts that were used will be embedded.
         """
-        self.font_embedding = True
+        self.font_embedding = embed
 
     default_style = """
         .geopath:hover { filter: url(#glow); }
@@ -142,6 +142,9 @@ class Diagram:
         """
         self.content.add(element)
         return self
+
+    def addSeparator(self,stroke="black",stroke_width=2,fraction=1.0):
+        self.content.addSeparator(stroke,stroke_width,fraction)
 
     def clear(self):
         self.connections = []
