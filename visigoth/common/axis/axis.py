@@ -99,6 +99,10 @@ class Axis(DiagramElement):
         self.label = label
         return self
 
+    def setLabelFunction(self,labelfn):
+        self.labelfn = labelfn
+        return self
+
     def setDecimalPlaces(self,decimal_places):
         self.decimal_places = decimal_places
 

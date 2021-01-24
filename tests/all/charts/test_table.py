@@ -31,10 +31,12 @@ class TestTable(unittest.TestCase):
     def test_page(self):
         d = Diagram(fill="white")
 
-        headings = [(0 ,"column1" ,lambda x :"%0.2f " %x) ,(1 ,"column2") ,(2 ,"category")]
+        columns = [0,1,2]
+        headings = ["column1","column2","column3"]
+        formatters = [lambda x :"%0.2f "%x,None,None]
         data = [[0.12345 ,"bar" ,"aaa"] ,[351 ,"the quick brown fox jumped over the lazy dog" ,"aaa"] ,[100 ,"four" ,"bbb"]]
 
-        t = Table(data ,headings=headings ,colour=2 ,max_column_width=200)
+        t = Table(data ,columns=columns,headings=headings,formatters=formatters,colour=2 ,max_column_width=200)
         t.setLeftJustified()
 
         l = Legend(t.getPalette())

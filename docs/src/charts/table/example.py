@@ -18,9 +18,12 @@ nulla pariatur?"""
 
 lines = txt.replace("\n","").split(".")
 
-headings = [(0,"column1",lambda x:"%0.2f"%x),(1,"column2")]
+columns = [0,1]
+headings = ["column1","column2"]
+formatters = [lambda x:"%0.2f"%x,None]
+
 data = [[idx+1,lines[idx]] for idx in range(len(lines))]
-t = Table(data,headings=headings,max_column_width=400)
+t = Table(data,columns=columns,headings=headings,formatters=formatters,max_column_width=400)
 t.setLeftJustified()
 d.add(t)
 html = d.draw(format="html")
