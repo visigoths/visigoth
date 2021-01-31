@@ -34,7 +34,7 @@ class Colour(object):
 
     def __init__(self,colour_manager,minValue=None,maxValue=None,defaultColour="red"):
         self.colour_manager = colour_manager
-        self.defaultColour = defaultColour
+        self.defaultColour = Colour.toHEX(defaultColour)
         self.colour_manager_lookup = {}
         if len(self.colour_manager):
             if len(self.colour_manager[0]) == 2:

@@ -109,10 +109,14 @@ class Legend(DiagramElement):
                 self.legend_columns = max(1,self.width // column_content_width)
             self.height = (self.font_height*len(self.colour_manager.getCategories())*2) // self.legend_columns
         else:
-            self.axis.setMinValue(self.colour_manager.getMinValue())
-            self.axis.setMaxValue(self.colour_manager.getMaxValue())
             tickpoints = self.colour_manager.getTickPositions()
-            self.axis.setTickPositions(tickpoints)
+            if self.colour_manager.hasIntervals():
+                self.axis.setMinValue(tickpoints[0])
+                self.axis.setMaxValue(tickpoints[-1])
+                self.axis.setTickPositions(tickpoints)
+            else:
+                self.axis.setMinValue(self.colour_manager.getMinValue())
+                self.axis.setMaxValue(self.colour_manager.getMaxValue())
             self.axis.build(fmt)
             if self.orientation == "horizontal":
                 self.height = self.bar_width + self.bar_spacing + self.axis.getHeight()

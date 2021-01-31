@@ -27,22 +27,27 @@ from visigoth.svg import text, line, circle, sector, cubic_bezier
 
 class TimeLine(DiagramElement):
 
-    def __init__(self, timeline_width=10, font_height=24, orientation="vertical", branch_length=100, spacing=20, colour="grey", text_attributes={}):
+    def __init__(self, orientation="vertical", stroke="grey", stroke_width=10, font_height=24, text_attributes={}, branch_length=100, spacing=20):
         """
-        Create a TimeLine
+        Create a TimeLine, on to which labelled elements can be placed at specific dates/times
 
-        :param text_attributes: dict containing attributes to a apply to SVG text elements
+        :param orientation: the orientation, either "horizontal" or "vertical"
+        :param stroke: the timeline colour
+        :param stroke_width: the width of the timeline
+        :param font_height: the font height for labels
+        :param text_attributes: text attributes for labels
+        :param branch_length: the offset from the line at which elements are aligned, in pixels
+        :param spacing: space (in pixels) to leave between elements
         """
+
         DiagramElement.__init__(self)
         self.text_attributes = text_attributes
         self.elements = []
-        self.timeline_width = timeline_width
-        self.horizontal = False
-        if orientation == "horizontal":
-            self.horizontal = True
+        self.timeline_width = stroke_width
+        self.horizontal = True if orientation == "horizontal" else False
         self.branch_length = branch_length
         self.spacing = spacing
-        self.colour = colour
+        self.colour = stroke
         self.width = 0
         self.height = 0
         self.left = False
@@ -75,39 +80,39 @@ class TimeLine(DiagramElement):
         lstart = 0
         lend = 0
         length = 0
-        depth = 0
-        label_wh = 0
         start_dt = None
         end_dt = None
         first_e = None
+
+        max_element_depth = 0
+        max_label_depth = 0
+
         for index in range(len(self.elements)):
             (dt,e,label,offset) = self.elements[index]
 
-            w = 0
-            h = 0
+            element_w = 0
+            element_h = 0
             if e:
                 e.build(fmt)
-                w = e.getWidth()
-                h = e.getHeight()
+                element_w = e.getWidth()
+                element_h = e.getHeight()
                 if not first_e:
                     first_e = e
 
-            if self.horizontal:
+            if not self.horizontal:
+                tw = 0
+                if label:
+                    tw = FontManager.getTextLength(self.text_attributes, label, self.text_font_height)
+                l = element_h
+                max_element_depth = max(max_element_depth,element_w)
+                max_label_depth = max(tw,max_label_depth)
+            else:
                 th = 0
                 if label:
                     th = self.text_font_height
-                label_wh = max(label_wh,th)
-                l = h
-                d = w + offset + self.timeline_width + self.label_space + th
-                self.timeline_offset = max(self.timeline_offset,self.label_space + th)
-            else:
-                tw = 0
-                if label:
-                    tw = FontManager.getTextLength(self.text_attributes,label,self.text_font_height)
-                label_wh = max(tw,label_wh)
-                l = w
-                d = h + offset + self.timeline_width + self.label_space + tw
-                self.timeline_offset = max(self.timeline_offset,self.label_space + tw)
+                l = element_w
+                max_element_depth = max(max_element_depth, element_h)
+                max_label_depth = max(th, max_label_depth)
 
             if dt != None and start_dt == None:
                 lstart = length + l/2
@@ -121,10 +126,12 @@ class TimeLine(DiagramElement):
                 end_dt = dt
 
             length += l
-            depth = max(depth,d)
 
         self.start_pos = self.getUnixTime(start_dt)
         self.end_pos = self.getUnixTime(end_dt)
+
+        self.timeline_offset = self.label_space + max_label_depth
+        depth = self.timeline_offset + self.timeline_width + self.branch_length + max_element_depth
 
         if self.horizontal:
             self.width = length
@@ -156,6 +163,8 @@ class TimeLine(DiagramElement):
         diagram.add(mainline)
 
         timeline_pos = None
+
+        last_label_location = None
         for idx in range(len(self.elements)):
             (dt,e,label,offset) = self.elements[idx]
             if dt:
@@ -194,7 +203,7 @@ class TimeLine(DiagramElement):
                 yc = oy+eh/2
                 if idx == 0:
                     timeline_pos = yc
-                xc = ox+offset+eh/2
+                xc = ox+offset+ew/2
                 if e:
                     e.draw(diagram,xc,yc)
                 oy += eh
@@ -208,11 +217,14 @@ class TimeLine(DiagramElement):
                     cp1 = (x2,y1)
                     cp2 = (x1,y2)
                     if label:
-                        txt = text(x1-self.timeline_width/2-self.label_space,y1,label)
-                        txt.addAttrs(self.text_attributes)
-                        txt.addAttr("text-anchor","end")
-                        txt.setVerticalCenter()
-                        diagram.add(txt)
+                        if last_label_location is None or abs(y1-last_label_location) > self.text_font_height*1.5:
+                            # avoid drawing overlapping labels
+                            txt = text(x1-self.timeline_width/2-self.label_space,y1,label)
+                            txt.addAttrs(self.text_attributes)
+                            txt.addAttr("text-anchor","end")
+                            txt.setVerticalCenter()
+                            diagram.add(txt)
+                            last_label_location = y1
             if dt:
                 c1 = circle(x1,y1,self.timeline_width,self.colour)
                 diagram.add(c1)

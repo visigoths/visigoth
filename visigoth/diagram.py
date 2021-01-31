@@ -145,6 +145,7 @@ class Diagram:
 
     def addSeparator(self,stroke="black",stroke_width=2,fraction=1.0):
         self.content.addSeparator(stroke,stroke_width,fraction)
+        return self
 
     def clear(self):
         self.connections = []

@@ -93,7 +93,7 @@ class TestLegend(unittest.TestCase):
         continuous_colour_manager7 = ContinuousColourManager()
         continuous_colour_manager7.allocateColour(0.0)
         continuous_colour_manager7.allocateColour(3.0)
-        seq.add(Box(Legend(continuous_colour_manager7, 200, orientation="vertical")))
+        seq.add(Box(Legend(continuous_colour_manager7, 200,orientation="vertical")))
         d.add(Text("Vertical orientation"))
         d.add(seq)
 
@@ -124,7 +124,12 @@ class TestLegend(unittest.TestCase):
         d.add(Text("Custom labels"))
         d.add(b)
 
+        # https://github.com/visualtopology/visigoth/issues/1
+        d.add(Legend(ContinuousColourManager(min_val=215, max_val=320)))
+
         TestUtils.draw_output(d,"test_legend_continuous")
+
+
 
 if __name__ == "__main__":
     unittest.main()

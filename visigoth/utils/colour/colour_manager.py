@@ -189,7 +189,7 @@ class ContinuousColourManager(Palette):
                 b = self.colourMap[i][2]
                 colour = "#%02X%02X%02X"%(int(255*r),int(255*g),int(255*b))
             self.colours.append(colour)
-
+        self.ticks = []
 
     def getCapSize(self):
         return self.cap_size
@@ -209,6 +209,9 @@ class ContinuousColourManager(Palette):
 
     def isDiscrete(self):
         return False
+
+    def hasIntervals(self):
+        return self.withIntervals
 
     def getMinValue(self):
         return self.min_value
@@ -239,22 +242,24 @@ class ContinuousColourManager(Palette):
             self.colour = Colour(crange,self.min_value,self.max_value)
 
     def getTickPositions(self):
-        return self.tickpositions
+        return self.ticks
 
     def __buildIntervals(self):
         # work out the lower and upper bounds of the value range
         lwb = self.min_value
         upb = self.max_value
         # take tickpositions into account, if the caller has set them
+
         if self.tickpositions:
-            lwb = min(lwb,self.tickpositions[0])
-            upb = max(upb,self.tickpositions[-1])
-        axisutils = AxisUtils(100,"vertical",lwb,upb)
-        if self.tickpositions:
-            axisutils.setTickPoints(self.tickpositions)
-        ticks = axisutils.build()
-        lwb = ticks[0]
-        upb = ticks[-1]
+            lwb = min(lwb, self.tickpositions[0])
+            upb = max(upb, self.tickpositions[-1])
+            self.ticks = self.tickpositions
+        else:
+            axisutils = AxisUtils(100, "vertical", lwb, upb)
+            self.ticks = axisutils.build()
+
+        lwb = self.ticks[0]
+        upb = self.ticks[-1]
         self.intervals = []
         # set the domain of the colour range linearly from min to max
         crange = []
@@ -265,15 +270,13 @@ class ContinuousColourManager(Palette):
         # set up an iterim Colour object to get the colours for each interval
         interim_colour = Colour(crange, lwb, upb)
         # intervals will be a list of (val0,val1,col) associating colour col with values in the range v >= val0 and v < val1
-        for idx in range(1,len(ticks)):
-            val0 = ticks[idx-1]
-            val1 = ticks[idx]
+        for idx in range(1,len(self.ticks)):
+            val0 = self.ticks[idx-1]
+            val1 = self.ticks[idx]
             col = interim_colour.getColour((val1+val0)/2)
             self.intervals.append((val0,val1,col))
 
         self.colour = Colour(self.intervals,lwb,upb)
-        self.min_value = lwb
-        self.max_value = upb
 
     def getIntervals(self):
         return self.intervals

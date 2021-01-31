@@ -45,7 +45,8 @@ class TestSequence(unittest.TestCase):
 
         timeline1.add(datetime.datetime(2016,1,1,0,0,0),None,"2016")
         timeline1.add(datetime.datetime(2017,1,1,0,0,0),Box(bar1),"2017",offset=100)
-        timeline1.add(None,Box(Text("Hello World")),None,offset=100)
+        timeline1.add(datetime.datetime(2017,1,1,0,0,0), Box(Text("Event")), None, offset=100)
+        timeline1.add(None,Box(Text("Inserted text with no date")),None,offset=100)
         timeline1.add(datetime.datetime(2018,1,1,0,0,0),Box(bar2),"2018",offset=150)
         timeline1.add(datetime.datetime(2019,1,1,0,0,0),Box(bar3),"2019",offset=120)
         timeline1.add(datetime.datetime(2020,1,1,0,0,0),None,"2020")
@@ -61,6 +62,26 @@ class TestSequence(unittest.TestCase):
         d.add(legend)
 
         TestUtils.draw_output(d, "test_timeline")
+
+    def test_text(self):
+        d = Diagram(fill="white")
+
+        timeline1 = TimeLine(orientation="vertical")
+        timeline2 = TimeLine(orientation="horizontal")
+
+        timeline1.add(datetime.datetime(2016, 1, 1, 0, 0, 0), None, "2016 !!!!!!")
+        timeline1.add(datetime.datetime(2017, 1, 1, 0, 0, 0), Box(Text("Event 1234 1234",font_height=40)), None, offset=100)
+        timeline1.add(datetime.datetime(2020, 1, 1, 0, 0, 0), None, "2020 !!!!!!")
+
+        timeline2.add(datetime.datetime(2016, 1, 1, 0, 0, 0), None, "2016 !!!!!!")
+        timeline2.add(datetime.datetime(2017, 1, 1, 0, 0, 0), Box(Text("Event 1234 1234", font_height=40)), None,
+                      offset=100)
+        timeline2.add(datetime.datetime(2020, 1, 1, 0, 0, 0), None, "2020 !!!!!!")
+
+        d.add(Box(timeline1))
+        d.add(Box(timeline2))
+
+        TestUtils.draw_output(d, "test_timeline_text")
 
 if __name__ == "__main__":
     unittest.main()

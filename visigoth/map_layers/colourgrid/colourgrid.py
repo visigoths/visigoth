@@ -99,6 +99,8 @@ class ColourGrid(MapLayer):
             for col_idx in range(len(row)):
                 value = row[col_idx]
                 col = self.colour_manager.getColour(value)
+                if col == "red":
+                    print("red?")
                 # col should be a hex encoded string, either #RRGGBBAA or #RRGGBB
                 r = int(col[1:3], 16)
                 g = int(col[3:5], 16)

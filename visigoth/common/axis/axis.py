@@ -189,7 +189,7 @@ class Axis(DiagramElement):
                 self.axisutils.setIntegerInterval(self.integer_interval)
 
             if self.tickpoints is None or len(self.tickpoints) == 0:
-                self.tickpoints = self.axisutils.computeTickPoints()
+                self.tickpoints = [v for v in self.axisutils.computeTickPoints() if v >= self.minValue and v <= self.maxValue]
             else:
                 self.axisutils.setTickPoints(self.tickpoints[:])
 
@@ -226,9 +226,7 @@ class Axis(DiagramElement):
         if self.label:
             self.height += 2*self.font_height
         if self.orientation == "vertical":
-            oldh = self.height
-            self.height = self.width
-            self.width = oldh
+            (self.height,self.width) = (self.width,self.height)
 
     def draw(self,doc,cx,cy):
 

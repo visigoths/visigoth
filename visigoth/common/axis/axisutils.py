@@ -131,6 +131,7 @@ class AxisUtils(object):
 
     def setTickPoints(self,tickpoints):
         self.tickpoints = tickpoints
+        self.spacing = tickpoints[1]-tickpoints[0]
 
     def computeTickPoints(self):
         if self.date_based:
@@ -153,11 +154,10 @@ class AxisUtils(object):
                 stops = floor(rng / spacing)
             if stops > 10:
                 spacing = base_spacing * 10
-                stops = floor(rng / spacing)
 
             point = self.lwb - (self.lwb % spacing)
             self.tickpoints = []
-            while point <= self.upb:
+            while point < self.upb + spacing:
                 self.tickpoints.append(point)
                 point += spacing
             self.spacing = spacing
